@@ -1,0 +1,47 @@
+/*********************************************************************
+ *        _       _         _
+ *  _ __ | |_  _ | |  __ _ | |__   ___
+ * | '__|| __|(_)| | / _` || '_ \ / __|
+ * | |   | |_  _ | || (_| || |_) |\__ \
+ * |_|    \__|(_)|_| \__,_||_.__/ |___/
+ *
+ * www.rt-labs.com
+ * Copyright 2017 rt-labs AB, Sweden.
+ *
+ * This software is dual-licensed under GPLv3 and a commercial
+ * license. See the file LICENSE.md distributed with this software for
+ * full license information.
+ ********************************************************************/
+
+#ifndef CO_OPTIONS_H
+#define CO_OPTIONS_H
+
+#ifndef MAX_NODES
+#define MAX_NODES       (@MAX_NODES@)
+#endif
+
+#ifndef MAX_EMCY_COBIDS
+#define MAX_EMCY_COBIDS (@MAX_EMCY_COBIDS@)
+#endif
+
+#ifndef MAX_HEARTBEATS
+#define MAX_HEARTBEATS  (@MAX_HEARTBEATS@)
+#endif
+
+#ifndef MAX_PDO_ENTRIES
+#define MAX_PDO_ENTRIES (@MAX_PDO_ENTRIES@)
+#endif
+
+#ifndef MAX_TX_PDO
+#define MAX_TX_PDO      (@MAX_TX_PDO@)
+#endif
+
+#ifndef MAX_RX_PDO
+#define MAX_RX_PDO      (@MAX_RX_PDO@)
+#endif
+
+#ifndef MAX_ERRORS
+#define MAX_ERRORS      (@MAX_ERRORS@)
+#endif
+
+#endif /* CO_OPTIONS_H */
