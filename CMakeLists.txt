@@ -98,8 +98,10 @@ message (STATUS "Current build type is: ${CMAKE_BUILD_TYPE}")
 
 # Default to installing in build directory
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-  set(CMAKE_INSTALL_PREFIX ${CANOPEN_BINARY_DIR}/install)
+  set(CMAKE_INSTALL_PREFIX ${CANOPEN_BINARY_DIR}/install
+    CACHE PATH "Default install path" FORCE)
 endif()
+message(STATUS "Current install path is: ${CMAKE_INSTALL_PREFIX}")
 
 # Generate version numbers
 configure_file (
@@ -131,7 +133,9 @@ include(${CMAKE_SYSTEM_NAME})
 # Source paths
 add_subdirectory (src)
 add_subdirectory (util)
-add_subdirectory (test)
+if (BUILD_TESTING)
+  add_subdirectory (test)
+endif()
 
 # Doxygen configuration
 cmake_policy(SET CMP0057 NEW)
