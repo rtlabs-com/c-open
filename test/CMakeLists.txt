@@ -13,37 +13,34 @@
 # full license information.
 #*******************************************************************/
 
-if (MSVC)
-  set(OSAL_UUT ${CANOPEN_SOURCE_DIR}/src/osal/windows/osal.c)
-endif()
+target_sources(co_test PRIVATE
+  # Unit tests
+  #test_main.cpp
+  test_sdo_server.cpp
+  test_sdo_client.cpp
+  test_od.cpp
+  test_pdo.cpp
+  test_sync.cpp
+  test_nmt.cpp
+  test_emcy.cpp
+  test_lss.cpp
+  test_bitmap.cpp
+  test_node_guard.cpp
+  test_heartbeat.cpp
+  test_osal.cpp
 
-if (MSYS)
-  set(OSAL_UUT ${CANOPEN_SOURCE_DIR}/src/osal/cygwin/osal.c)
-endif()
+  # Test utils
+  mocks.h
+  mocks.cpp
+  test_util.h
 
-if (UNIX)
-  set(OSAL_UUT ${CANOPEN_SOURCE_DIR}/src/osal/linux/osal.c)
-endif()
-
-if (${CMAKE_SYSTEM_NAME} STREQUAL "rt-kernel")
-  set(OSAL_UUT
-    ${CANOPEN_SOURCE_DIR}/src/osal/rt-kernel/osal.c
-    ${CANOPEN_SOURCE_DIR}/src/osal/rt-kernel/stubs.c
-    )
-endif()
-
-include(AddGoogleTest)
-
-add_definitions(
-  -DUNIT_TEST
-  -DCO_EMCY_LOG=LOG_STATE_OFF
-  -DCO_NMT_LOG=LOG_STATE_OFF
-  -DCO_LSS_LOG=LOG_STATE_OFF
-  -DCO_NODE_GUARD_LOG=LOG_STATE_OFF
+  # Testrunner
+  co_test.cpp
   )
 
-add_executable(co_test
-  # Units to be tested
+# Rebuild units to be tested with UNIT_TEST flag set. This is used to
+# mock external dependencies.
+target_sources(co_test PRIVATE
   #${CANOPEN_SOURCE_DIR}/src/co_main.c
   ${CANOPEN_SOURCE_DIR}/src/co_sdo_server.c
   ${CANOPEN_SOURCE_DIR}/src/co_sdo_client.c
@@ -57,32 +54,28 @@ add_executable(co_test
   ${CANOPEN_SOURCE_DIR}/src/co_node_guard.c
   ${CANOPEN_SOURCE_DIR}/src/co_heartbeat.c
   ${CANOPEN_SOURCE_DIR}/src/co_obj.c
-  ${OSAL_UUT}
-
-  # Unit tests
-  #test_main.cpp
-  test_sdo_server.cpp
-  test_sdo_client.cpp
-  test_od.cpp
-  test_pdo.cpp
-  test_sync.cpp
-  test_nmt.cpp
-  test_emcy.cpp
-  test_lss.cpp
-  test_bitmap.cpp
-  test_osal.cpp
-  test_node_guard.cpp
-  test_heartbeat.cpp
-
-  # Test utils
-  mocks.h
-  mocks.cpp
-  test_util.h
-
-  # Testrunner
-  co_test.cpp
   )
 
-include_directories(${OSAL_INCLUDES} .)
-target_link_libraries(co_test PUBLIC ${OSAL_LIBS})
-add_gtest(co_test)
+get_target_property(CANOPEN_OPTIONS canopen COMPILE_OPTIONS)
+target_compile_options(co_test PRIVATE
+  -DUNIT_TEST
+  -DCO_EMCY_LOG=LOG_STATE_OFF
+  -DCO_NMT_LOG=LOG_STATE_OFF
+  -DCO_LSS_LOG=LOG_STATE_OFF
+  -DCO_NODE_GUARD_LOG=LOG_STATE_OFF
+  -DCO_HEARTBEAT_LOG=LOG_STATE_OFF
+  ${CANOPEN_OPTIONS}
+  )
+
+target_include_directories(co_test
+  PRIVATE
+  ${CANOPEN_SOURCE_DIR}/src
+  ${CANOPEN_BINARY_DIR}/src
+  )
+
+# Link against canopen target to get the cmake properties for that
+# target, such as include paths and libraries.
+target_link_libraries(co_test
+  PRIVATE
+  canopen
+  )

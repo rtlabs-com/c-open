@@ -21,25 +21,53 @@ if (USE_SCHED_FIFO)
   add_compile_definitions(USE_SCHED_FIFO)
 endif()
 
-set(OSAL_SOURCES
-  ${CANOPEN_SOURCE_DIR}/src/osal/linux/osal.c
-  ${CANOPEN_SOURCE_DIR}/src/osal/linux/osal_can.c
-  )
-set(OSAL_INCLUDES
-  ${CANOPEN_SOURCE_DIR}/src/osal/linux
-  )
-set(OSAL_LIBS
-  "dl"
-  "pthread"
-  "rt"
+target_include_directories(canopen
+  PRIVATE
+  src/osal/linux
   )
 
-set(GOOGLE_TEST_INDIVIDUAL TRUE)
+target_sources(canopen
+  PRIVATE
+  src/osal/linux/osal.c
+  src/osal/linux/osal_can.c
+  )
 
-set(CMAKE_C_FLAGS "-Wall -Wextra -Wno-unused-parameter -Werror")
-set(CMAKE_CXX_FLAGS ${CMAKE_C_FLAGS})
+target_compile_options(canopen
+  PRIVATE
+  -Wall
+  -Wextra
+  -Werror
+  -Wno-unused-parameter
+  INTERFACE
+  $<$<CONFIG:Coverage>:--coverage>
+  )
 
-set(CMAKE_C_FLAGS_COVERAGE "-fprofile-arcs -ftest-coverage")
-set(CMAKE_CXX_FLAGS_COVERAGE ${CMAKE_C_FLAGS_COVERAGE})
+target_link_libraries(canopen
+  PUBLIC
+  pthread
+  rt
+  INTERFACE
+  $<$<CONFIG:Coverage>:--coverage>
+  )
 
-set(CMAKE_EXE_LINKER_FLAGS "-Wl,--gc-sections")
+target_include_directories(slave
+  PRIVATE
+  src/osal/linux
+  )
+
+target_include_directories(slaveinfo
+  PRIVATE
+  src/osal/linux
+  )
+
+if (BUILD_TESTING)
+  set(GOOGLE_TEST_INDIVIDUAL TRUE)
+  target_sources(co_test
+    PRIVATE
+    ${CANOPEN_SOURCE_DIR}/src/osal/linux/osal.c
+    )
+  target_include_directories(co_test
+    PRIVATE
+    src/osal/linux
+    )
+endif()

@@ -13,10 +13,13 @@
 # full license information.
 #*******************************************************************/
 
-cmake_minimum_required (VERSION 3.11)
+cmake_minimum_required (VERSION 3.13)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 project (CANOPEN VERSION 0.1.0)
+
 include(CTest)
+include(GenerateExportHeader)
+include(CMakeDependentOption)
 
 # Set required standard level
 set (CMAKE_C_STANDARD 99)
@@ -27,8 +30,6 @@ set(CMAKE_C_OUTPUT_EXTENSION_REPLACE 1)
 set(CMAKE_CXX_OUTPUT_EXTENSION_REPLACE 1)
 
 # Options
-include(CMakeDependentOption)
-
 option (BUILD_SHARED_LIBS "Build shared library" OFF)
 
 set(LOG_STATE_VALUES "ON;OFF")
@@ -105,36 +106,76 @@ message(STATUS "Current install path is: ${CMAKE_INSTALL_PREFIX}")
 
 # Generate version numbers
 configure_file (
-  ${CANOPEN_SOURCE_DIR}/version.h.in
+  version.h.in
   ${CANOPEN_BINARY_DIR}/src/version.h
   )
 
 # Generate config options
 configure_file (
-  ${CANOPEN_SOURCE_DIR}/co_options.h.in
+  co_options.h.in
   ${CANOPEN_BINARY_DIR}/include/co_options.h
   )
 configure_file (
-  ${CANOPEN_SOURCE_DIR}/options.h.in
+  options.h.in
   ${CANOPEN_BINARY_DIR}/src/options.h
   )
 
-# Include paths
-include_directories(
-  ${CANOPEN_BINARY_DIR}/include
-  ${CANOPEN_BINARY_DIR}/src
-  ${CANOPEN_SOURCE_DIR}/include
-  ${CANOPEN_SOURCE_DIR}/src
+# Add platform-dependent targets early, so they can be configured by
+# platform
+add_library(canopen "")
+add_executable (slave "")
+add_executable (slaveinfo "")
+
+if (BUILD_TESTING)
+  add_executable(co_test "")
+endif()
+
+# Platform configuration
+include(${CMAKE_SYSTEM_NAME})
+message (STATUS "Building for ${CMAKE_SYSTEM_NAME}")
+
+generate_export_header(canopen
+  BASE_NAME co
+  EXPORT_FILE_NAME ${CANOPEN_BINARY_DIR}/include/co_export.h
   )
 
-# Platform flags, OSAL sources
-include(${CMAKE_SYSTEM_NAME})
+target_include_directories(canopen
+  PUBLIC
+  $<BUILD_INTERFACE:${CANOPEN_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${CANOPEN_BINARY_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+  PRIVATE
+  ${CANOPEN_BINARY_DIR}/src
+  src
+  )
 
-# Source paths
+
+install (
+  TARGETS canopen
+  EXPORT CanOpenConfig
+  DESTINATION lib
+  )
+
+install(
+  EXPORT CanOpenConfig
+  DESTINATION cmake
+  )
+
+install (FILES
+  include/co_api.h
+  include/co_obj.h
+  ${CANOPEN_BINARY_DIR}/include/co_export.h
+  ${CANOPEN_BINARY_DIR}/include/co_options.h
+  DESTINATION include
+  )
+
 add_subdirectory (src)
 add_subdirectory (util)
+
 if (BUILD_TESTING)
   add_subdirectory (test)
+  include(AddGoogleTest)
+  add_gtest(co_test)
 endif()
 
 # Doxygen configuration
@@ -157,8 +198,8 @@ if (DOXYGEN_FOUND)
   set(DOXYGEN_GENERATE_LATEX YES)
   doxygen_add_docs(docs
     README.md
-    ${CANOPEN_SOURCE_DIR}/include
-    ${CANOPEN_SOURCE_DIR}/src
+    include
+    src
     )
 endif (DOXYGEN_FOUND)
 

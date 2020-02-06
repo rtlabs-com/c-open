@@ -31,12 +31,21 @@ find_library(CANLIB_LIBRARY
   )
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(Canlib DEFAULT_MSG
-    CANLIB_LIBRARY
-    CANLIB_INCLUDE_DIR
-    )
+find_package_handle_standard_args(Canlib REQUIRED_VARS
+  CANLIB_LIBRARY
+  CANLIB_INCLUDE_DIR
+  )
 
 mark_as_advanced(
-    CANLIB_INCLUDE_DIR
-    CANLIB_LIBRARY
+  CANLIB_INCLUDE_DIR
+  CANLIB_LIBRARY
+  )
+
+if(CANLIB_FOUND AND NOT TARGET Canlib)
+  add_library(Canlib UNKNOWN IMPORTED)
+  set_target_properties(Canlib PROPERTIES
+    INTERFACE_INCLUDE_DIRECTORIES "${CANLIB_INCLUDE_DIR}"
+    IMPORTED_LINK_INTERFACE_LANGUAGES "C"
+    IMPORTED_LOCATION "${CANLIB_LIBRARY}"
     )
+endif()

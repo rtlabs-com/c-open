@@ -13,8 +13,18 @@
 # full license information.
 #*******************************************************************/
 
-include_directories(${OSAL_INCLUDES})
-add_executable (slaveinfo slaveinfo.c main.c)
-target_link_libraries (slaveinfo LINK_PUBLIC canopen)
+target_sources(slaveinfo
+  PRIVATE
+  slaveinfo.c
+  main.c
+  )
+
+target_include_directories(slaveinfo
+  PRIVATE
+  ${CANOPEN_SOURCE_DIR}/src
+  ${CANOPEN_BINARY_DIR}/src
+  )
+
+target_link_libraries (slaveinfo PUBLIC canopen)
 
 install (TARGETS slaveinfo DESTINATION bin)
