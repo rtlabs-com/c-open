@@ -89,6 +89,12 @@ set(MAX_ERRORS "4"
 set(SDO_TIMEOUT "100"
   CACHE STRING "timeout in ms for ongoing SDO transfers")
 
+set(CO_THREAD_PRIO "10"
+  CACHE STRING "priority of main thread")
+
+set(CO_THREAD_STACK_SIZE "4096"
+  CACHE STRING "stack size of main thread")
+
 # Default to release build with debug info
 if (NOT CMAKE_BUILD_TYPE)
   set (CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING

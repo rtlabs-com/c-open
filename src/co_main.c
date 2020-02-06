@@ -396,7 +396,11 @@ co_net_t * co_init (const char * canif, const co_cfg_t * cfg)
    if (net->channel == NULL)
       goto error4;
 
-   if (os_thread_create ("co_thread", 10, 4*1024, co_main, net) == NULL)
+   if (os_thread_create ("co_thread",
+                         CO_THREAD_PRIO,
+                         CO_THREAD_STACK_SIZE,
+                         co_main,
+                         net) == NULL)
       goto error4;
 
    os_timer_start (tmr);

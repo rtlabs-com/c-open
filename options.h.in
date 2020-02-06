@@ -19,47 +19,55 @@
 #include "co_options.h"
 
 #ifndef LOG_LEVEL
-#define LOG_LEVEL         (LOG_LEVEL_@LOG_LEVEL@)
+#define LOG_LEVEL            (LOG_LEVEL_@LOG_LEVEL@)
 #endif
 
 #ifndef CO_ALLOC_LOG
-#define CO_ALLOC_LOG      (LOG_STATE_@CO_ALLOC_LOG@)
+#define CO_ALLOC_LOG         (LOG_STATE_@CO_ALLOC_LOG@)
 #endif
 
 #ifndef CO_CAN_LOG
-#define CO_CAN_LOG        (LOG_STATE_@CO_CAN_LOG@)
+#define CO_CAN_LOG           (LOG_STATE_@CO_CAN_LOG@)
 #endif
 
 #ifndef CO_SDO_LOG
-#define CO_SDO_LOG        (LOG_STATE_@CO_SDO_LOG@)
+#define CO_SDO_LOG           (LOG_STATE_@CO_SDO_LOG@)
 #endif
 
 #ifndef CO_OD_LOG
-#define CO_OD_LOG         (LOG_STATE_@CO_OD_LOG@)
+#define CO_OD_LOG            (LOG_STATE_@CO_OD_LOG@)
 #endif
 
 #ifndef CO_NMT_LOG
-#define CO_NMT_LOG        (LOG_STATE_@CO_NMT_LOG@)
+#define CO_NMT_LOG           (LOG_STATE_@CO_NMT_LOG@)
 #endif
 
 #ifndef CO_EMCY_LOG
-#define CO_EMCY_LOG       (LOG_STATE_@CO_EMCY_LOG@)
+#define CO_EMCY_LOG          (LOG_STATE_@CO_EMCY_LOG@)
 #endif
 
 #ifndef CO_HEARTBEAT_LOG
-#define CO_HEARTBEAT_LOG  (LOG_STATE_@CO_HEARTBEAT_LOG@)
+#define CO_HEARTBEAT_LOG     (LOG_STATE_@CO_HEARTBEAT_LOG@)
 #endif
 
 #ifndef CO_NODE_GUARD_LOG
-#define CO_NODE_GUARD_LOG  (LOG_STATE_@CO_NODE_GUARD_LOG@)
+#define CO_NODE_GUARD_LOG    (LOG_STATE_@CO_NODE_GUARD_LOG@)
 #endif
 
 #ifndef CO_LSS_LOG
-#define CO_LSS_LOG        (LOG_STATE_@CO_LSS_LOG@)
+#define CO_LSS_LOG           (LOG_STATE_@CO_LSS_LOG@)
 #endif
 
 #ifndef SDO_TIMEOUT
-#define SDO_TIMEOUT       (@SDO_TIMEOUT@)
+#define SDO_TIMEOUT          (@SDO_TIMEOUT@)
+#endif
+
+#ifndef CO_THREAD_PRIO
+#define CO_THREAD_PRIO       (@CO_THREAD_PRIO@)
+#endif
+
+#ifndef CO_THREAD_STACK_SIZE
+#define CO_THREAD_STACK_SIZE (@CO_THREAD_STACK_SIZE@)
 #endif
 
 #endif  /* OPTIONS_H */
