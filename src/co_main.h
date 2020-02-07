@@ -245,6 +245,7 @@ struct co_net
    const co_obj_t * od;                      /**< Object dictionary */
    const co_default_t * defaults;            /**< Dictionary default values */
    void * cb_arg;                            /**< Callback opaque argument */
+   uint32_t mbox_overrun;                    /**< Mailbox overruns (for debugging) */
 
    /** Reset callback */
    void (*cb_reset) (void * arg);

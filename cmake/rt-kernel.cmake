@@ -13,15 +13,56 @@
 # full license information.
 #*******************************************************************/
 
-set(OSAL_SOURCES
-  ${CANOPEN_SOURCE_DIR}/src/osal/rt-kernel/stubs.c
-  ${CANOPEN_SOURCE_DIR}/src/osal/rt-kernel/osal.c
-  ${CANOPEN_SOURCE_DIR}/src/osal/rt-kernel/osal_can.c
+# Fix inclusion order of assert.h and log.h by including our
+# definition before anything else. FIXME: these files should be
+# renamed.
+include_directories(BEFORE
+  src/osal/rt-kernel/
+  src
   )
-set(OSAL_INCLUDES
-  ${CANOPEN_SOURCE_DIR}/src/osal/rt-kernel
-  ${RTK}/include
-  ${RTK}/include/kern
-  ${RTK}/include/arch/${ARCH}
-  ${RTK}/include/drivers
+
+target_include_directories(canopen
+  PRIVATE
+  src/osal/rt-kernel
   )
+
+target_sources(canopen
+  PRIVATE
+  src/osal/rt-kernel/osal.c
+  src/osal/rt-kernel/osal_can.c
+  )
+
+target_compile_options(canopen
+  PRIVATE
+  -Wall
+  -Wextra
+  -Werror
+  -Wno-unused-parameter
+  )
+
+install (FILES
+  include/co_rtk.h
+  DESTINATION include
+  )
+
+target_include_directories(slave
+  PRIVATE
+  src/osal/rt-kernel
+  )
+
+target_include_directories(slaveinfo
+  PRIVATE
+  src/osal/rt-kernel
+  )
+
+if (BUILD_TESTING)
+  target_sources(co_test
+    PRIVATE
+    ${CANOPEN_SOURCE_DIR}/src/osal/rt-kernel/osal.c
+    ${CANOPEN_SOURCE_DIR}/src/osal/rt-kernel/stubs.c
+    )
+  target_include_directories(co_test
+    PRIVATE
+    src/osal/rt-kernel
+    )
+endif()

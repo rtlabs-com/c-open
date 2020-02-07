@@ -15,32 +15,49 @@
 
 find_package(Canlib)
 
-set(OSAL_SOURCES
-  ${CANOPEN_SOURCE_DIR}/src/osal/windows/osal.c
-  ${CANOPEN_SOURCE_DIR}/src/osal/windows/osal_can.c
-  )
-set(OSAL_INCLUDES
-  ${CANOPEN_SOURCE_DIR}/src/osal/windows
-  ${CANLIB_INCLUDE_DIR}
-  )
-set(OSAL_LIBS
-  ${CANLIB_LIBRARY}
+target_include_directories(canopen
+  PRIVATE
+  src/osal/windows
   )
 
-set(GOOGLE_TEST_INDIVIDUAL TRUE)
+target_sources(canopen
+  PRIVATE
+  src/osal/windows/osal.c
+  src/osal/windows/osal_can.c
+  )
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /D_CRT_SECURE_NO_WARNINGS /wd4200")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_CRT_SECURE_NO_WARNINGS /wd4200")
+target_compile_options(canopen
+  PRIVATE
+  /WX
+  /wd4200
+  /D _CRT_SECURE_NO_WARNINGS
+  )
 
-# GTest wants /MT
- set(CompilerFlags
-        CMAKE_CXX_FLAGS
-        CMAKE_CXX_FLAGS_DEBUG
-        CMAKE_CXX_FLAGS_RELEASE
-        CMAKE_C_FLAGS
-        CMAKE_C_FLAGS_DEBUG
-        CMAKE_C_FLAGS_RELEASE
-        )
-foreach(CompilerFlag ${CompilerFlags})
-  string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
-endforeach()
+target_link_libraries(canopen
+  PUBLIC
+  Canlib
+  INTERFACE
+  $<$<CONFIG:Coverage>:--coverage>
+  )
+
+target_include_directories(slave
+  PRIVATE
+  src/osal/windows
+  )
+
+target_include_directories(slaveinfo
+  PRIVATE
+  src/osal/windows
+  )
+
+if (BUILD_TESTING)
+  set(GOOGLE_TEST_INDIVIDUAL TRUE)
+  target_sources(co_test
+    PRIVATE
+    ${CANOPEN_SOURCE_DIR}/src/osal/windows/osal.c
+    )
+  target_include_directories(co_test
+    PRIVATE
+    src/osal/windows
+    )
+endif()

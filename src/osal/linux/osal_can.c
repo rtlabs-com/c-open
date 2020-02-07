@@ -42,11 +42,11 @@ static void os_channel_rx (void * arg)
    {
       int result;
 
-      FD_SET(channel->handle, &set);
+      FD_SET (channel->handle, &set);
       result = select (channel->handle + 1, &set, NULL, NULL, NULL);
       if (result > 0)
       {
-         if (FD_ISSET(channel->handle, &set))
+         if (FD_ISSET (channel->handle, &set))
          {
             channel->callback(channel->arg);
          }
@@ -60,24 +60,24 @@ os_channel_t * os_channel_open (const char * name, void * callback, void * arg)
    struct sockaddr_can addr;
    struct ifreq ifr;
 
-   channel->handle = socket(PF_CAN, SOCK_RAW, CAN_RAW);
+   channel->handle = socket (PF_CAN, SOCK_RAW, CAN_RAW);
    if (channel->handle < 0)
    {
       free (channel);
       return NULL;
    }
 
-   fcntl(channel->handle, F_SETFL, O_NONBLOCK);
+   fcntl (channel->handle, F_SETFL, O_NONBLOCK);
 
-   strcpy(ifr.ifr_name, name);
-   ioctl(channel->handle, SIOCGIFINDEX, &ifr);
+   strcpy (ifr.ifr_name, name);
+   ioctl (channel->handle, SIOCGIFINDEX, &ifr);
 
    addr.can_family = AF_CAN;
    addr.can_ifindex = ifr.ifr_ifindex;
 
    LOG_DEBUG (CO_CAN_LOG, "%s at index %d\n", name, ifr.ifr_ifindex);
 
-   if (bind(channel->handle, (struct sockaddr *)&addr, sizeof(addr)) < 0)
+   if (bind (channel->handle, (struct sockaddr *)&addr, sizeof(addr)) < 0)
    {
       close (channel->handle);
       free (channel);
@@ -87,7 +87,7 @@ os_channel_t * os_channel_open (const char * name, void * callback, void * arg)
    channel->callback = callback;
    channel->arg = arg;
 
-   os_thread_create("rx", 100, 8192, os_channel_rx, channel);
+   os_thread_create ("rx", 5, 0, os_channel_rx, channel);
    return channel;
 }
 

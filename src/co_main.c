@@ -156,7 +156,13 @@ void co_main (void * arg)
 static void co_timer (os_timer_t * timer, void * arg)
 {
    co_net_t * net = arg;
-   os_mbox_post (net->mbox, &net->job_periodic, 0);
+   int tmo;
+
+   tmo = os_mbox_post (net->mbox, &net->job_periodic, 0);
+   if (tmo)
+   {
+      net->mbox_overrun++;
+   }
 }
 
 static void co_can_callback (co_net_t * net)
@@ -164,7 +170,10 @@ static void co_can_callback (co_net_t * net)
    int tmo;
 
    tmo = os_mbox_post (net->mbox, &net->job_rx, 0);
-   CC_ASSERT (tmo == 0);
+   if (tmo)
+   {
+      net->mbox_overrun++;
+   }
 }
 
 static void co_job_callback (co_job_t * job)
@@ -178,6 +187,12 @@ void co_nmt (co_client_t * client, co_nmt_cmd_t cmd, uint8_t node)
 {
    co_net_t * net = client->net;
    uint8_t data[] = { cmd, node };
+
+   if (node == net->node || node == 0)
+   {
+      co_nmt_rx (net, 0, data, sizeof(data));
+   }
+
    os_channel_send (net->channel, CO_FUNCTION_NMT + node, data, sizeof(data));
 }
 
@@ -348,17 +363,7 @@ co_net_t * co_init (const char * canif, const co_cfg_t * cfg)
 
    net = calloc (1, sizeof(*net));
    if (net == NULL)
-      return NULL;
-
-   net->channel = os_channel_open (canif, co_can_callback, net);
-   if (net->channel == NULL)
-      return NULL;
-
-   net->mbox = os_mbox_create (10);
-
-   os_thread_create ("co_thread", 10, 4*1024, co_main, net);
-   tmr = os_timer_create (1000, co_timer, net, false);
-   os_timer_start (tmr);
+      goto error1;
 
    net->bitrate = cfg->bitrate;
    net->node = cfg->node;
@@ -379,7 +384,36 @@ co_net_t * co_init (const char * canif, const co_cfg_t * cfg)
    net->job_periodic = CO_JOB_PERIODIC;
    net->job_rx = CO_JOB_RX;
 
+   net->mbox = os_mbox_create (10);
+   if (net->mbox == NULL)
+      goto error2;
+
+   tmr = os_timer_create (1000, co_timer, net, false);
+   if (tmr == NULL)
+      goto error3;
+
+   net->channel = os_channel_open (canif, co_can_callback, net);
+   if (net->channel == NULL)
+      goto error4;
+
+   if (os_thread_create ("co_thread",
+                         CO_THREAD_PRIO,
+                         CO_THREAD_STACK_SIZE,
+                         co_main,
+                         net) == NULL)
+      goto error4;
+
+   os_timer_start (tmr);
    co_nmt_init (net);
 
    return net;
+
+ error4:
+   os_timer_destroy (tmr);
+ error3:
+   os_mbox_destroy (net->mbox);
+ error2:
+   free (net);
+ error1:
+   return NULL;
 }

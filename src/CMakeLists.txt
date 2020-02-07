@@ -13,12 +13,8 @@
 # full license information.
 #*******************************************************************/
 
-include(GenerateExportHeader)
-
-message (STATUS "Building for ${CMAKE_SYSTEM_NAME}")
-
 # NOTE: add headers to make them show up in an IDE
-add_library (canopen
+target_sources (canopen PRIVATE
   ${CANOPEN_SOURCE_DIR}/include/co_api.h
   ${CANOPEN_SOURCE_DIR}/include/co_obj.h
   co_main.c
@@ -46,22 +42,4 @@ add_library (canopen
   co_node_guard.c
   co_node_guard.h
   co_obj.c
-  ${OSAL_SOURCES}
   )
-generate_export_header(canopen
-  BASE_NAME co
-  EXPORT_FILE_NAME ${CANOPEN_BINARY_DIR}/include/co_export.h
-  )
-
-include_directories(${OSAL_INCLUDES})
-
-target_link_libraries(canopen ${OSAL_LIBS})
-
-install (TARGETS canopen DESTINATION lib)
-install (FILES
-  ${CANOPEN_SOURCE_DIR}/include/co_api.h
-  ${CANOPEN_SOURCE_DIR}/include/co_obj.h
-  ${CANOPEN_SOURCE_DIR}/include/co_rtk.h
-  ${CANOPEN_BINARY_DIR}/include/co_export.h
-  ${CANOPEN_BINARY_DIR}/include/co_options.h
-  DESTINATION include)
