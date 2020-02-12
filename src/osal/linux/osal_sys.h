@@ -62,6 +62,9 @@ typedef struct os_mbox
 typedef struct os_timer
 {
    timer_t timerid;
+   os_thread_t * thread;
+   pid_t thread_id;
+   bool exit;
    void(*fn) (struct os_timer *, void * arg);
    void * arg;
    uint32_t us;
