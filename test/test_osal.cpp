@@ -32,7 +32,7 @@ protected:
    }
 };
 
-TEST (Osal, SemShouldTimeoutWhenCountIsZero)
+TEST_F (Osal, SemShouldTimeoutWhenCountIsZero)
 {
    os_sem_t * sem = os_sem_create (2);
    int tmo;
@@ -67,7 +67,7 @@ TEST (Osal, SemShouldTimeoutWhenCountIsZero)
    os_sem_destroy (sem);
 }
 
-TEST (Osal, EventShouldNotTimeout)
+TEST_F (Osal, EventShouldNotTimeout)
 {
    os_event_t * event = os_event_create();
    uint32_t value = 99;
@@ -81,7 +81,7 @@ TEST (Osal, EventShouldNotTimeout)
    os_event_destroy (event);
 }
 
-TEST (Osal, EventShouldTimeout)
+TEST_F (Osal, EventShouldTimeout)
 {
    os_event_t * event = os_event_create();
    uint32_t value = 99;
@@ -95,7 +95,7 @@ TEST (Osal, EventShouldTimeout)
    os_event_destroy (event);
 }
 
-TEST (Osal, MboxShouldNotTimeout)
+TEST_F (Osal, MboxShouldNotTimeout)
 {
    os_mbox_t * mbox = os_mbox_create(2);
    void * msg;
@@ -110,7 +110,7 @@ TEST (Osal, MboxShouldNotTimeout)
    os_mbox_destroy (mbox);
 }
 
-TEST (Osal, FetchFromEmptyMboxShouldTimeout)
+TEST_F (Osal, FetchFromEmptyMboxShouldTimeout)
 {
    os_mbox_t * mbox = os_mbox_create(2);
    void * msg;
@@ -122,7 +122,7 @@ TEST (Osal, FetchFromEmptyMboxShouldTimeout)
    os_mbox_destroy (mbox);
 }
 
-TEST (Osal, PostToFullMBoxShouldTimeout)
+TEST_F (Osal, PostToFullMBoxShouldTimeout)
 {
    os_mbox_t * mbox = os_mbox_create(2);
    int tmo;
@@ -135,7 +135,7 @@ TEST (Osal, PostToFullMBoxShouldTimeout)
    os_mbox_destroy (mbox);
 }
 
-TEST (Osal, CyclicTimer)
+TEST_F (Osal, CyclicTimer)
 {
    int t0, t1;
    os_timer_t * timer;
@@ -162,7 +162,7 @@ TEST (Osal, CyclicTimer)
    os_timer_destroy (timer);
 }
 
-TEST (Osal, OneshotTimer)
+TEST_F (Osal, OneshotTimer)
 {
    os_timer_t * timer;
 
@@ -171,8 +171,7 @@ TEST (Osal, OneshotTimer)
    os_timer_start (timer);
    os_usleep (100 * 1000);
 
-   // FIXME: on linux, expired_calls may be 2 because of previous test
-   EXPECT_NEAR (1, expired_calls, 1);
+   EXPECT_EQ (1, expired_calls);
    EXPECT_EQ ((void *)0x42, expired_arg);
 
    os_timer_destroy (timer);

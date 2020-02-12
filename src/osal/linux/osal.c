@@ -31,6 +31,8 @@
 #include <errno.h>
 #include <unistd.h>
 
+#include <sys/syscall.h>
+
 /* Priority of timer callback thread (if USE_SCHED_FIFO is set) */
 #define TIMER_PRIO        30
 
@@ -410,12 +412,32 @@ void os_mbox_destroy (os_mbox_t * mbox)
    free (mbox);
 }
 
-static void os_timer_callback (union sigval sv)
+static void os_timer_thread (void * arg)
 {
-   os_timer_t * timer = sv.sival_ptr;
+   os_timer_t * timer = arg;
+   sigset_t sigset;
+   siginfo_t si;
+   struct timespec tmo;
 
-   if (timer->fn)
-      timer->fn (timer, timer->arg);
+   timer->thread_id = (pid_t)syscall (SYS_gettid);
+
+   /* Add SIGALRM */
+   sigemptyset (&sigset);
+   sigprocmask (SIG_BLOCK, &sigset, NULL);
+   sigaddset(&sigset, SIGALRM);
+
+   tmo.tv_sec = 0;
+   tmo.tv_nsec = 500 * 1000 * 1000;
+
+   while (!timer->exit)
+   {
+      int sig = sigtimedwait (&sigset, &si, &tmo);
+      if (sig == SIGALRM)
+      {
+         if (timer->fn)
+            timer->fn (timer, timer->arg);
+      }
+   }
 }
 
 os_timer_t * os_timer_create (uint32_t us, void (*fn) (os_timer_t *, void * arg),
@@ -423,29 +445,39 @@ os_timer_t * os_timer_create (uint32_t us, void (*fn) (os_timer_t *, void * arg)
 {
    os_timer_t * timer;
    struct sigevent sev;
-   pthread_attr_t attr;
+   sigset_t sigset;
+
+   /* Block SIGALRM in calling thread */
+   sigemptyset (&sigset);
+   sigaddset (&sigset, SIGALRM);
+   sigprocmask (SIG_BLOCK, &sigset, NULL);
 
    timer = (os_timer_t *)malloc (sizeof(*timer));
 
-   timer->fn = fn;
-   timer->arg = arg;
-   timer->us = us;
-   timer->oneshot = oneshot;
+   timer->exit      = false;
+   timer->thread_id = 0;
+   timer->fn        = fn;
+   timer->arg       = arg;
+   timer->us        = us;
+   timer->oneshot   = oneshot;
 
-   pthread_attr_init (&attr);
+   /* Create timer thread */
+   timer->thread = os_thread_create ("os_timer", TIMER_PRIO, 0, os_timer_thread,timer);
+   if (timer->thread == NULL)
+      return NULL;
 
-#if defined (USE_SCHED_FIFO)
-   struct sched_param param = { .sched_priority = TIMER_PRIO };
-   pthread_attr_setinheritsched (&attr, PTHREAD_EXPLICIT_SCHED);
-   pthread_attr_setschedpolicy (&attr, SCHED_FIFO);
-   pthread_attr_setschedparam (&attr, &param);
-#endif
+   /* Wait until timer thread sets its (kernel) thread id */
+   do
+   {
+      sched_yield();
+   } while (timer->thread_id == 0);
 
    /* Create timer */
-   sev.sigev_notify = SIGEV_THREAD;
+   sev.sigev_notify = SIGEV_THREAD_ID;
    sev.sigev_value.sival_ptr = timer;
-   sev.sigev_notify_function = os_timer_callback;
-   sev.sigev_notify_attributes = &attr;
+   sev._sigev_un._tid = timer->thread_id;
+   sev.sigev_signo = SIGALRM;
+   sev.sigev_notify_attributes = NULL;
 
    if (timer_create (CLOCK_MONOTONIC, &sev, &timer->timerid) == -1)
       return NULL;
@@ -484,6 +516,8 @@ void os_timer_stop (os_timer_t * timer)
 
 void os_timer_destroy (os_timer_t * timer)
 {
+   timer->exit = true;
+   pthread_join (*timer->thread, NULL);
    timer_delete (timer->timerid);
    free (timer);
 }
