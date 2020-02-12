@@ -27,26 +27,47 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
+#include <sys/epoll.h>
 
 #include <linux/can.h>
 #include <linux/can/raw.h>
 
 static void os_channel_rx (void * arg)
 {
-   fd_set set;
    os_channel_t * channel = arg;
+   struct epoll_event ev, events[1];
+   int epollfd;
+   int nfds;
+   int n;
 
-   FD_ZERO (&set);
+   epollfd = epoll_create1 (0);
+   if (epollfd == -1)
+   {
+      LOG_ERROR (CO_CAN_LOG, "epoll_create1 failed\n");
+      return;
+   }
+
+   /* Create edge-triggered event on input */
+   ev.events = EPOLLIN | EPOLLET;
+   ev.data.fd = channel->handle;
+   if (epoll_ctl (epollfd, EPOLL_CTL_ADD, channel->handle, &ev) == -1)
+   {
+      LOG_ERROR (CO_CAN_LOG, "epoll_ctl failed\n");
+      return;
+   }
 
    for (;;)
    {
-      int result;
-
-      FD_SET (channel->handle, &set);
-      result = select (channel->handle + 1, &set, NULL, NULL, NULL);
-      if (result > 0)
+      nfds = epoll_wait (epollfd, events, 1, -1);
+      if (nfds == -1)
       {
-         if (FD_ISSET (channel->handle, &set))
+         LOG_ERROR (CO_CAN_LOG, "epoll_wait failed\n");
+         return;
+      }
+
+      for (n = 0; n < nfds; n++)
+      {
+         if (events[n].data.fd == channel->handle)
          {
             channel->callback(channel->arg);
          }
@@ -87,7 +108,7 @@ os_channel_t * os_channel_open (const char * name, void * callback, void * arg)
    channel->callback = callback;
    channel->arg = arg;
 
-   os_thread_create ("rx", 5, 0, os_channel_rx, channel);
+   os_thread_create ("co_rx", 5, 0, os_channel_rx, channel);
    return channel;
 }
 
