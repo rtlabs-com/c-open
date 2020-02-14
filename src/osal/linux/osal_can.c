@@ -108,7 +108,7 @@ os_channel_t * os_channel_open (const char * name, void * callback, void * arg)
    channel->callback = callback;
    channel->arg = arg;
 
-   os_thread_create ("co_rx", 5, 0, os_channel_rx, channel);
+   os_thread_create ("co_rx", 5, 1024, os_channel_rx, channel);
    return channel;
 }
 
