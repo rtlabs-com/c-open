@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <signal.h>
+#include <limits.h>
 
 #include <pthread.h>
 
@@ -71,6 +72,7 @@ os_thread_t * os_thread_create (const char * name, uint32_t priority,
    pthread_attr_t attr;
 
    pthread_attr_init (&attr);
+   pthread_attr_setstacksize (&attr, PTHREAD_STACK_MIN + stacksize);
 
 #if defined (USE_SCHED_FIFO)
    CC_STATIC_ASSERT (_POSIX_THREAD_PRIORITY_SCHEDULING > 0);
@@ -79,8 +81,6 @@ os_thread_t * os_thread_create (const char * name, uint32_t priority,
    pthread_attr_setschedpolicy (&attr, SCHED_FIFO);
    pthread_attr_setschedparam (&attr, &param);
 #endif
-
-   /* Note that the default stacksize is used */
 
    result = pthread_create (thread, &attr, (void *)entry, arg);
    if (result != 0)
@@ -129,11 +129,14 @@ void os_mutex_destroy (os_mutex_t * _mutex)
 os_sem_t * os_sem_create (size_t count)
 {
    os_sem_t * sem;
+   pthread_mutexattr_t attr;
 
    sem = (os_sem_t *)malloc (sizeof(*sem));
 
    pthread_cond_init (&sem->cond, NULL);
-   pthread_mutex_init (&sem->mutex, NULL);
+   pthread_mutexattr_init (&attr);
+   pthread_mutexattr_setprotocol (&attr, PTHREAD_PRIO_INHERIT);
+   pthread_mutex_init (&sem->mutex, &attr);
    sem->count = count;
 
    return sem;
@@ -199,9 +202,10 @@ void os_usleep (uint32_t usec)
 {
    struct timespec ts;
    struct timespec remain;
+
    ts.tv_sec = usec / USECS_PER_SEC;
    ts.tv_nsec = (usec % USECS_PER_SEC) * 1000;
-   while (nanosleep (&ts, &remain) == -1)
+   while (clock_nanosleep (CLOCK_MONOTONIC, 0, &ts, &remain) == -1)
    {
       ts = remain;
    }
@@ -218,11 +222,14 @@ uint32_t os_get_current_time_us (void)
 os_event_t * os_event_create (void)
 {
    os_event_t * event;
+   pthread_mutexattr_t attr;
 
    event = (os_event_t *)malloc (sizeof(*event));
 
    pthread_cond_init (&event->cond, NULL);
-   pthread_mutex_init (&event->mutex, NULL);
+   pthread_mutexattr_init (&attr);
+   pthread_mutexattr_setprotocol (&attr, PTHREAD_PRIO_INHERIT);
+   pthread_mutex_init (&event->mutex, &attr);
    event->flags = 0;
 
    return event;
@@ -295,11 +302,14 @@ void os_event_destroy (os_event_t * event)
 os_mbox_t * os_mbox_create (size_t size)
 {
    os_mbox_t * mbox;
+   pthread_mutexattr_t attr;
 
    mbox = (os_mbox_t *)malloc (sizeof(*mbox) + size * sizeof(void *));
 
    pthread_cond_init (&mbox->cond, NULL);
-   pthread_mutex_init (&mbox->mutex, NULL);
+   pthread_mutexattr_init (&attr);
+   pthread_mutexattr_setprotocol (&attr, PTHREAD_PRIO_INHERIT);
+   pthread_mutex_init (&mbox->mutex, &attr);
 
    mbox->r     = 0;
    mbox->w     = 0;
@@ -462,7 +472,8 @@ os_timer_t * os_timer_create (uint32_t us, void (*fn) (os_timer_t *, void * arg)
    timer->oneshot   = oneshot;
 
    /* Create timer thread */
-   timer->thread = os_thread_create ("os_timer", TIMER_PRIO, 0, os_timer_thread,timer);
+   timer->thread = os_thread_create ("os_timer", TIMER_PRIO, 1024,
+                                     os_timer_thread,timer);
    if (timer->thread == NULL)
       return NULL;
 
