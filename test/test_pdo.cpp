@@ -14,6 +14,7 @@
  ********************************************************************/
 
 #include "co_pdo.h"
+#include "co_util.h"
 #include "test_util.h"
 
 // Test fixture
@@ -47,6 +48,23 @@ protected:
 
 // Tests
 
+TEST_F (PdoTest, PaddingTypes)
+{
+   uint8_t types[] = {
+      1, 2, 3, 4, 5, 6, 7,
+      16,
+      18, 19, 20, 21, 22,
+      24, 25, 26, 27 };
+
+   EXPECT_FALSE (co_is_padding (0, 0));
+   for (size_t i = 0; i < NELEMENTS (types); i++)
+   {
+      EXPECT_TRUE (co_is_padding (types[i], 0));
+      EXPECT_FALSE (co_is_padding (types[i], 1));
+   }
+   EXPECT_FALSE (co_is_padding (0x1C, 0));
+}
+
 TEST_F (PdoTest, Pack)
 {
    co_pdo_t pdo;
@@ -56,6 +74,8 @@ TEST_F (PdoTest, Pack)
    memset (&pdo, 0, sizeof(pdo));
 
    pdo.number_of_mappings = 2;
+   pdo.mappings[0] = 0x60030110;
+   pdo.mappings[1] = 0x60030208;
    pdo.entries[0] = find_entry (obj6003, 1);
    pdo.entries[1] = find_entry (obj6003, 2);;
    pdo.objs[0] = obj6003;
@@ -74,6 +94,8 @@ TEST_F (PdoTest, PackLarge)
    memset (&pdo, 0, sizeof(pdo));
 
    pdo.number_of_mappings = 2;
+   pdo.mappings[0] = 0x60030320;
+   pdo.mappings[1] = 0x60030408;
    pdo.entries[0] = find_entry (obj6003, 3);
    pdo.entries[1] = find_entry (obj6003, 4);
    pdo.objs[0] = obj6003;
@@ -92,6 +114,8 @@ TEST_F (PdoTest, PackSmall)
    memset (&pdo, 0, sizeof(pdo));
 
    pdo.number_of_mappings = 2;
+   pdo.mappings[0] = 0x60030501;
+   pdo.mappings[1] = 0x60030601;
    pdo.entries[0] = find_entry (obj6003, 5);
    pdo.entries[1] = find_entry (obj6003, 6);
    pdo.objs[0] = obj6003;
@@ -99,6 +123,30 @@ TEST_F (PdoTest, PackSmall)
 
    co_pdo_pack (&net, &pdo);
    EXPECT_EQ (2u, frame[0]);
+}
+
+TEST_F (PdoTest, PackWithPadding)
+{
+   co_pdo_t pdo;
+   uint8_t * frame = (uint8_t *)&pdo.frame;
+   const co_obj_t * obj6003 = find_obj (0x6003);
+
+   memset (&pdo, 0, sizeof(pdo));
+
+   pdo.number_of_mappings = 3;
+   pdo.mappings[0] = 0x60030601;
+   pdo.mappings[1] = 0x00010007;
+   pdo.mappings[2] = 0x60030601;
+   pdo.entries[0] = find_entry (obj6003, 6);
+   pdo.entries[1] = NULL;
+   pdo.entries[2] = find_entry (obj6003, 6);
+   pdo.objs[0] = obj6003;
+   pdo.objs[1] = NULL;
+   pdo.objs[2] = obj6003;
+
+   co_pdo_pack (&net, &pdo);
+   EXPECT_EQ (1u, frame[0]);
+   EXPECT_EQ (1u, frame[1]);
 }
 
 TEST_F (PdoTest, Unpack)
@@ -110,6 +158,8 @@ TEST_F (PdoTest, Unpack)
    memset (&pdo, 0, sizeof(pdo));
 
    pdo.number_of_mappings = 2;
+   pdo.mappings[0] = 0x60030710;
+   pdo.mappings[1] = 0x60030808;
    pdo.entries[0] = find_entry (obj6003, 7);
    pdo.entries[1] = find_entry (obj6003, 8);
    pdo.objs[0] = obj6003;
@@ -134,6 +184,8 @@ TEST_F (PdoTest, UnpackLarge)
    memset (&pdo, 0, sizeof(pdo));
 
    pdo.number_of_mappings = 2;
+   pdo.mappings[0] = 0x60030920;
+   pdo.mappings[1] = 0x60030A08;
    pdo.entries[0] = find_entry (obj6003, 9);
    pdo.entries[1] = find_entry (obj6003, 10);
    pdo.objs[0] = obj6003;
@@ -149,6 +201,36 @@ TEST_F (PdoTest, UnpackLarge)
 
    EXPECT_EQ (0x33221100u, value6003_09);
    EXPECT_EQ (0x44u, value6003_0A);
+}
+
+TEST_F (PdoTest, UnpackWithPadding)
+{
+   co_pdo_t pdo;
+   uint8_t * frame = (uint8_t *)&pdo.frame;
+   const co_obj_t * obj6003 = find_obj (0x6003);
+
+   memset (&pdo, 0, sizeof(pdo));
+
+   pdo.number_of_mappings = 3;
+   pdo.mappings[0] = 0x60030808;
+   pdo.mappings[1] = 0x00050008;
+   pdo.mappings[2] = 0x60030710;
+   pdo.entries[0] = find_entry (obj6003, 8);
+   pdo.entries[1] = NULL;
+   pdo.entries[2] = find_entry (obj6003, 7);
+   pdo.objs[0] = obj6003;
+   pdo.objs[1] = NULL;
+   pdo.objs[2] = obj6003;
+
+   frame[0] = 0x00;
+   frame[1] = 0x11;
+   frame[2] = 0x22;
+   frame[3] = 0x33;
+
+   co_pdo_unpack (&net, &pdo);
+
+   EXPECT_EQ (0x00u, value6003_08);
+   EXPECT_EQ (0x3322u, value6003_07);
 }
 
 TEST_F (PdoTest, CommParamsSet)

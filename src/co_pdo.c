@@ -85,14 +85,16 @@ void co_pdo_pack (co_net_t * net, co_pdo_t * pdo)
    {
       const co_entry_t * entry = pdo->entries[ix];
       const co_obj_t * obj = pdo->objs[ix];
+      size_t bitlength = pdo->mappings[ix] & 0xFF;
+      uint64_t value = 0;
 
       if (entry != NULL)
       {
-         uint64_t value;
          co_od_get_value (net, obj, entry, entry->subindex, &value);
-         bitslice_set (&pdo->frame, offset, entry->bitlength, value);
-         offset += entry->bitlength;
       }
+
+      bitslice_set (&pdo->frame, offset, bitlength, value);
+      offset += bitlength;
    }
 }
 
@@ -105,14 +107,16 @@ void co_pdo_unpack (co_net_t * net, co_pdo_t * pdo)
    {
       const co_entry_t * entry = pdo->entries[ix];
       const co_obj_t * obj = pdo->objs[ix];
+      size_t bitlength = pdo->mappings[ix] & 0xFF;
+      uint64_t value;
 
       if (entry != NULL)
       {
-         uint64_t value;
-         value = bitslice_get (&pdo->frame, offset, entry->bitlength);
-         offset += entry->bitlength;
+         value = bitslice_get (&pdo->frame, offset, bitlength);
          co_od_set_value (net, obj, entry, entry->subindex, value);
       }
+
+      offset += bitlength;
    }
 }
 
@@ -252,6 +256,21 @@ static uint32_t co_pdo_map_set (co_net_t * net, co_pdo_t * pdo,
       return CO_SDO_ABORT_BAD_SUBINDEX;
    }
 
+   /* Check that number_of_mappings (subindex 0) is zero before write */
+   if ((pdo->number_of_mappings != 0) && (net->state != STATE_INIT))
+   {
+      return CO_SDO_ABORT_ACCESS;
+   }
+
+   /* Check for padding */
+   if (co_is_padding (mapped_index, mapped_subindex))
+   {
+      pdo->mappings[subindex - 1] = *value;
+      pdo->objs[subindex - 1] = NULL;
+      pdo->entries[subindex - 1] = NULL;
+      return 0;
+   }
+
    /* Find mapped object */
    obj = co_obj_find (net, mapped_index);
    if (obj == NULL)
@@ -282,12 +301,6 @@ static uint32_t co_pdo_map_set (co_net_t * net, co_pdo_t * pdo,
    if (!is_rx && (entry->flags & OD_TPDO) == 0)
    {
       return CO_SDO_ABORT_UNMAPPABLE;
-   }
-
-   /* Check that number_of_mappings (subindex 0) is zero before write */
-   if ((pdo->number_of_mappings != 0) && (net->state != STATE_INIT))
-   {
-      return CO_SDO_ABORT_ACCESS;
    }
 
    /* Save mapping and reference to mapped entry for faster PDO handling */

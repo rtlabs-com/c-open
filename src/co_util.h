@@ -59,6 +59,21 @@ static inline bool co_validate_cob_id (uint32_t id)
    return true;
 }
 
+static inline bool co_is_padding (uint16_t index, uint8_t subindex)
+{
+   const uint32_t bitmask = 0x0F7D00FE;
+
+   /* See CiA 301, chapter 7.4.7.1 */
+
+   if (subindex != 0)
+      return false;
+
+   if (index > 0x1B)
+      return false;
+
+   return (BIT (index) & bitmask);
+}
+
 static inline uint8_t co_fetch_uint8 (const void * data)
 {
    uint8_t * p = (uint8_t *)data;
