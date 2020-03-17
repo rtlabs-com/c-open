@@ -20,6 +20,7 @@
 #include "co_main.h"
 
 #include <unistd.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <string.h>
 
@@ -61,6 +62,9 @@ static void os_channel_rx (void * arg)
       nfds = epoll_wait (epollfd, events, 1, -1);
       if (nfds == -1)
       {
+         if (errno == EINTR)
+            continue;
+
          LOG_ERROR (CO_CAN_LOG, "epoll_wait failed\n");
          return;
       }
