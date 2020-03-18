@@ -43,7 +43,7 @@ static inline bool co_validate_cob_id (uint32_t id)
       return false;
    else if (id >= 0x001 && id <= 0x07F)
       return false;
-   else if (id >= 0x101 && id <= 0x180)
+   else if (id >= 0x101 && id < 0x180) /* Allow 0x180 to support CiA 417 */
       return false;
    else if (id >= 0x581 && id <= 0x5FF)
       return false;
