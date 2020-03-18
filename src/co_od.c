@@ -122,12 +122,15 @@ uint32_t co_od_get_value (co_net_t * net, const co_obj_t * obj,
 
    if (obj->access)
    {
+      uint32_t v;
+
       /* Call object access function. For subindex 0, function may
          return BAD_SUBINDEX to indicate that it did not handle the
          access. */
-      abort = obj->access (net, OD_EVENT_READ, obj, entry, subindex, (uint32_t *)value);
+      abort = obj->access (net, OD_EVENT_READ, obj, entry, subindex, &v);
       if (!(subindex == 0 && abort == CO_SDO_ABORT_BAD_SUBINDEX))
       {
+         *value = v;
          return abort;
       }
    }
@@ -195,8 +198,9 @@ uint32_t co_od_set_value (co_net_t * net, const co_obj_t * obj,
    if (obj->access)
    {
       uint32_t result;
+      uint32_t v = value;
 
-      result = obj->access (net, OD_EVENT_WRITE, obj, entry, subindex, (uint32_t *)&value);
+      result = obj->access (net, OD_EVENT_WRITE, obj, entry, subindex, &v);
       co_od_notify (net, obj, entry, subindex);
       return result;
    }
