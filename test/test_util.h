@@ -22,6 +22,7 @@
 #include "co_nmt.h"
 #include "options.h"
 #include "co_od.h"
+#include "co_pdo.h"
 
 extern "C" uint32_t cb2001 (co_net_t * net,
                             od_event_t event,
@@ -49,6 +50,7 @@ protected:
       net.write = store_write;
       net.close = store_close;
 
+      co_pdo_init (&net);
       co_nmt_init (&net);
       co_od_reset (&net, CO_STORE_COMM, 0x1000, 0x1FFF);
 
@@ -155,7 +157,7 @@ protected:
       { 0, OD_RW | OD_RPDO, DTYPE_UNSIGNED32, 32, 0, &value7000 },
    };
 
-   const co_obj_t test_od[32] =
+   const co_obj_t test_od[36] =
    {
       { 0x1000, OTYPE_VAR,    0,               OD1000, NULL },
       { 0x1001, OTYPE_VAR,    0,               OD1001, co_od1001_fn },
@@ -180,9 +182,13 @@ protected:
       { 0x1028, OTYPE_ARRAY,  MAX_EMCY_COBIDS, OD1028, co_od1028_fn },
       { 0x1029, OTYPE_ARRAY,  1,               OD1029, co_od1029_fn },
       { 0x1400, OTYPE_RECORD, 5,               OD1400, co_od1400_fn },
+      { 0x1533, OTYPE_RECORD, 5,               OD1400, co_od1400_fn },
       { 0x1600, OTYPE_RECORD, MAX_PDO_ENTRIES, OD1600, co_od1600_fn },
+      { 0x1733, OTYPE_RECORD, MAX_PDO_ENTRIES, OD1600, co_od1600_fn },
       { 0x1800, OTYPE_RECORD, 6,               OD1800, co_od1800_fn },
+      { 0x1899, OTYPE_RECORD, 6,               OD1800, co_od1800_fn },
       { 0x1A00, OTYPE_RECORD, MAX_PDO_ENTRIES, OD1A00, co_od1A00_fn },
+      { 0x1A99, OTYPE_RECORD, MAX_PDO_ENTRIES, OD1A00, co_od1A00_fn },
       { 0x2000, OTYPE_ARRAY,  8,               OD2000, NULL },
       { 0x2001, OTYPE_RECORD, 2,               OD2001, cb2001 },
       { 0x6000, OTYPE_VAR,    0,               OD6000, NULL },

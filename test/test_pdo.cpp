@@ -689,3 +689,46 @@ TEST_F (PdoTest, TxAcyclic)
    EXPECT_EQ (0x1u, mock_os_channel_send_calls);
    EXPECT_EQ (0x181u, mock_os_channel_send_id);
 }
+
+TEST_F (PdoTest, SparsePdo)
+{
+   const co_obj_t * obj1533 = find_obj (0x1533);
+   const co_obj_t * obj1733 = find_obj (0x1733);
+   const co_obj_t * obj1899 = find_obj (0x1899);
+   const co_obj_t * obj1A99 = find_obj (0x1A99);
+   uint32_t value;
+   uint32_t result;
+
+   // Check PDO number mapping
+   EXPECT_EQ (0, net.pdo_rx[0].number);
+   EXPECT_EQ (0x133, net.pdo_rx[1].number);
+
+   // COB-ID should be invalid after init
+   result = co_od1400_fn (&net, OD_EVENT_READ, obj1533, NULL, 1, &value);
+   EXPECT_EQ (0u, result);
+   EXPECT_EQ (CO_COBID_INVALID, net.pdo_rx[1].cobid);
+
+   // Check that 1533 is mapped to pdo_rx
+   value = 0x202;
+   result = co_od1400_fn (&net, OD_EVENT_WRITE, obj1533, NULL, 1, &value);
+   EXPECT_EQ (0u, result);
+   EXPECT_EQ (0x202u, net.pdo_rx[1].cobid);
+
+   // Check that 1733 is mapped to pdo_rx
+   net.pdo_rx[1].mappings[1] = 0x1234;
+   result = co_od1600_fn (&net, OD_EVENT_READ, obj1733, NULL, 2, &value);
+   EXPECT_EQ (0u, result);
+   EXPECT_EQ (0x1234u, value);
+
+   // Check that 1533 is mapped to pdo_tx
+   value = 0x182;
+   result = co_od1800_fn (&net, OD_EVENT_WRITE, obj1899, NULL, 1, &value);
+   EXPECT_EQ (0u, result);
+   EXPECT_EQ (0x182u, net.pdo_tx[1].cobid);
+
+   // Check that 1733 is mapped to pdo_tx
+   net.pdo_tx[1].mappings[1] = 0x1234;
+   result = co_od1A00_fn (&net, OD_EVENT_READ, obj1A99, NULL, 2, &value);
+   EXPECT_EQ (0u, result);
+   EXPECT_EQ (0x1234u, value);
+}

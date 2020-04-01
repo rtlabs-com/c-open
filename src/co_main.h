@@ -67,6 +67,7 @@ extern "C"
  */
 typedef struct co_pdo
 {
+   uint16_t number;
    uint32_t cobid;
    uint8_t transmission_type;
    uint8_t sync_start;

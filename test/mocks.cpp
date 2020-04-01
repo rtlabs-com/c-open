@@ -169,7 +169,7 @@ void cb_notify (void * arg, uint16_t index, uint8_t subindex)
    cb_notify_subindex = subindex;
 }
 
-uint8_t the_store[1024];
+uint8_t the_store[2*1024];
 struct fd
 {
    uint8_t * p;

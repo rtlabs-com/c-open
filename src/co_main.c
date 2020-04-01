@@ -384,6 +384,9 @@ co_net_t * co_init (const char * canif, const co_cfg_t * cfg)
    net->job_periodic = CO_JOB_PERIODIC;
    net->job_rx = CO_JOB_RX;
 
+   if (co_pdo_init (net) != 0)
+      goto error2;
+
    net->mbox = os_mbox_create (10);
    if (net->mbox == NULL)
       goto error2;
