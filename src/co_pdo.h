@@ -125,6 +125,15 @@ void co_pdo_trigger (co_net_t * net);
  */
 void co_pdo_job (co_net_t * net, co_job_t * job);
 
+/**
+ * Initialise PDOs
+ *
+ * @param net           network handle
+ *
+ * @return 0 on success, -1 on failure
+ */
+int co_pdo_init (co_net_t * net);
+
 #ifdef __cplusplus
 }
 #endif

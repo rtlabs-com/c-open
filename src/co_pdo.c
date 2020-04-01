@@ -329,7 +329,6 @@ void co_pdo_mapping_init (co_net_t * net)
 
 }
 
-
 uint32_t co_od1007_fn (
    co_net_t * net,
    od_event_t event,
@@ -358,6 +357,32 @@ uint32_t co_od1007_fn (
    return 0;
 }
 
+static co_pdo_t * co_pdo_find (co_net_t * net, uint16_t index)
+{
+   bool is_rx = (index & 0x0800) == 0;
+   co_pdo_t * pdo;
+   size_t size;
+
+   if (is_rx)
+   {
+      pdo = net->pdo_rx;
+      size = MAX_RX_PDO;
+   }
+   else
+   {
+      pdo = net->pdo_tx;
+      size = MAX_TX_PDO;
+   }
+
+   for (size_t ix = 0; ix < size; ix++)
+   {
+      if (pdo[ix].number == (index & 0x01FF))
+         return &pdo[ix];
+   }
+
+   return NULL;
+}
+
 uint32_t co_od1400_fn (
    co_net_t * net,
    od_event_t event,
@@ -366,9 +391,9 @@ uint32_t co_od1400_fn (
    uint8_t subindex,
    uint32_t * value)
 {
-   uint16_t ix = obj->index - 0x1400;
-   co_pdo_t * pdo = &net->pdo_rx[ix];
+   co_pdo_t * pdo = co_pdo_find (net, obj->index);
 
+   CC_ASSERT (pdo != NULL);
    switch (event)
    {
    case OD_EVENT_READ:
@@ -378,16 +403,12 @@ uint32_t co_od1400_fn (
       return co_pdo_comm_set (net, pdo, subindex, value, true);
 
    case OD_EVENT_RESTORE:
-      for (ix = 0; ix < MAX_RX_PDO; ix++)
-      {
-         co_pdo_t * pdo = &net->pdo_rx[ix];
-
-         pdo->cobid = CO_COBID_INVALID | (net->node + 0x200 + ix * 0x100);
-         pdo->transmission_type = 0xFF;
-         pdo->inhibit_time = 0;
-         pdo->event_timer = 0;
-         pdo->sync_start = 0;
-      }
+      pdo->cobid = CO_COBID_INVALID |
+         ((pdo->number < 4) ? (net->node + 0x200 + pdo->number * 0x100) : 0);
+      pdo->transmission_type = 0xFF;
+      pdo->inhibit_time = 0;
+      pdo->event_timer = 0;
+      pdo->sync_start = 0;
       return 0;
 
    default:
@@ -403,9 +424,9 @@ uint32_t co_od1600_fn (
    uint8_t subindex,
    uint32_t * value)
 {
-   uint16_t ix = obj->index - 0x1600;
-   co_pdo_t * pdo = &net->pdo_rx[ix];
+   co_pdo_t * pdo = co_pdo_find (net, obj->index);
 
+   CC_ASSERT (pdo != NULL);
    switch (event)
    {
    case OD_EVENT_READ:
@@ -415,13 +436,8 @@ uint32_t co_od1600_fn (
       return co_pdo_map_set (net, pdo, subindex, value, true);
 
    case OD_EVENT_RESTORE:
-      for (ix = 0; ix < MAX_RX_PDO; ix++)
-      {
-         co_pdo_t * pdo = &net->pdo_rx[ix];
-
-         pdo->number_of_mappings = MAX_PDO_ENTRIES;
-         memset (pdo->mappings, 0, sizeof(pdo->mappings));
-      }
+      pdo->number_of_mappings = MAX_PDO_ENTRIES;
+      memset (pdo->mappings, 0, sizeof(pdo->mappings));
       return 0;
 
    default:
@@ -437,9 +453,9 @@ uint32_t co_od1800_fn (
    uint8_t subindex,
    uint32_t * value)
 {
-   uint16_t ix = obj->index - 0x1800;
-   co_pdo_t * pdo = &net->pdo_tx[ix];
+   co_pdo_t * pdo = co_pdo_find (net, obj->index);
 
+   CC_ASSERT (pdo != NULL);
    switch (event)
    {
    case OD_EVENT_READ:
@@ -449,16 +465,12 @@ uint32_t co_od1800_fn (
       return co_pdo_comm_set (net, pdo, subindex, value, false);
 
    case OD_EVENT_RESTORE:
-      for (ix = 0; ix < MAX_TX_PDO; ix++)
-      {
-         co_pdo_t * pdo = &net->pdo_tx[ix];
-
-         pdo->cobid = CO_COBID_INVALID | (net->node + 0x180 + ix * 0x100);
-         pdo->transmission_type = 0xFF;
-         pdo->inhibit_time = 0;
-         pdo->event_timer = 0;
-         pdo->sync_start = 0;
-      }
+      pdo->cobid = CO_COBID_INVALID |
+         ((pdo->number < 4) ? (net->node + 0x180 + pdo->number * 0x100) : 0);
+      pdo->transmission_type = 0xFF;
+      pdo->inhibit_time = 0;
+      pdo->event_timer = 0;
+      pdo->sync_start = 0;
       return 0;
 
    default:
@@ -474,9 +486,9 @@ uint32_t co_od1A00_fn (
    uint8_t subindex,
    uint32_t * value)
 {
-   uint16_t ix = obj->index - 0x1A00;
-   co_pdo_t * pdo = &net->pdo_tx[ix];
+   co_pdo_t * pdo = co_pdo_find (net, obj->index);
 
+   CC_ASSERT (pdo != NULL);
    switch (event)
    {
    case OD_EVENT_READ:
@@ -486,13 +498,8 @@ uint32_t co_od1A00_fn (
       return co_pdo_map_set (net, pdo, subindex, value, false);
 
    case OD_EVENT_RESTORE:
-      for (ix = 0; ix < MAX_TX_PDO; ix++)
-      {
-         co_pdo_t * pdo = &net->pdo_tx[ix];
-
-         pdo->number_of_mappings = MAX_PDO_ENTRIES;
-         memset (pdo->mappings, 0, sizeof(pdo->mappings));
-      }
+      pdo->number_of_mappings = MAX_PDO_ENTRIES;
+      memset (pdo->mappings, 0, sizeof(pdo->mappings));
       return 0;
 
    default:
@@ -741,4 +748,49 @@ void co_pdo_job (co_net_t * net, co_job_t * job)
    default:
       CC_ASSERT (0);
    }
+}
+
+int co_pdo_init (co_net_t * net)
+{
+   const co_obj_t * obj = net->od;
+   int pdo_rx = 0;
+   int pdo_tx = 0;
+   int ix;
+
+   /* Disable RPDOs */
+   for (ix = 0; ix < MAX_RX_PDO; ix++)
+   {
+      net->pdo_rx[ix].cobid = CO_COBID_INVALID;
+   }
+
+   /* Disable TPDOs */
+   for (ix = 0; ix < MAX_TX_PDO; ix++)
+   {
+      net->pdo_tx[ix].cobid = CO_COBID_INVALID;
+   }
+
+   /* Walk dictionary to find available PDO numbers  */
+   while (obj->index != 0)
+   {
+      if (obj->index >= 0x1400 && obj->index < 0x1600)
+      {
+         /* Out of RPDOs? */
+         if (pdo_rx == MAX_RX_PDO)
+            return -1;
+
+         net->pdo_rx[pdo_rx++].number = obj->index - 0x1400;
+      }
+      else if (obj->index >= 0x1800 && obj->index < 0x1A00)
+      {
+         /* Out of TPDOs? */
+         if (pdo_tx == MAX_TX_PDO)
+            return -1;
+
+         net->pdo_tx[pdo_tx++].number = obj->index - 0x1800;
+      }
+
+      obj++;
+   }
+
+   return 0;
 }
