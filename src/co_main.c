@@ -68,7 +68,7 @@ void co_handle_rx (co_net_t * net)
          {
             co_pdo_rx (net, id, data, dlc);
          }
-         else if (function == CO_FUNCTION_SYNC)
+         else if (function == CO_FUNCTION_SYNC && node == 0)
          {
             co_pdo_sync (net, data, dlc);
          }
