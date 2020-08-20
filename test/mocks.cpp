@@ -119,9 +119,11 @@ void mock_co_od_reset (co_net_t * net)
 }
 
 unsigned int mock_co_emcy_tx_calls = 0;
-void mock_co_emcy_tx (co_net_t * net)
+uint16_t mock_co_emcy_tx_code = 0;
+void mock_co_emcy_tx (co_net_t * net, uint16_t code)
 {
    mock_co_emcy_tx_calls++;
+   mock_co_emcy_tx_code = code;
 }
 
 
