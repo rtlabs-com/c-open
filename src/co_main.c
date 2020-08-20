@@ -371,6 +371,7 @@ co_net_t * co_init (const char * canif, const co_cfg_t * cfg)
    net->defaults = cfg->defaults;
 
    net->cb_arg = cfg->cb_arg;
+   net->cb_reset = cfg->cb_reset;
    net->cb_nmt = cfg->cb_nmt;
    net->cb_sync = cfg->cb_sync;
    net->cb_emcy = cfg->cb_emcy;
