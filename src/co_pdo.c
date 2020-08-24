@@ -702,9 +702,10 @@ void co_pdo_rx (co_net_t * net, uint32_t id, void * msg, size_t dlc)
 
          if (pdo->cobid == id)
          {
-            if (CO_BYTELENGTH (pdo->bitlength) != dlc)
+            if (CO_BYTELENGTH (pdo->bitlength) > dlc)
             {
-               /* Bad PDO length */
+               /* PDO received is too short. Sending EMCY when it's too long is
+                * optional, so don't do that (data must still be consumed). */
                co_emcy_tx (net, 0x8210, 0, NULL);
             }
             else

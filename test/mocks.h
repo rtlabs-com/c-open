@@ -75,7 +75,8 @@ extern unsigned int mock_co_od_reset_calls;
 void mock_co_od_reset (co_net_t * net);
 
 extern unsigned int mock_co_emcy_tx_calls;
-void mock_co_emcy_tx (co_net_t * net);
+extern uint16_t mock_co_emcy_tx_code;
+void mock_co_emcy_tx (co_net_t * net, uint16_t code);
 
 extern unsigned int cb_reset_calls;
 void cb_reset (void * arg);

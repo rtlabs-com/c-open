@@ -516,18 +516,35 @@ TEST_F (PdoTest, SyncStart)
    EXPECT_EQ (2u, mock_os_channel_send_calls);
 }
 
-TEST_F (PdoTest, RxBadLength)
+TEST_F (PdoTest, RxTooShort)
 {
-   uint8_t pdo[][8] = {
-      { 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88 },
+   uint8_t pdo[][3] = {
+      { 0x12, 0x34, 0x56 },
    };
 
    net.state = STATE_OP;
    net.pdo_rx[0].cobid = 0x201;
 
-   // Bad length, should generate emcy
+   // Too short, should ignore data and generate emcy
    co_pdo_rx (&net, 0x201, pdo[0], sizeof(pdo[0]));
    EXPECT_EQ (1u, mock_co_emcy_tx_calls);
+   EXPECT_EQ (0x8210, mock_co_emcy_tx_code);
+   EXPECT_EQ (0u, value7000);
+}
+
+TEST_F (PdoTest, RxTooLong)
+{
+   uint8_t pdo[][5] = {
+      { 0x12, 0x34, 0x56, 0x78, 0x9a },
+   };
+
+   net.state = STATE_OP;
+   net.pdo_rx[0].cobid = 0x201;
+
+   // Too long, should accept data and not generate emcy
+   co_pdo_rx (&net, 0x201, pdo[0], sizeof(pdo[0]));
+   EXPECT_EQ (0u, mock_co_emcy_tx_calls);
+   EXPECT_EQ (0x78563412u, value7000);
 }
 
 TEST_F (PdoTest, RxEvent)
