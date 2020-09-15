@@ -374,6 +374,7 @@ TEST_F (PdoTest, AddMapping)
 {
    const co_obj_t * obj1A00 = find_obj (0x1A00);
    uint32_t mapping = 0x60000020;
+   uint32_t entries;
    uint32_t result;
 
    mock_co_obj_find_result = find_obj (0x6000);
@@ -406,6 +407,12 @@ TEST_F (PdoTest, AddMapping)
    mock_co_entry_find_result = find_entry (mock_co_obj_find_result, 0);
    result = co_od1A00_fn (&net, OD_EVENT_WRITE, obj1A00, NULL, 1, &mapping);
    EXPECT_EQ (CO_SDO_ABORT_UNMAPPABLE, result);
+
+   // Too many mappings, should fail
+   net.pdo_tx[0].cobid = CO_COBID_INVALID | 0x181;
+   entries = MAX_PDO_ENTRIES + 1;
+   result = co_od1A00_fn (&net, OD_EVENT_WRITE, obj1A00, NULL, 0, &entries);
+   EXPECT_EQ (CO_SDO_ABORT_PDO_LENGTH, result);
 }
 
 TEST_F (PdoTest, MappingGet)
