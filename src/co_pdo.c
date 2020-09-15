@@ -124,6 +124,10 @@ static uint32_t co_pdo_mapping_validate (co_pdo_t * pdo, uint8_t number_of_mappi
 {
    int ix;
 
+   /* Mappings array bounds check */
+   if (number_of_mappings > MAX_PDO_ENTRIES)
+      return CO_SDO_ABORT_PDO_LENGTH;
+
    /* Check that bitlength is OK */
    pdo->bitlength = 0;
    for (ix = 0; ix < number_of_mappings; ix++)
