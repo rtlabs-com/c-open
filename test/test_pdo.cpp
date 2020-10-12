@@ -21,8 +21,9 @@
 
 class PdoTest : public TestBase
 {
-protected:
-   virtual void SetUp() {
+ protected:
+   virtual void SetUp()
+   {
       TestBase::SetUp();
 
       net.pdo_rx[0].cobid              = CO_COBID_INVALID | 0x201;
@@ -43,18 +44,19 @@ protected:
 
       value7000 = 0;
    }
-
 };
 
 // Tests
 
 TEST_F (PdoTest, PaddingTypes)
 {
+   // clang-format off
    uint8_t types[] = {
       1, 2, 3, 4, 5, 6, 7,
       16,
       18, 19, 20, 21, 22,
       24, 25, 26, 27 };
+   // clang-format on
 
    EXPECT_FALSE (co_is_padding (0, 0));
    for (size_t i = 0; i < NELEMENTS (types); i++)
@@ -68,16 +70,17 @@ TEST_F (PdoTest, PaddingTypes)
 TEST_F (PdoTest, Pack)
 {
    co_pdo_t pdo;
-   uint8_t * frame = (uint8_t *)&pdo.frame;
+   uint8_t * frame          = (uint8_t *)&pdo.frame;
    const co_obj_t * obj6003 = find_obj (0x6003);
 
-   memset (&pdo, 0, sizeof(pdo));
+   memset (&pdo, 0, sizeof (pdo));
 
    pdo.number_of_mappings = 2;
-   pdo.mappings[0] = 0x60030110;
-   pdo.mappings[1] = 0x60030208;
-   pdo.entries[0] = find_entry (obj6003, 1);
-   pdo.entries[1] = find_entry (obj6003, 2);;
+   pdo.mappings[0]        = 0x60030110;
+   pdo.mappings[1]        = 0x60030208;
+   pdo.entries[0]         = find_entry (obj6003, 1);
+   pdo.entries[1]         = find_entry (obj6003, 2);
+   ;
    pdo.objs[0] = obj6003;
    pdo.objs[1] = obj6003;
 
@@ -88,18 +91,18 @@ TEST_F (PdoTest, Pack)
 TEST_F (PdoTest, PackLarge)
 {
    co_pdo_t pdo;
-   uint8_t * frame = (uint8_t *)&pdo.frame;
+   uint8_t * frame          = (uint8_t *)&pdo.frame;
    const co_obj_t * obj6003 = find_obj (0x6003);
 
-   memset (&pdo, 0, sizeof(pdo));
+   memset (&pdo, 0, sizeof (pdo));
 
    pdo.number_of_mappings = 2;
-   pdo.mappings[0] = 0x60030320;
-   pdo.mappings[1] = 0x60030408;
-   pdo.entries[0] = find_entry (obj6003, 3);
-   pdo.entries[1] = find_entry (obj6003, 4);
-   pdo.objs[0] = obj6003;
-   pdo.objs[1] = obj6003;
+   pdo.mappings[0]        = 0x60030320;
+   pdo.mappings[1]        = 0x60030408;
+   pdo.entries[0]         = find_entry (obj6003, 3);
+   pdo.entries[1]         = find_entry (obj6003, 4);
+   pdo.objs[0]            = obj6003;
+   pdo.objs[1]            = obj6003;
 
    co_pdo_pack (&net, &pdo);
    EXPECT_EQ (99u, frame[4]);
@@ -108,18 +111,18 @@ TEST_F (PdoTest, PackLarge)
 TEST_F (PdoTest, PackSmall)
 {
    co_pdo_t pdo;
-   uint8_t * frame = (uint8_t *)&pdo.frame;
+   uint8_t * frame          = (uint8_t *)&pdo.frame;
    const co_obj_t * obj6003 = find_obj (0x6003);
 
-   memset (&pdo, 0, sizeof(pdo));
+   memset (&pdo, 0, sizeof (pdo));
 
    pdo.number_of_mappings = 2;
-   pdo.mappings[0] = 0x60030501;
-   pdo.mappings[1] = 0x60030601;
-   pdo.entries[0] = find_entry (obj6003, 5);
-   pdo.entries[1] = find_entry (obj6003, 6);
-   pdo.objs[0] = obj6003;
-   pdo.objs[1] = obj6003;
+   pdo.mappings[0]        = 0x60030501;
+   pdo.mappings[1]        = 0x60030601;
+   pdo.entries[0]         = find_entry (obj6003, 5);
+   pdo.entries[1]         = find_entry (obj6003, 6);
+   pdo.objs[0]            = obj6003;
+   pdo.objs[1]            = obj6003;
 
    co_pdo_pack (&net, &pdo);
    EXPECT_EQ (2u, frame[0]);
@@ -128,21 +131,21 @@ TEST_F (PdoTest, PackSmall)
 TEST_F (PdoTest, PackWithPadding)
 {
    co_pdo_t pdo;
-   uint8_t * frame = (uint8_t *)&pdo.frame;
+   uint8_t * frame          = (uint8_t *)&pdo.frame;
    const co_obj_t * obj6003 = find_obj (0x6003);
 
-   memset (&pdo, 0, sizeof(pdo));
+   memset (&pdo, 0, sizeof (pdo));
 
    pdo.number_of_mappings = 3;
-   pdo.mappings[0] = 0x60030601;
-   pdo.mappings[1] = 0x00010007;
-   pdo.mappings[2] = 0x60030601;
-   pdo.entries[0] = find_entry (obj6003, 6);
-   pdo.entries[1] = NULL;
-   pdo.entries[2] = find_entry (obj6003, 6);
-   pdo.objs[0] = obj6003;
-   pdo.objs[1] = NULL;
-   pdo.objs[2] = obj6003;
+   pdo.mappings[0]        = 0x60030601;
+   pdo.mappings[1]        = 0x00010007;
+   pdo.mappings[2]        = 0x60030601;
+   pdo.entries[0]         = find_entry (obj6003, 6);
+   pdo.entries[1]         = NULL;
+   pdo.entries[2]         = find_entry (obj6003, 6);
+   pdo.objs[0]            = obj6003;
+   pdo.objs[1]            = NULL;
+   pdo.objs[2]            = obj6003;
 
    co_pdo_pack (&net, &pdo);
    EXPECT_EQ (1u, frame[0]);
@@ -152,18 +155,18 @@ TEST_F (PdoTest, PackWithPadding)
 TEST_F (PdoTest, Unpack)
 {
    co_pdo_t pdo;
-   uint8_t * frame = (uint8_t *)&pdo.frame;
+   uint8_t * frame          = (uint8_t *)&pdo.frame;
    const co_obj_t * obj6003 = find_obj (0x6003);
 
-   memset (&pdo, 0, sizeof(pdo));
+   memset (&pdo, 0, sizeof (pdo));
 
    pdo.number_of_mappings = 2;
-   pdo.mappings[0] = 0x60030710;
-   pdo.mappings[1] = 0x60030808;
-   pdo.entries[0] = find_entry (obj6003, 7);
-   pdo.entries[1] = find_entry (obj6003, 8);
-   pdo.objs[0] = obj6003;
-   pdo.objs[1] = obj6003;
+   pdo.mappings[0]        = 0x60030710;
+   pdo.mappings[1]        = 0x60030808;
+   pdo.entries[0]         = find_entry (obj6003, 7);
+   pdo.entries[1]         = find_entry (obj6003, 8);
+   pdo.objs[0]            = obj6003;
+   pdo.objs[1]            = obj6003;
 
    frame[0] = 0x12;
    frame[1] = 0x34;
@@ -178,18 +181,18 @@ TEST_F (PdoTest, Unpack)
 TEST_F (PdoTest, UnpackLarge)
 {
    co_pdo_t pdo;
-   uint8_t * frame = (uint8_t *)&pdo.frame;
+   uint8_t * frame          = (uint8_t *)&pdo.frame;
    const co_obj_t * obj6003 = find_obj (0x6003);
 
-   memset (&pdo, 0, sizeof(pdo));
+   memset (&pdo, 0, sizeof (pdo));
 
    pdo.number_of_mappings = 2;
-   pdo.mappings[0] = 0x60030920;
-   pdo.mappings[1] = 0x60030A08;
-   pdo.entries[0] = find_entry (obj6003, 9);
-   pdo.entries[1] = find_entry (obj6003, 10);
-   pdo.objs[0] = obj6003;
-   pdo.objs[1] = obj6003;
+   pdo.mappings[0]        = 0x60030920;
+   pdo.mappings[1]        = 0x60030A08;
+   pdo.entries[0]         = find_entry (obj6003, 9);
+   pdo.entries[1]         = find_entry (obj6003, 10);
+   pdo.objs[0]            = obj6003;
+   pdo.objs[1]            = obj6003;
 
    frame[0] = 0x00;
    frame[1] = 0x11;
@@ -206,21 +209,21 @@ TEST_F (PdoTest, UnpackLarge)
 TEST_F (PdoTest, UnpackWithPadding)
 {
    co_pdo_t pdo;
-   uint8_t * frame = (uint8_t *)&pdo.frame;
+   uint8_t * frame          = (uint8_t *)&pdo.frame;
    const co_obj_t * obj6003 = find_obj (0x6003);
 
-   memset (&pdo, 0, sizeof(pdo));
+   memset (&pdo, 0, sizeof (pdo));
 
    pdo.number_of_mappings = 3;
-   pdo.mappings[0] = 0x60030808;
-   pdo.mappings[1] = 0x00050008;
-   pdo.mappings[2] = 0x60030710;
-   pdo.entries[0] = find_entry (obj6003, 8);
-   pdo.entries[1] = NULL;
-   pdo.entries[2] = find_entry (obj6003, 7);
-   pdo.objs[0] = obj6003;
-   pdo.objs[1] = NULL;
-   pdo.objs[2] = obj6003;
+   pdo.mappings[0]        = 0x60030808;
+   pdo.mappings[1]        = 0x00050008;
+   pdo.mappings[2]        = 0x60030710;
+   pdo.entries[0]         = find_entry (obj6003, 8);
+   pdo.entries[1]         = NULL;
+   pdo.entries[2]         = find_entry (obj6003, 7);
+   pdo.objs[0]            = obj6003;
+   pdo.objs[1]            = NULL;
+   pdo.objs[2]            = obj6003;
 
    frame[0] = 0x00;
    frame[1] = 0x11;
@@ -241,66 +244,66 @@ TEST_F (PdoTest, CommParamsSet)
    uint32_t result;
 
    // Bad COB ID
-   value = 0x7F;
+   value  = 0x7F;
    result = co_od1400_fn (&net, OD_EVENT_WRITE, obj1400, NULL, 1, &value);
    EXPECT_EQ (CO_SDO_ABORT_VALUE, result);
    EXPECT_EQ (CO_COBID_INVALID | 0x201u, net.pdo_rx[0].cobid);
 
    // Invalid (but legal) RPDO COB ID
-   value = CO_COBID_INVALID | 0x207;
+   value  = CO_COBID_INVALID | 0x207;
    result = co_od1400_fn (&net, OD_EVENT_WRITE, obj1400, NULL, 1, &value);
    EXPECT_EQ (0u, result);
    EXPECT_EQ (value, net.pdo_rx[0].cobid);
 
    // Transmission type
-   value = 0xFF;
+   value  = 0xFF;
    result = co_od1400_fn (&net, OD_EVENT_WRITE, obj1400, NULL, 2, &value);
    EXPECT_EQ (0u, result);
    EXPECT_EQ (value, net.pdo_rx[0].transmission_type);
 
    // Bad transmission type, should fail
-   value = 0xF1;
+   value  = 0xF1;
    result = co_od1400_fn (&net, OD_EVENT_WRITE, obj1400, NULL, 2, &value);
    EXPECT_EQ (CO_SDO_ABORT_VALUE, result);
    EXPECT_EQ (0xFF, net.pdo_rx[0].transmission_type);
 
    // Inhibit time
-   value = 1000;
+   value  = 1000;
    result = co_od1400_fn (&net, OD_EVENT_WRITE, obj1400, NULL, 3, &value);
    EXPECT_EQ (0u, result);
    EXPECT_EQ (value, net.pdo_rx[0].inhibit_time);
 
    // Bad subindex
-   value = 1;
+   value  = 1;
    result = co_od1400_fn (&net, OD_EVENT_WRITE, obj1400, NULL, 4, &value);
    EXPECT_EQ (CO_SDO_ABORT_BAD_SUBINDEX, result);
 
    // Event timer
-   value = 1000;
+   value  = 1000;
    result = co_od1400_fn (&net, OD_EVENT_WRITE, obj1400, NULL, 5, &value);
    EXPECT_EQ (0u, result);
    EXPECT_EQ (value, net.pdo_rx[0].event_timer);
 
    // Activate COB ID
-   value = 0x207;
+   value  = 0x207;
    result = co_od1400_fn (&net, OD_EVENT_WRITE, obj1400, NULL, 1, &value);
    EXPECT_EQ (0u, result);
    EXPECT_EQ (value, net.pdo_rx[0].cobid);
 
    // Modify inhibit time of active PDO, should fail
-   value = 2000;
+   value  = 2000;
    result = co_od1400_fn (&net, OD_EVENT_WRITE, obj1400, NULL, 3, &value);
    EXPECT_EQ (CO_SDO_ABORT_VALUE, result);
    EXPECT_EQ (1000u, net.pdo_rx[0].inhibit_time);
 
    // Invalid TPDO COB ID
-   value = CO_COBID_INVALID | 0x187;
+   value  = CO_COBID_INVALID | 0x187;
    result = co_od1800_fn (&net, OD_EVENT_WRITE, obj1800, NULL, 1, &value);
    EXPECT_EQ (0u, result);
    EXPECT_EQ (value, net.pdo_tx[0].cobid);
 
    // Sync start
-   value = 5;
+   value  = 5;
    result = co_od1800_fn (&net, OD_EVENT_WRITE, obj1800, NULL, 6, &value);
    EXPECT_EQ (0u, result);
    EXPECT_EQ (value, net.pdo_tx[0].sync_start);
@@ -355,17 +358,17 @@ TEST_F (PdoTest, CobId)
    uint32_t result;
 
    // Invalidate (disable) cob-id, should succeed
-   value = CO_COBID_INVALID | 0x181;
+   value  = CO_COBID_INVALID | 0x181;
    result = co_od1800_fn (&net, OD_EVENT_WRITE, obj1800, NULL, 1, &value);
    EXPECT_EQ (0u, result);
 
    // Activate cob-id, should succeed
-   value = 0x181;
+   value  = 0x181;
    result = co_od1800_fn (&net, OD_EVENT_WRITE, obj1800, NULL, 1, &value);
    EXPECT_EQ (0u, result);
 
    // Modify active cob-id, should fail
-   value = 0x191;
+   value  = 0x191;
    result = co_od1800_fn (&net, OD_EVENT_WRITE, obj1800, NULL, 1, &value);
    EXPECT_EQ (CO_SDO_ABORT_VALUE, result);
 }
@@ -373,14 +376,14 @@ TEST_F (PdoTest, CobId)
 TEST_F (PdoTest, AddMapping)
 {
    const co_obj_t * obj1A00 = find_obj (0x1A00);
-   uint32_t mapping = 0x60000020;
+   uint32_t mapping         = 0x60000020;
    uint32_t entries;
    uint32_t result;
 
-   mock_co_obj_find_result = find_obj (0x6000);
+   mock_co_obj_find_result   = find_obj (0x6000);
    mock_co_entry_find_result = find_entry (mock_co_obj_find_result, 0);
 
-   net.pdo_tx[0].cobid = CO_COBID_INVALID | 0x181;
+   net.pdo_tx[0].cobid              = CO_COBID_INVALID | 0x181;
    net.pdo_tx[0].number_of_mappings = 0;
 
    // Modify mapping of invalid (inactive) cob-id, should succeed
@@ -396,21 +399,21 @@ TEST_F (PdoTest, AddMapping)
 
    // Bad bitlength, should fail
    net.pdo_tx[0].cobid = CO_COBID_INVALID | 0x181;
-   mapping = 0x60000010;
+   mapping             = 0x60000010;
    result = co_od1A00_fn (&net, OD_EVENT_WRITE, obj1A00, NULL, 1, &mapping);
    EXPECT_EQ (CO_SDO_ABORT_UNMAPPABLE, result);
 
    // Not mappable, should fail
-   net.pdo_tx[0].cobid = CO_COBID_INVALID | 0x181;
-   mapping = 0x10050020;
-   mock_co_obj_find_result = find_obj (0x1005);
+   net.pdo_tx[0].cobid       = CO_COBID_INVALID | 0x181;
+   mapping                   = 0x10050020;
+   mock_co_obj_find_result   = find_obj (0x1005);
    mock_co_entry_find_result = find_entry (mock_co_obj_find_result, 0);
    result = co_od1A00_fn (&net, OD_EVENT_WRITE, obj1A00, NULL, 1, &mapping);
    EXPECT_EQ (CO_SDO_ABORT_UNMAPPABLE, result);
 
    // Too many mappings, should fail
    net.pdo_tx[0].cobid = CO_COBID_INVALID | 0x181;
-   entries = MAX_PDO_ENTRIES + 1;
+   entries             = MAX_PDO_ENTRIES + 1;
    result = co_od1A00_fn (&net, OD_EVENT_WRITE, obj1A00, NULL, 0, &entries);
    EXPECT_EQ (CO_SDO_ABORT_PDO_LENGTH, result);
 }
@@ -424,11 +427,13 @@ TEST_F (PdoTest, MappingGet)
    net.pdo_tx[0].cobid = CO_COBID_INVALID | 0x181;
 
    // Read bad subindex
-   result = co_od1A00_fn (&net, OD_EVENT_READ, obj1A00, NULL, MAX_PDO_ENTRIES + 1, &value);
+   result =
+      co_od1A00_fn (&net, OD_EVENT_READ, obj1A00, NULL, MAX_PDO_ENTRIES + 1, &value);
    EXPECT_EQ (CO_SDO_ABORT_BAD_SUBINDEX, result);
 
    // Write bad subindex
-   result = co_od1A00_fn (&net, OD_EVENT_WRITE, obj1A00, NULL, MAX_PDO_ENTRIES + 1, &value);
+   result =
+      co_od1A00_fn (&net, OD_EVENT_WRITE, obj1A00, NULL, MAX_PDO_ENTRIES + 1, &value);
    EXPECT_EQ (CO_SDO_ABORT_BAD_SUBINDEX, result);
 
    // Read number of mappings
@@ -440,7 +445,6 @@ TEST_F (PdoTest, MappingGet)
    result = co_od1A00_fn (&net, OD_EVENT_READ, obj1A00, NULL, 1, &value);
    EXPECT_EQ (0u, result);
    EXPECT_EQ (net.pdo_tx[0].mappings[0], value);
-
 }
 
 TEST_F (PdoTest, SyncWindowGetSet)
@@ -448,11 +452,11 @@ TEST_F (PdoTest, SyncWindowGetSet)
    uint32_t value;
    uint32_t result;
 
-   value = 400;
+   value  = 400;
    result = co_od1007_fn (&net, OD_EVENT_WRITE, NULL, NULL, 0, &value);
    EXPECT_EQ (0u, result);
 
-   value = 0;
+   value  = 0;
    result = co_od1007_fn (&net, OD_EVENT_READ, NULL, NULL, 0, &value);
    EXPECT_EQ (0u, result);
    EXPECT_EQ (400u, value);
@@ -465,10 +469,10 @@ TEST_F (PdoTest, Sync)
    net.state = STATE_OP;
 
    // cyclic, every sync
-   net.pdo_tx[0].transmission_type  = 1;
+   net.pdo_tx[0].transmission_type = 1;
 
-   co_pdo_sync (&net, &counter, sizeof(counter));
-   co_pdo_sync (&net, &counter, sizeof(counter));
+   co_pdo_sync (&net, &counter, sizeof (counter));
+   co_pdo_sync (&net, &counter, sizeof (counter));
    EXPECT_EQ (2u, mock_os_channel_send_calls);
 }
 
@@ -481,16 +485,16 @@ TEST_F (PdoTest, Sync3)
    // cyclic, every 3rd sync
    net.pdo_tx[0].transmission_type = 3;
 
-   co_pdo_sync (&net, &counter, sizeof(counter));
-   co_pdo_sync (&net, &counter, sizeof(counter));
+   co_pdo_sync (&net, &counter, sizeof (counter));
+   co_pdo_sync (&net, &counter, sizeof (counter));
    EXPECT_EQ (0u, mock_os_channel_send_calls);
-   co_pdo_sync (&net, &counter, sizeof(counter));
+   co_pdo_sync (&net, &counter, sizeof (counter));
    EXPECT_EQ (1u, mock_os_channel_send_calls);
 
-   co_pdo_sync (&net, &counter, sizeof(counter));
-   co_pdo_sync (&net, &counter, sizeof(counter));
+   co_pdo_sync (&net, &counter, sizeof (counter));
+   co_pdo_sync (&net, &counter, sizeof (counter));
    EXPECT_EQ (1u, mock_os_channel_send_calls);
-   co_pdo_sync (&net, &counter, sizeof(counter));
+   co_pdo_sync (&net, &counter, sizeof (counter));
    EXPECT_EQ (2u, mock_os_channel_send_calls);
 }
 
@@ -501,39 +505,40 @@ TEST_F (PdoTest, SyncStart)
    net.state = STATE_OP;
 
    // cyclic, every 2nd sync, sync_start 2
-   net.sync.overflow = 3;
+   net.sync.overflow               = 3;
    net.pdo_tx[0].transmission_type = 2;
-   net.pdo_tx[0].sync_start = 2;
-   net.pdo_tx[0].sync_wait = 1;
+   net.pdo_tx[0].sync_start        = 2;
+   net.pdo_tx[0].sync_wait         = 1;
 
    // Should ignore, sync not matched yet
-   co_pdo_sync (&net, &counter, sizeof(counter));
-   co_pdo_sync (&net, &counter, sizeof(counter));
-   co_pdo_sync (&net, &counter, sizeof(counter));
+   co_pdo_sync (&net, &counter, sizeof (counter));
+   co_pdo_sync (&net, &counter, sizeof (counter));
+   co_pdo_sync (&net, &counter, sizeof (counter));
    EXPECT_EQ (0u, mock_os_channel_send_calls);
 
    // First matching sync. Counter is ignored after match.
    counter = 2;
-   co_pdo_sync (&net, &counter, sizeof(counter));
-   co_pdo_sync (&net, &counter, sizeof(counter));
+   co_pdo_sync (&net, &counter, sizeof (counter));
+   co_pdo_sync (&net, &counter, sizeof (counter));
    EXPECT_EQ (1u, mock_os_channel_send_calls);
 
-   co_pdo_sync (&net, &counter, sizeof(counter));
-   co_pdo_sync (&net, &counter, sizeof(counter));
+   co_pdo_sync (&net, &counter, sizeof (counter));
+   co_pdo_sync (&net, &counter, sizeof (counter));
    EXPECT_EQ (2u, mock_os_channel_send_calls);
 }
 
 TEST_F (PdoTest, RxTooShort)
 {
    uint8_t pdo[][3] = {
-      { 0x12, 0x34, 0x56 },
+      {0x12, 0x34, 0x56},
    };
 
    net.state = STATE_OP;
+
    net.pdo_rx[0].cobid = 0x201;
 
    // Too short, should ignore data and generate emcy
-   co_pdo_rx (&net, 0x201, pdo[0], sizeof(pdo[0]));
+   co_pdo_rx (&net, 0x201, pdo[0], sizeof (pdo[0]));
    EXPECT_EQ (1u, mock_co_emcy_tx_calls);
    EXPECT_EQ (0x8210, mock_co_emcy_tx_code);
    EXPECT_EQ (0u, value7000);
@@ -542,14 +547,15 @@ TEST_F (PdoTest, RxTooShort)
 TEST_F (PdoTest, RxTooLong)
 {
    uint8_t pdo[][5] = {
-      { 0x12, 0x34, 0x56, 0x78, 0x9a },
+      {0x12, 0x34, 0x56, 0x78, 0x9a},
    };
 
    net.state = STATE_OP;
+
    net.pdo_rx[0].cobid = 0x201;
 
    // Too long, should accept data and not generate emcy
-   co_pdo_rx (&net, 0x201, pdo[0], sizeof(pdo[0]));
+   co_pdo_rx (&net, 0x201, pdo[0], sizeof (pdo[0]));
    EXPECT_EQ (0u, mock_co_emcy_tx_calls);
    EXPECT_EQ (0x78563412u, value7000);
 }
@@ -557,72 +563,75 @@ TEST_F (PdoTest, RxTooLong)
 TEST_F (PdoTest, RxEvent)
 {
    uint8_t pdo[][4] = {
-      { 0x11, 0x22, 0x33, 0x44 },
+      {0x11, 0x22, 0x33, 0x44},
    };
 
    net.state = STATE_OP;
-   net.pdo_rx[0].cobid = 0x201;
+
+   net.pdo_rx[0].cobid             = 0x201;
    net.pdo_rx[0].transmission_type = 0xFF;
 
    // Should update value immediately
-   co_pdo_rx (&net, 0x201, pdo[0], sizeof(pdo[0]));
+   co_pdo_rx (&net, 0x201, pdo[0], sizeof (pdo[0]));
    EXPECT_EQ (0x44332211u, value7000);
 }
 
 TEST_F (PdoTest, RxSync)
 {
-   uint8_t counter = 0;
+   uint8_t counter  = 0;
    uint8_t pdo[][4] = {
-      { 0x11, 0x22, 0x33, 0x44 },
+      {0x11, 0x22, 0x33, 0x44},
    };
 
    net.state = STATE_OP;
-   net.pdo_rx[0].cobid = 0x201;
+
+   net.pdo_rx[0].cobid             = 0x201;
    net.pdo_rx[0].transmission_type = 0xF0;
 
    // Should not update value immediately
-   co_pdo_rx (&net, 0x201, pdo[0], sizeof(pdo[0]));
+   co_pdo_rx (&net, 0x201, pdo[0], sizeof (pdo[0]));
    EXPECT_EQ (0u, value7000);
 
    // Should update after sync
-   co_pdo_sync (&net, &counter, sizeof(counter));
+   co_pdo_sync (&net, &counter, sizeof (counter));
    EXPECT_EQ (0x44332211u, value7000);
 }
 
 TEST_F (PdoTest, RxSyncWindow)
 {
-   uint8_t counter = 0;
+   uint8_t counter  = 0;
    uint8_t pdo[][4] = {
-      { 0x11, 0x22, 0x33, 0x44 },
-      { 0x55, 0x66, 0x77, 0x88 },
+      {0x11, 0x22, 0x33, 0x44},
+      {0x55, 0x66, 0x77, 0x88},
    };
 
    net.state = STATE_OP;
-   net.pdo_rx[0].cobid = 0x201;
+
+   net.pdo_rx[0].cobid             = 0x201;
    net.pdo_rx[0].transmission_type = 0xF0;
-   net.sync_window = 100;
+   net.sync_window                 = 100;
 
    // Start sync window
-   co_pdo_sync (&net, &counter, sizeof(counter));
+   co_pdo_sync (&net, &counter, sizeof (counter));
 
    // In sync window, should buffer value
    mock_os_get_current_time_us_result = 50;
-   co_pdo_rx (&net, 0x201, pdo[0], sizeof(pdo[0]));
+   co_pdo_rx (&net, 0x201, pdo[0], sizeof (pdo[0]));
    EXPECT_EQ (0u, value7000);
 
    // Sync, should deliver value
    mock_os_get_current_time_us_result = 1000;
-   co_pdo_sync (&net, &counter, sizeof(counter));
+   co_pdo_sync (&net, &counter, sizeof (counter));
    EXPECT_EQ (0x44332211u, value7000);
 
    // Outside sync window, should not buffer value
    mock_os_get_current_time_us_result = 150;
-   co_pdo_rx (&net, 0x201, pdo[1], sizeof(pdo[1]));
+   co_pdo_rx (&net, 0x201, pdo[1], sizeof (pdo[1]));
    EXPECT_EQ (0x44332211u, value7000);
 
    // Sync, should not deliver value
    mock_os_get_current_time_us_result = 2000;
-   co_pdo_sync (&net, &counter, sizeof(counter));
+   co_pdo_sync (&net, &counter, sizeof (counter));
    EXPECT_EQ (0x44332211u, value7000);
 }
 
@@ -631,6 +640,7 @@ TEST_F (PdoTest, RtrEvent)
    uint8_t rtr = 0x00;
 
    net.state = STATE_OP;
+
    net.pdo_tx[0].transmission_type = 0xFD;
 
    // Should send PDO immediately
@@ -641,18 +651,19 @@ TEST_F (PdoTest, RtrEvent)
 
 TEST_F (PdoTest, RtrSync)
 {
-   uint8_t counter = 0;
-   uint8_t rtr = 0x00;
+   uint8_t counter       = 0;
+   uint8_t rtr           = 0x00;
    uint8_t expected[][8] = {
-      { 0x01, 0x00, 0x00, 0x00 },
+      {0x01, 0x00, 0x00, 0x00},
    };
 
    net.state = STATE_OP;
+
    net.pdo_tx[0].transmission_type = 0xFC;
 
    // Should sample PDO at sync
    value6000 = 1;
-   co_pdo_sync (&net, &counter, sizeof(counter));
+   co_pdo_sync (&net, &counter, sizeof (counter));
 
    // Should send buffered sample at RTR
    value6000 = 0;
@@ -664,8 +675,9 @@ TEST_F (PdoTest, RtrSync)
 TEST_F (PdoTest, TxEventTimer)
 {
    net.state = STATE_OP;
+
    net.pdo_tx[0].transmission_type = 0xFF;
-   net.pdo_tx[0].event_timer = 100;
+   net.pdo_tx[0].event_timer       = 100;
 
    // Timer has not expired
    mock_os_get_current_time_us_result = 50 * 1000;
@@ -682,8 +694,9 @@ TEST_F (PdoTest, TxEventTimer)
 TEST_F (PdoTest, TxInhibitTime)
 {
    net.state = STATE_OP;
+
    net.pdo_tx[0].transmission_type = 0xFF;
-   net.pdo_tx[0].inhibit_time = 100;
+   net.pdo_tx[0].inhibit_time      = 100;
 
    // Timer has not expired
    mock_os_get_current_time_us_result = 50 * 100;
@@ -702,6 +715,7 @@ TEST_F (PdoTest, TxAcyclic)
    uint8_t counter = 0;
 
    net.state = STATE_OP;
+
    net.pdo_tx[0].transmission_type = 0x00;
 
    // Should not send PDO immediately
@@ -709,7 +723,7 @@ TEST_F (PdoTest, TxAcyclic)
    EXPECT_EQ (0x0u, mock_os_channel_send_calls);
 
    // Should send PDO after sync
-   co_pdo_sync (&net, &counter, sizeof(counter));
+   co_pdo_sync (&net, &counter, sizeof (counter));
    EXPECT_EQ (0x1u, mock_os_channel_send_calls);
    EXPECT_EQ (0x181u, mock_os_channel_send_id);
 }
@@ -733,7 +747,7 @@ TEST_F (PdoTest, SparsePdo)
    EXPECT_EQ (CO_COBID_INVALID, net.pdo_rx[1].cobid);
 
    // Check that 1533 is mapped to pdo_rx
-   value = 0x202;
+   value  = 0x202;
    result = co_od1400_fn (&net, OD_EVENT_WRITE, obj1533, NULL, 1, &value);
    EXPECT_EQ (0u, result);
    EXPECT_EQ (0x202u, net.pdo_rx[1].cobid);
@@ -745,7 +759,7 @@ TEST_F (PdoTest, SparsePdo)
    EXPECT_EQ (0x1234u, value);
 
    // Check that 1533 is mapped to pdo_tx
-   value = 0x182;
+   value  = 0x182;
    result = co_od1800_fn (&net, OD_EVENT_WRITE, obj1899, NULL, 1, &value);
    EXPECT_EQ (0u, result);
    EXPECT_EQ (0x182u, net.pdo_tx[1].cobid);

@@ -25,7 +25,8 @@
 
 #include <canlib.h>
 
-static void CANLIBAPI os_can_callback (CanHandle handle, void * context, unsigned int event)
+static void CANLIBAPI
+os_can_callback (CanHandle handle, void * context, unsigned int event)
 {
    os_channel_t * channel = context;
 
@@ -35,8 +36,8 @@ static void CANLIBAPI os_can_callback (CanHandle handle, void * context, unsigne
 
 os_channel_t * os_channel_open (const char * name, void * callback, void * arg)
 {
-   os_channel_t * channel = malloc (sizeof(*channel));
-   unsigned long ix = strtoul (name, NULL, 0);
+   os_channel_t * channel = malloc (sizeof (*channel));
+   unsigned long ix       = strtoul (name, NULL, 0);
 
    canInitializeLibrary();
 
@@ -48,10 +49,9 @@ os_channel_t * os_channel_open (const char * name, void * callback, void * arg)
    }
 
    channel->callback = callback;
-   channel->arg = arg;
+   channel->arg      = arg;
 
-   kvSetNotifyCallback (channel->handle, os_can_callback,
-                        channel, canNOTIFY_RX);
+   kvSetNotifyCallback (channel->handle, os_can_callback, channel, canNOTIFY_RX);
 
    return channel;
 }
@@ -73,7 +73,11 @@ int os_channel_send (os_channel_t * channel, uint32_t id, const void * data, siz
    return 0;
 }
 
-int os_channel_receive (os_channel_t * channel, uint32_t * id, void * data, size_t * dlc)
+int os_channel_receive (
+   os_channel_t * channel,
+   uint32_t * id,
+   void * data,
+   size_t * dlc)
 {
    canStatus status;
    unsigned int flags;
@@ -94,14 +98,25 @@ int os_channel_set_bitrate (os_channel_t * channel, int bitrate)
 {
    canStatus status;
 
-   switch(bitrate)
+   switch (bitrate)
    {
-   case 100 * 1000: bitrate = canBITRATE_100K; break;
-   case 125 * 1000: bitrate = canBITRATE_125K; break;
-   case 250 * 1000: bitrate = canBITRATE_250K; break;
-   case 500 * 1000: bitrate = canBITRATE_500K; break;
-   case 1000 * 1000: bitrate = canBITRATE_1M; break;
-   default: assert (0);
+   case 100 * 1000:
+      bitrate = canBITRATE_100K;
+      break;
+   case 125 * 1000:
+      bitrate = canBITRATE_125K;
+      break;
+   case 250 * 1000:
+      bitrate = canBITRATE_250K;
+      break;
+   case 500 * 1000:
+      bitrate = canBITRATE_500K;
+      break;
+   case 1000 * 1000:
+      bitrate = canBITRATE_1M;
+      break;
+   default:
+      assert (0);
    }
 
    status = canSetBusParams (channel->handle, bitrate, 0, 0, 0, 0, 0);

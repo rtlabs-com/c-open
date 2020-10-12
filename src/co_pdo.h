@@ -22,8 +22,7 @@
 #define CO_PDO_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include "co_api.h"

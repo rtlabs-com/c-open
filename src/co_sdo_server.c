@@ -14,20 +14,20 @@
  ********************************************************************/
 
 #ifdef UNIT_TEST
-#define os_channel_send mock_os_channel_send
+#define os_channel_send    mock_os_channel_send
 #define os_channel_receive mock_os_channel_receive
-#define co_obj_find mock_co_obj_find
-#define co_entry_find mock_co_entry_find
+#define co_obj_find        mock_co_obj_find
+#define co_entry_find      mock_co_entry_find
 #endif
 
 #include "co_sdo.h"
 #include "co_od.h"
 #include "co_util.h"
 
-#define CO_SDO_xCS(v)      ((v) & 0xE0)
-#define CO_SDO_N(v)        (((v) >> 2) & 0x03)
-#define CO_SDO_E           BIT (1)
-#define CO_SDO_S           BIT (0)
+#define CO_SDO_xCS(v) ((v)&0xE0)
+#define CO_SDO_N(v)   (((v) >> 2) & 0x03)
+#define CO_SDO_E      BIT (1)
+#define CO_SDO_S      BIT (0)
 
 #define CO_SDO_CCS_DOWNLOAD_SEG_REQ  (0 << 5)
 #define CO_SDO_CCS_DOWNLOAD_INIT_REQ (1 << 5)
@@ -39,27 +39,32 @@
 #define CO_SDO_SCS_UPLOAD_INIT_RSP   (2 << 5)
 #define CO_SDO_SCS_DOWNLOAD_INIT_RSP (3 << 5)
 
-#define CO_SDO_xCS_ABORT             (4 << 5)
+#define CO_SDO_xCS_ABORT (4 << 5)
 
-#define CO_SDO_TOGGLE      BIT (4)
-#define CO_SDO_N_SEG(v)    (((v) >> 1) & 0x07)
-#define CO_SDO_C           BIT (0)
+#define CO_SDO_TOGGLE   BIT (4)
+#define CO_SDO_N_SEG(v) (((v) >> 1) & 0x07)
+#define CO_SDO_C        BIT (0)
 
-void co_sdo_abort (co_net_t * net, uint16_t id, uint16_t index, uint8_t subindex, uint32_t code)
+void co_sdo_abort (
+   co_net_t * net,
+   uint16_t id,
+   uint16_t index,
+   uint8_t subindex,
+   uint32_t code)
 {
-   uint8_t msg[8] = { 0 };
-   uint8_t * p = msg;
+   uint8_t msg[8] = {0};
+   uint8_t * p    = msg;
 
    net->job_sdo_server.type = CO_JOB_NONE;
 
-   LOG_WARNING (CO_SDO_LOG, "sdo abort 0x%"PRIx32"\n", code);
+   LOG_WARNING (CO_SDO_LOG, "sdo abort 0x%" PRIx32 "\n", code);
 
-   p = co_put_uint8  (p, CO_SDO_xCS_ABORT);
+   p = co_put_uint8 (p, CO_SDO_xCS_ABORT);
    p = co_put_uint16 (p, index);
-   p = co_put_uint8  (p, subindex);
+   p = co_put_uint8 (p, subindex);
    co_put_uint32 (p, code);
 
-   os_channel_send (net->channel, id, msg, sizeof(msg));
+   os_channel_send (net->channel, id, msg, sizeof (msg));
 }
 
 int co_sdo_toggle_update (co_job_t * job, uint8_t type)
@@ -77,11 +82,11 @@ int co_sdo_toggle_update (co_job_t * job, uint8_t type)
 
 static int co_sdo_get_structure (co_net_t * net, const co_obj_t * obj)
 {
-   uint8_t msg[8] = { 0 };
-   uint8_t * p = msg;
+   uint8_t msg[8] = {0};
+   uint8_t * p    = msg;
    co_dtype_t datatype;
 
-   switch(obj->objtype)
+   switch (obj->objtype)
    {
    case OTYPE_VAR:
       datatype = obj->entries[0].datatype;
@@ -93,38 +98,45 @@ static int co_sdo_get_structure (co_net_t * net, const co_obj_t * obj)
       datatype = 0;
    }
 
-   p = co_put_uint8  (p, CO_SDO_SCS_UPLOAD_INIT_RSP | CO_SDO_E | CO_SDO_S);
+   p = co_put_uint8 (p, CO_SDO_SCS_UPLOAD_INIT_RSP | CO_SDO_E | CO_SDO_S);
    p = co_put_uint16 (p, obj->index);
-   p = co_put_uint8  (p, 0xFF);
+   p = co_put_uint8 (p, 0xFF);
    co_put_uint32 (p, (datatype << 8) | obj->objtype);
 
-   os_channel_send (net->channel, 0x580 + net->node, msg, sizeof(msg));
+   os_channel_send (net->channel, 0x580 + net->node, msg, sizeof (msg));
    return 0;
 }
 
-static int co_sdo_rx_upload_init_req (co_net_t * net, uint8_t node,
-        uint8_t type, uint8_t * data)
+static int co_sdo_rx_upload_init_req (
+   co_net_t * net,
+   uint8_t node,
+   uint8_t type,
+   uint8_t * data)
 {
    co_job_t * job = &net->job_sdo_server;
    const co_obj_t * obj;
    const co_entry_t * entry;
    uint32_t abort;
-   uint8_t msg[8] = { 0 };
-   uint8_t * p = msg;
+   uint8_t msg[8] = {0};
+   uint8_t * p    = msg;
    uint8_t scs;
 
    /* Configure upload job */
-   job->type = CO_JOB_SDO_UPLOAD;
-   job->sdo.index = co_fetch_uint16 (&data[1]);
+   job->type         = CO_JOB_SDO_UPLOAD;
+   job->sdo.index    = co_fetch_uint16 (&data[1]);
    job->sdo.subindex = data[3];
-   job->timestamp = os_get_current_time_us();
+   job->timestamp    = os_get_current_time_us();
 
    /* Find requested object */
    obj = co_obj_find (net, job->sdo.index);
    if (obj == NULL)
    {
-      co_sdo_abort (net, 0x580 + net->node, job->sdo.index,
-                    job->sdo.subindex, CO_SDO_ABORT_BAD_INDEX);
+      co_sdo_abort (
+         net,
+         0x580 + net->node,
+         job->sdo.index,
+         job->sdo.subindex,
+         CO_SDO_ABORT_BAD_INDEX);
       return -1;
    }
 
@@ -139,26 +151,35 @@ static int co_sdo_rx_upload_init_req (co_net_t * net, uint8_t node,
    entry = co_entry_find (net, obj, job->sdo.subindex);
    if (entry == NULL)
    {
-      co_sdo_abort (net, 0x580 + net->node, job->sdo.index,
-                    job->sdo.subindex, CO_SDO_ABORT_BAD_SUBINDEX);
+      co_sdo_abort (
+         net,
+         0x580 + net->node,
+         job->sdo.index,
+         job->sdo.subindex,
+         CO_SDO_ABORT_BAD_SUBINDEX);
       return -1;
    }
 
    /* Check read permission */
    if ((entry->flags & OD_READ) == 0)
    {
-      co_sdo_abort (net, 0x580 + net->node, job->sdo.index,
-                    job->sdo.subindex, CO_SDO_ABORT_ACCESS_WO);
+      co_sdo_abort (
+         net,
+         0x580 + net->node,
+         job->sdo.index,
+         job->sdo.subindex,
+         CO_SDO_ABORT_ACCESS_WO);
       return -1;
    }
 
    job->sdo.remain = CO_BYTELENGTH (entry->bitlength);
    job->sdo.toggle = 0;
 
-   if (job->sdo.remain <= sizeof(job->sdo.value))
+   if (job->sdo.remain <= sizeof (job->sdo.value))
    {
       /* Object values up to 64 bits are fetched atomically */
-      abort = co_od_get_value (net, obj, entry, job->sdo.subindex, &job->sdo.value);
+      abort =
+         co_od_get_value (net, obj, entry, job->sdo.subindex, &job->sdo.value);
       job->sdo.data = (uint8_t *)&job->sdo.value;
    }
    else
@@ -169,8 +190,7 @@ static int co_sdo_rx_upload_init_req (co_net_t * net, uint8_t node,
 
    if (abort)
    {
-      co_sdo_abort (net, 0x580 + net->node, job->sdo.index,
-                    job->sdo.subindex, abort);
+      co_sdo_abort (net, 0x580 + net->node, job->sdo.index, job->sdo.subindex, abort);
       return -1;
    }
 
@@ -195,31 +215,38 @@ static int co_sdo_rx_upload_init_req (co_net_t * net, uint8_t node,
       /* Segmented upload */
       scs = CO_SDO_SCS_UPLOAD_INIT_RSP | CO_SDO_S;
 
-      p = co_put_uint8  (p, scs);
+      p = co_put_uint8 (p, scs);
       p = co_put_uint16 (p, job->sdo.index);
-      p = co_put_uint8  (p, job->sdo.subindex);
+      p = co_put_uint8 (p, job->sdo.subindex);
       co_put_uint32 (p, job->sdo.remain);
    }
 
-   os_channel_send (net->channel, 0x580 + net->node, msg, sizeof(msg));
+   os_channel_send (net->channel, 0x580 + net->node, msg, sizeof (msg));
    return 0;
 }
 
-static int co_sdo_rx_upload_seg_req (co_net_t * net, uint8_t node,
-        uint8_t type, uint8_t * data)
+static int co_sdo_rx_upload_seg_req (
+   co_net_t * net,
+   uint8_t node,
+   uint8_t type,
+   uint8_t * data)
 {
    co_job_t * job = &net->job_sdo_server;
    int error;
-   uint8_t msg[8] = { 0 };
-   uint8_t * p = msg;
+   uint8_t msg[8] = {0};
+   uint8_t * p    = msg;
    uint8_t scs;
 
    /* Check toggle protocol */
    error = co_sdo_toggle_update (job, type);
    if (error < 0)
    {
-      co_sdo_abort (net, 0x580 + net->node, job->sdo.index,
-                    job->sdo.subindex, CO_SDO_ABORT_TOGGLE);
+      co_sdo_abort (
+         net,
+         0x580 + net->node,
+         job->sdo.index,
+         job->sdo.subindex,
+         CO_SDO_ABORT_TOGGLE);
       return error;
    }
 
@@ -253,32 +280,39 @@ static int co_sdo_rx_upload_seg_req (co_net_t * net, uint8_t node,
       job->sdo.remain -= size;
    }
 
-   os_channel_send (net->channel, 0x580 + net->node, msg, sizeof(msg));
+   os_channel_send (net->channel, 0x580 + net->node, msg, sizeof (msg));
    return 0;
 }
 
-static int co_sdo_rx_download_init_req (co_net_t * net, uint8_t node,
-        uint8_t type, uint8_t * data)
+static int co_sdo_rx_download_init_req (
+   co_net_t * net,
+   uint8_t node,
+   uint8_t type,
+   uint8_t * data)
 {
    co_job_t * job = &net->job_sdo_server;
    const co_obj_t * obj;
    const co_entry_t * entry;
    uint32_t abort;
-   uint8_t msg[8] = { 0 };
-   uint8_t * p = msg;
+   uint8_t msg[8] = {0};
+   uint8_t * p    = msg;
 
    /* Configure download job */
-   job->type = CO_JOB_SDO_DOWNLOAD;
-   job->sdo.index = co_fetch_uint16 (&data[1]);
+   job->type         = CO_JOB_SDO_DOWNLOAD;
+   job->sdo.index    = co_fetch_uint16 (&data[1]);
    job->sdo.subindex = data[3];
-   job->timestamp = os_get_current_time_us();
+   job->timestamp    = os_get_current_time_us();
 
    /* Find requested object */
    obj = co_obj_find (net, job->sdo.index);
    if (obj == NULL)
    {
-      co_sdo_abort (net, 0x580 + net->node, job->sdo.index,
-                    job->sdo.subindex, CO_SDO_ABORT_BAD_INDEX);
+      co_sdo_abort (
+         net,
+         0x580 + net->node,
+         job->sdo.index,
+         job->sdo.subindex,
+         CO_SDO_ABORT_BAD_INDEX);
       return -1;
    }
 
@@ -286,27 +320,35 @@ static int co_sdo_rx_download_init_req (co_net_t * net, uint8_t node,
    entry = co_entry_find (net, obj, job->sdo.subindex);
    if (entry == NULL)
    {
-      co_sdo_abort (net, 0x580 + net->node, job->sdo.index,
-                    job->sdo.subindex, CO_SDO_ABORT_BAD_SUBINDEX);
+      co_sdo_abort (
+         net,
+         0x580 + net->node,
+         job->sdo.index,
+         job->sdo.subindex,
+         CO_SDO_ABORT_BAD_SUBINDEX);
       return -1;
    }
 
    /* Check write permission */
    if ((entry->flags & OD_WRITE) == 0)
    {
-      co_sdo_abort (net, 0x580 + net->node, job->sdo.index,
-                    job->sdo.subindex, CO_SDO_ABORT_ACCESS_RO);
+      co_sdo_abort (
+         net,
+         0x580 + net->node,
+         job->sdo.index,
+         job->sdo.subindex,
+         CO_SDO_ABORT_ACCESS_RO);
       return -1;
    }
 
    job->sdo.remain = CO_BYTELENGTH (entry->bitlength);
    job->sdo.toggle = 0;
 
-   if (job->sdo.remain <= sizeof(job->sdo.value))
+   if (job->sdo.remain <= sizeof (job->sdo.value))
    {
       /* Object values up to 64 bits are cached so that we can set
          them atomically when the transfer is complete */
-      job->sdo.data = (uint8_t *)&job->sdo.value;
+      job->sdo.data   = (uint8_t *)&job->sdo.value;
       job->sdo.cached = true;
    }
    else
@@ -315,8 +357,12 @@ static int co_sdo_rx_download_init_req (co_net_t * net, uint8_t node,
       abort = co_od_get_ptr (net, obj, entry, job->sdo.subindex, &job->sdo.data);
       if (abort)
       {
-         co_sdo_abort (net, 0x580 + net->node, job->sdo.index,
-                       job->sdo.subindex, abort);
+         co_sdo_abort (
+            net,
+            0x580 + net->node,
+            job->sdo.index,
+            job->sdo.subindex,
+            abort);
          return -1;
       }
    }
@@ -330,8 +376,12 @@ static int co_sdo_rx_download_init_req (co_net_t * net, uint8_t node,
       /* Validate size */
       if (size != job->sdo.remain)
       {
-         co_sdo_abort (net, 0x580 + net->node, job->sdo.index,
-                       job->sdo.subindex, CO_SDO_ABORT_LENGTH);
+         co_sdo_abort (
+            net,
+            0x580 + net->node,
+            job->sdo.index,
+            job->sdo.subindex,
+            CO_SDO_ABORT_LENGTH);
          return -1;
       }
 
@@ -339,16 +389,19 @@ static int co_sdo_rx_download_init_req (co_net_t * net, uint8_t node,
       value = co_fetch_uint32 (&data[4]);
 
       /* Atomically set value */
-      abort = co_od_set_value (net, obj, entry,
-                               job->sdo.subindex, value);
+      abort = co_od_set_value (net, obj, entry, job->sdo.subindex, value);
 
       /* Done */
       job->type = CO_JOB_NONE;
 
       if (abort)
       {
-         co_sdo_abort (net, 0x580 + net->node, job->sdo.index,
-                       job->sdo.subindex, abort);
+         co_sdo_abort (
+            net,
+            0x580 + net->node,
+            job->sdo.index,
+            job->sdo.subindex,
+            abort);
          return -1;
       }
    }
@@ -361,19 +414,22 @@ static int co_sdo_rx_download_init_req (co_net_t * net, uint8_t node,
    p = co_put_uint16 (p, job->sdo.index);
    co_put_uint8 (p, job->sdo.subindex);
 
-   os_channel_send (net->channel, 0x580 + net->node, msg, sizeof(msg));
+   os_channel_send (net->channel, 0x580 + net->node, msg, sizeof (msg));
    return 0;
 }
 
-static int co_sdo_rx_download_seg_req (co_net_t * net, uint8_t node,
-        uint8_t type, uint8_t * data)
+static int co_sdo_rx_download_seg_req (
+   co_net_t * net,
+   uint8_t node,
+   uint8_t type,
+   uint8_t * data)
 {
    co_job_t * job = &net->job_sdo_server;
    const co_obj_t * obj;
    const co_entry_t * entry;
    uint32_t abort;
-   uint8_t msg[8] = { 0 };
-   uint8_t * p = msg;
+   uint8_t msg[8] = {0};
+   uint8_t * p    = msg;
    int error;
    size_t size;
    uint8_t scs;
@@ -382,8 +438,12 @@ static int co_sdo_rx_download_seg_req (co_net_t * net, uint8_t node,
    error = co_sdo_toggle_update (job, type);
    if (error < 0)
    {
-      co_sdo_abort (net, 0x580 + net->node, job->sdo.index,
-                    job->sdo.subindex, CO_SDO_ABORT_TOGGLE);
+      co_sdo_abort (
+         net,
+         0x580 + net->node,
+         job->sdo.index,
+         job->sdo.subindex,
+         CO_SDO_ABORT_TOGGLE);
       return error;
    }
 
@@ -406,8 +466,12 @@ static int co_sdo_rx_download_seg_req (co_net_t * net, uint8_t node,
          obj = co_obj_find (net, job->sdo.index);
          if (obj == NULL)
          {
-            co_sdo_abort (net, 0x580 + net->node, job->sdo.index,
-                          job->sdo.subindex, CO_SDO_ABORT_BAD_INDEX);
+            co_sdo_abort (
+               net,
+               0x580 + net->node,
+               job->sdo.index,
+               job->sdo.subindex,
+               CO_SDO_ABORT_BAD_INDEX);
             return -1;
          }
 
@@ -415,18 +479,26 @@ static int co_sdo_rx_download_seg_req (co_net_t * net, uint8_t node,
          entry = co_entry_find (net, obj, job->sdo.subindex);
          if (entry == NULL)
          {
-            co_sdo_abort (net, 0x580 + net->node, job->sdo.index,
-                          job->sdo.subindex, CO_SDO_ABORT_BAD_SUBINDEX);
+            co_sdo_abort (
+               net,
+               0x580 + net->node,
+               job->sdo.index,
+               job->sdo.subindex,
+               CO_SDO_ABORT_BAD_SUBINDEX);
             return -1;
          }
 
          /* Atomically set value */
-         abort = co_od_set_value (net, obj, entry,
-                                  job->sdo.subindex, job->sdo.value);
+         abort =
+            co_od_set_value (net, obj, entry, job->sdo.subindex, job->sdo.value);
          if (abort)
          {
-            co_sdo_abort (net, 0x580 + net->node, job->sdo.index,
-                          job->sdo.subindex, abort);
+            co_sdo_abort (
+               net,
+               0x580 + net->node,
+               job->sdo.index,
+               job->sdo.subindex,
+               abort);
             return -1;
          }
       }
@@ -438,15 +510,15 @@ static int co_sdo_rx_download_seg_req (co_net_t * net, uint8_t node,
 
    co_put_uint8 (p, scs);
 
-   os_channel_send (net->channel, 0x580 + net->node, msg, sizeof(msg));
+   os_channel_send (net->channel, 0x580 + net->node, msg, sizeof (msg));
    return 0;
 }
 
 int co_sdo_rx (co_net_t * net, uint8_t node, void * msg, size_t dlc)
 {
    uint8_t * data = (uint8_t *)msg;
-   uint8_t type = data[0];
-   uint8_t ccs = CO_SDO_xCS (type);
+   uint8_t type   = data[0];
+   uint8_t ccs    = CO_SDO_xCS (type);
 
    /* Check for correct node id */
    if (node != net->node)
@@ -484,7 +556,7 @@ int co_sdo_rx (co_net_t * net, uint8_t node, void * msg, size_t dlc)
    {
       uint32_t error = co_fetch_uint32 (&data[4]);
       (void)error;
-      LOG_WARNING (CO_SDO_LOG, "sdo abort (%08"PRIx32")\n", error);
+      LOG_WARNING (CO_SDO_LOG, "sdo abort (%08" PRIx32 ")\n", error);
       return 1;
    }
 

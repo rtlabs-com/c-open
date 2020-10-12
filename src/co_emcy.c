@@ -14,8 +14,8 @@
  ********************************************************************/
 
 #ifdef UNIT_TEST
-#define os_channel_send mock_os_channel_send
-#define os_channel_get_state mock_os_channel_get_state
+#define os_channel_send        mock_os_channel_send
+#define os_channel_get_state   mock_os_channel_get_state
 #define os_get_current_time_us mock_os_get_current_time_us
 #endif
 
@@ -26,8 +26,7 @@
 
 #include <string.h>
 
-static uint32_t co_emcy_error_get (co_net_t * net, uint8_t subindex,
-        uint32_t * value)
+static uint32_t co_emcy_error_get (co_net_t * net, uint8_t subindex, uint32_t * value)
 {
    uint8_t ix;
 
@@ -48,8 +47,7 @@ static uint32_t co_emcy_error_get (co_net_t * net, uint8_t subindex,
    return CO_SDO_ABORT_NO_DATA;
 }
 
-static uint32_t co_emcy_error_set (co_net_t * net, uint8_t subindex,
-        uint32_t * value)
+static uint32_t co_emcy_error_set (co_net_t * net, uint8_t subindex, uint32_t * value)
 {
    /* Only subindex 0 is writable. Assert that this function is only
       called for subindex 0. */
@@ -68,8 +66,7 @@ uint32_t co_od1001_fn (
    const co_obj_t * obj,
    const co_entry_t * entry,
    uint8_t subindex,
-   uint32_t * value
-   )
+   uint32_t * value)
 {
    if (event == OD_EVENT_READ)
       *value = co_emcy_error_register_get (net);
@@ -82,8 +79,7 @@ uint32_t co_od1003_fn (
    const co_obj_t * obj,
    const co_entry_t * entry,
    uint8_t subindex,
-   uint32_t * value
-   )
+   uint32_t * value)
 {
    switch (event)
    {
@@ -105,8 +101,7 @@ uint32_t co_od1014_fn (
    const co_obj_t * obj,
    const co_entry_t * entry,
    uint8_t subindex,
-   uint32_t * value
-   )
+   uint32_t * value)
 {
    switch (event)
    {
@@ -132,8 +127,7 @@ uint32_t co_od1015_fn (
    const co_obj_t * obj,
    const co_entry_t * entry,
    uint8_t subindex,
-   uint32_t * value
-   )
+   uint32_t * value)
 {
    switch (event)
    {
@@ -204,7 +198,7 @@ uint32_t co_od1029_fn (
    case OD_EVENT_WRITE:
       if (subindex == 0)
          return CO_SDO_ABORT_BAD_SUBINDEX;
-      net->error_behavior = (uint8_t) *value;
+      net->error_behavior = (uint8_t)*value;
       return 0;
    case OD_EVENT_RESTORE:
       net->error_behavior = 0;
@@ -216,8 +210,8 @@ uint32_t co_od1029_fn (
 
 int co_emcy_tx (co_net_t * net, uint16_t code, uint16_t info, uint8_t msef[5])
 {
-   uint8_t msg[8] = { 0 };
-   uint8_t * p = msg;
+   uint8_t msg[8] = {0};
+   uint8_t * p    = msg;
    uint8_t reg;
    uint32_t now;
 
@@ -226,8 +220,10 @@ int co_emcy_tx (co_net_t * net, uint16_t code, uint16_t info, uint8_t msef[5])
 
    /* Move down previous errors. The oldest error is discarded. Note
       that memmove supports overlapping copy. */
-   memmove (&net->errors[1], &net->errors[0],
-           (net->number_of_errors - 1) * sizeof(net->errors[0]));
+   memmove (
+      &net->errors[1],
+      &net->errors[0],
+      (net->number_of_errors - 1) * sizeof (net->errors[0]));
 
    net->errors[0] = info << 16 | code;
 
@@ -251,7 +247,7 @@ int co_emcy_tx (co_net_t * net, uint16_t code, uint16_t info, uint8_t msef[5])
    if (co_is_expired (now, net->emcy.timestamp, 100 * net->emcy.inhibit))
    {
       LOG_ERROR (CO_EMCY_LOG, "emcy %x\n", code);
-      os_channel_send (net->channel, net->emcy.cobid, msg, sizeof(msg));
+      os_channel_send (net->channel, net->emcy.cobid, msg, sizeof (msg));
       net->emcy.timestamp = now;
    }
 
@@ -352,11 +348,10 @@ void co_emcy_handle_can_state (co_net_t * net)
    }
 
    /* Clear communication error state if all sub-errors are inactive */
-   if (!net->emcy.state.overrun &&
-       !net->emcy.state.error_passive &&
-       !net->emcy.state.bus_off &&
-       !net->emcy.node_guard_error &&
-       !net->emcy.heartbeat_error)
+   if (
+      !net->emcy.state.overrun && !net->emcy.state.error_passive &&
+      !net->emcy.state.bus_off && !net->emcy.node_guard_error &&
+      !net->emcy.heartbeat_error)
    {
       co_emcy_error_register_clear (net, CO_ERR_COMMUNICATION);
    }

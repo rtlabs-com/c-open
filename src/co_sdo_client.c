@@ -14,10 +14,10 @@
  ********************************************************************/
 
 #ifdef UNIT_TEST
-#define os_channel_send mock_os_channel_send
+#define os_channel_send    mock_os_channel_send
 #define os_channel_receive mock_os_channel_receive
-#define co_obj_find mock_co_obj_find
-#define co_entry_find mock_co_entry_find
+#define co_obj_find        mock_co_obj_find
+#define co_entry_find      mock_co_entry_find
 #endif
 
 #include "co_sdo.h"
@@ -34,8 +34,11 @@ static void co_sdo_done (co_net_t * net)
       job->callback (job);
 }
 
-static int co_sdo_tx_upload_init_rsp (co_net_t * net, uint8_t node,
-        uint8_t type, uint8_t * data)
+static int co_sdo_tx_upload_init_rsp (
+   co_net_t * net,
+   uint8_t node,
+   uint8_t type,
+   uint8_t * data)
 {
    co_job_t * job = net->job_client;
 
@@ -43,6 +46,7 @@ static int co_sdo_tx_upload_init_rsp (co_net_t * net, uint8_t node,
    if (type & CO_SDO_E)
    {
       size_t size = (type & CO_SDO_S) ? 4 - CO_SDO_N (type) : 4;
+
       size = MIN (job->sdo.remain, size);
       memcpy (job->sdo.data, &data[4], size);
 
@@ -50,30 +54,33 @@ static int co_sdo_tx_upload_init_rsp (co_net_t * net, uint8_t node,
       job->sdo.remain -= size;
       job->sdo.total += size;
 
-      job->result = job->sdo.total;      /* actual size */
+      job->result = job->sdo.total; /* actual size */
       co_sdo_done (net);
       return 1;
    }
    else
    {
-      uint8_t msg[8] = { 0 };
-      size_t size = co_fetch_uint32 (&data[4]);
-      size = MIN(job->sdo.remain, size);
+      uint8_t msg[8] = {0};
+      size_t size    = co_fetch_uint32 (&data[4]);
+      size           = MIN (job->sdo.remain, size);
 
       job->sdo.remain = size;
       job->sdo.toggle = 0;
-      job->sdo.total = 0;
+      job->sdo.total  = 0;
 
       msg[0] = CO_SDO_CCS_UPLOAD_SEG_REQ;
 
-      os_channel_send (net->channel, 0x600 + node, msg, sizeof(msg));
+      os_channel_send (net->channel, 0x600 + node, msg, sizeof (msg));
    }
 
    return 0;
 }
 
-static int co_sdo_tx_upload_seg_rsp (co_net_t * net, uint8_t node,
-        uint8_t type, uint8_t * data)
+static int co_sdo_tx_upload_seg_rsp (
+   co_net_t * net,
+   uint8_t node,
+   uint8_t type,
+   uint8_t * data)
 {
    co_job_t * job = net->job_client;
    int error;
@@ -81,16 +88,20 @@ static int co_sdo_tx_upload_seg_rsp (co_net_t * net, uint8_t node,
    error = co_sdo_toggle_update (job, type);
    if (error < 0)
    {
-      co_sdo_abort (net, 0x600 + net->node, job->sdo.index,
-                    job->sdo.subindex, CO_SDO_ABORT_TOGGLE);
+      co_sdo_abort (
+         net,
+         0x600 + net->node,
+         job->sdo.index,
+         job->sdo.subindex,
+         CO_SDO_ABORT_TOGGLE);
       job->result = CO_STATUS_ERROR;
       co_sdo_done (net);
       return error;
    }
 
    size_t size = 7 - CO_SDO_N_SEG (type);
-   size = MIN(job->sdo.remain, size);
-   memcpy(job->sdo.data, &data[1], size);
+   size        = MIN (job->sdo.remain, size);
+   memcpy (job->sdo.data, &data[1], size);
 
    job->sdo.data += size;
    job->sdo.remain -= size;
@@ -105,20 +116,23 @@ static int co_sdo_tx_upload_seg_rsp (co_net_t * net, uint8_t node,
    }
    else
    {
-      uint8_t msg[8] = { 0 };
+      uint8_t msg[8] = {0};
 
       msg[0] = CO_SDO_CCS_UPLOAD_SEG_REQ;
       if (job->sdo.toggle)
          msg[0] |= CO_SDO_TOGGLE;
 
-      os_channel_send (net->channel, 0x600 + node, msg, sizeof(msg));
+      os_channel_send (net->channel, 0x600 + node, msg, sizeof (msg));
    }
 
    return 0;
 }
 
-static int co_sdo_tx_download_init_rsp (co_net_t * net, uint8_t node,
-        uint8_t type, uint8_t * data)
+static int co_sdo_tx_download_init_rsp (
+   co_net_t * net,
+   uint8_t node,
+   uint8_t type,
+   uint8_t * data)
 {
    co_job_t * job = net->job_client;
 
@@ -131,7 +145,7 @@ static int co_sdo_tx_download_init_rsp (co_net_t * net, uint8_t node,
    }
    else
    {
-      uint8_t msg[8] = { 0 };
+      uint8_t msg[8] = {0};
 
       size_t size = MIN (job->sdo.remain, 7);
       memcpy (&msg[1], job->sdo.data, size);
@@ -146,14 +160,17 @@ static int co_sdo_tx_download_init_rsp (co_net_t * net, uint8_t node,
       job->sdo.remain -= size;
       job->sdo.total += size;
 
-      os_channel_send (net->channel, 0x600 + node, msg, sizeof(msg));
+      os_channel_send (net->channel, 0x600 + node, msg, sizeof (msg));
    }
 
    return 0;
 }
 
-static int co_sdo_tx_download_seg_rsp (co_net_t * net, uint8_t node,
-        uint8_t type, uint8_t * data)
+static int co_sdo_tx_download_seg_rsp (
+   co_net_t * net,
+   uint8_t node,
+   uint8_t type,
+   uint8_t * data)
 {
    co_job_t * job = net->job_client;
    int error;
@@ -161,8 +178,12 @@ static int co_sdo_tx_download_seg_rsp (co_net_t * net, uint8_t node,
    error = co_sdo_toggle_update (job, type);
    if (error < 0)
    {
-      co_sdo_abort (net, 0x600 + net->node, job->sdo.index,
-                    job->sdo.subindex, CO_SDO_ABORT_TOGGLE);
+      co_sdo_abort (
+         net,
+         0x600 + net->node,
+         job->sdo.index,
+         job->sdo.subindex,
+         CO_SDO_ABORT_TOGGLE);
       job->result = CO_STATUS_ERROR;
       co_sdo_done (net);
       return error;
@@ -177,7 +198,7 @@ static int co_sdo_tx_download_seg_rsp (co_net_t * net, uint8_t node,
    }
    else
    {
-      uint8_t msg[8] = { 0 };
+      uint8_t msg[8] = {0};
 
       size_t size = MIN (job->sdo.remain, 7);
       memcpy (&msg[1], job->sdo.data, size);
@@ -192,7 +213,7 @@ static int co_sdo_tx_download_seg_rsp (co_net_t * net, uint8_t node,
       job->sdo.remain -= size;
       job->sdo.total += size;
 
-      os_channel_send (net->channel, 0x600 + node, msg, sizeof(msg));
+      os_channel_send (net->channel, 0x600 + node, msg, sizeof (msg));
    }
 
    return 0;
@@ -201,8 +222,8 @@ static int co_sdo_tx_download_seg_rsp (co_net_t * net, uint8_t node,
 int co_sdo_tx (co_net_t * net, uint8_t node, void * msg, size_t dlc)
 {
    uint8_t * data = (uint8_t *)msg;
-   uint8_t type = data[0];
-   uint8_t scs = CO_SDO_xCS (type);
+   uint8_t type   = data[0];
+   uint8_t scs    = CO_SDO_xCS (type);
    co_job_t * job = net->job_client;
 
    /* Check for ongoing job */
@@ -241,7 +262,7 @@ int co_sdo_tx (co_net_t * net, uint8_t node, void * msg, size_t dlc)
    {
       uint32_t error = co_fetch_uint32 (&data[4]);
       (void)error;
-      LOG_WARNING (CO_SDO_LOG, "sdo abort (%08"PRIx32")\n", error);
+      LOG_WARNING (CO_SDO_LOG, "sdo abort (%08" PRIx32 ")\n", error);
       job->result = CO_STATUS_ERROR;
       co_sdo_done (net);
       return 1;
@@ -258,10 +279,10 @@ int co_sdo_tx (co_net_t * net, uint8_t node, void * msg, size_t dlc)
 
 void co_sdo_issue (co_net_t * net, co_job_t * job)
 {
-   uint8_t msg[8] = { 0 };
+   uint8_t msg[8] = {0};
 
    net->job_client = job;
-   job->sdo.total = 0;
+   job->sdo.total  = 0;
 
    if (job->type == CO_JOB_SDO_READ)
    {
@@ -275,7 +296,7 @@ void co_sdo_issue (co_net_t * net, co_job_t * job)
          int n = 4 - job->sdo.remain;
          msg[0] |= (n << 2) | CO_SDO_E | CO_SDO_S;
          memcpy (&msg[4], job->sdo.data, job->sdo.remain);
-         job->sdo.total = job->sdo.remain;
+         job->sdo.total  = job->sdo.remain;
          job->sdo.remain = 0;
       }
       else
@@ -286,9 +307,9 @@ void co_sdo_issue (co_net_t * net, co_job_t * job)
    }
 
    co_put_uint16 (&msg[1], job->sdo.index);
-   co_put_uint8  (&msg[3], job->sdo.subindex);
+   co_put_uint8 (&msg[3], job->sdo.subindex);
 
-   os_channel_send (net->channel, 0x600 + job->sdo.node, msg, sizeof(msg));
+   os_channel_send (net->channel, 0x600 + job->sdo.node, msg, sizeof (msg));
 }
 
 int co_sdo_client_timer (co_net_t * net, uint32_t now)

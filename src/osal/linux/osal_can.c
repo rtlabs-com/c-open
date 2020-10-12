@@ -49,7 +49,7 @@ static void os_channel_rx (void * arg)
    }
 
    /* Create edge-triggered event on input */
-   ev.events = EPOLLIN | EPOLLET;
+   ev.events  = EPOLLIN | EPOLLET;
    ev.data.fd = channel->handle;
    if (epoll_ctl (epollfd, EPOLL_CTL_ADD, channel->handle, &ev) == -1)
    {
@@ -73,7 +73,7 @@ static void os_channel_rx (void * arg)
       {
          if (events[n].data.fd == channel->handle)
          {
-            channel->callback(channel->arg);
+            channel->callback (channel->arg);
          }
       }
    }
@@ -81,7 +81,7 @@ static void os_channel_rx (void * arg)
 
 os_channel_t * os_channel_open (const char * name, void * callback, void * arg)
 {
-   os_channel_t * channel = malloc (sizeof(*channel));
+   os_channel_t * channel = malloc (sizeof (*channel));
    struct sockaddr_can addr;
    struct ifreq ifr;
 
@@ -97,12 +97,12 @@ os_channel_t * os_channel_open (const char * name, void * callback, void * arg)
    strcpy (ifr.ifr_name, name);
    ioctl (channel->handle, SIOCGIFINDEX, &ifr);
 
-   addr.can_family = AF_CAN;
+   addr.can_family  = AF_CAN;
    addr.can_ifindex = ifr.ifr_ifindex;
 
    LOG_DEBUG (CO_CAN_LOG, "%s at index %d\n", name, ifr.ifr_ifindex);
 
-   if (bind (channel->handle, (struct sockaddr *)&addr, sizeof(addr)) < 0)
+   if (bind (channel->handle, (struct sockaddr *)&addr, sizeof (addr)) < 0)
    {
       close (channel->handle);
       free (channel);
@@ -110,7 +110,7 @@ os_channel_t * os_channel_open (const char * name, void * callback, void * arg)
    }
 
    channel->callback = callback;
-   channel->arg = arg;
+   channel->arg      = arg;
 
    os_thread_create ("co_rx", 5, 1024, os_channel_rx, channel);
    return channel;
@@ -127,22 +127,26 @@ int os_channel_send (os_channel_t * channel, uint32_t id, const void * data, siz
    frame.can_id |= (id & CO_RTR_MASK) ? CAN_RTR_FLAG : 0;
    frame.can_id |= (id & CO_EXT_MASK) ? CAN_EFF_FLAG : 0;
    frame.can_dlc = dlc;
-   memcpy(frame.data, data, dlc);
+   memcpy (frame.data, data, dlc);
 
-   n = write (channel->handle, &frame, sizeof(struct can_frame));
-   if (n != sizeof(struct can_frame))
+   n = write (channel->handle, &frame, sizeof (struct can_frame));
+   if (n != sizeof (struct can_frame))
       return -1;
 
    return 0;
 }
 
-int os_channel_receive (os_channel_t * channel, uint32_t * id, void * data, size_t * dlc)
+int os_channel_receive (
+   os_channel_t * channel,
+   uint32_t * id,
+   void * data,
+   size_t * dlc)
 {
    struct can_frame frame;
    int n;
 
-   n = read (channel->handle, &frame, sizeof(struct can_frame));
-   if (n != sizeof(struct can_frame))
+   n = read (channel->handle, &frame, sizeof (struct can_frame));
+   if (n != sizeof (struct can_frame))
       return -1;
 
    *id = frame.can_id;

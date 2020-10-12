@@ -17,8 +17,7 @@
 #define MOCKS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <stdint.h>
@@ -36,16 +35,23 @@ extern uint32_t mock_os_channel_send_id;
 extern uint8_t mock_os_channel_send_data[8];
 extern size_t mock_os_channel_send_dlc;
 extern int mock_os_channel_send_result;
-int mock_os_channel_send (os_channel_t * channel, uint32_t id,
-                          const uint8_t * data, size_t dlc);
+int mock_os_channel_send (
+   os_channel_t * channel,
+   uint32_t id,
+   const uint8_t * data,
+   size_t dlc);
 
 extern unsigned int mock_os_channel_receive_calls;
 extern uint32_t mock_os_channel_receive_id;
 extern uint8_t mock_os_channel_receive_data[8];
 extern size_t mock_os_channel_receive_dlc;
 extern int mock_os_channel_receive_result;
-int mock_os_channel_receive (os_channel_t * channel, uint32_t * id,
-                             uint8_t * data, size_t * dlc, int tmo);
+int mock_os_channel_receive (
+   os_channel_t * channel,
+   uint32_t * id,
+   uint8_t * data,
+   size_t * dlc,
+   int tmo);
 
 extern unsigned int mock_os_channel_bus_off_calls;
 int mock_os_channel_bus_off (os_channel_t * channel);
@@ -69,7 +75,10 @@ extern const co_obj_t * mock_co_obj_find_result;
 const co_obj_t * mock_co_obj_find (co_net_t * net, uint16_t index);
 
 extern const co_entry_t * mock_co_entry_find_result;
-const co_entry_t * mock_co_entry_find (co_net_t * net, co_obj_t * obj, uint8_t subindex);
+const co_entry_t * mock_co_entry_find (
+   co_net_t * net,
+   co_obj_t * obj,
+   uint8_t subindex);
 
 extern unsigned int mock_co_od_reset_calls;
 void mock_co_od_reset (co_net_t * net);
@@ -89,9 +98,7 @@ extern uint8_t cb_emcy_node;
 extern uint16_t cb_emcy_code;
 extern uint8_t cb_emcy_reg;
 extern uint8_t cb_emcy_msef[5];
-void cb_emcy (void * arg, uint8_t node, uint16_t code, uint8_t reg,
-              uint8_t msef[5]);
-
+void cb_emcy (void * arg, uint8_t node, uint16_t code, uint8_t reg, uint8_t msef[5]);
 
 extern unsigned int cb_sync_calls;
 void cb_sync (void * arg);

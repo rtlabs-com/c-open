@@ -22,8 +22,7 @@
 #define CO_OD_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include "co_api.h"
@@ -49,7 +48,11 @@ extern "C"
 static inline const co_entry_t * co_obj_traverse (
    co_net_t * net,
    const co_obj_t * obj,
-   int (*fn) (co_net_t * net, const co_obj_t * obj, const co_entry_t * entry, uintptr_t arg),
+   int (*fn) (
+      co_net_t * net,
+      const co_obj_t * obj,
+      const co_entry_t * entry,
+      uintptr_t arg),
    uintptr_t arg,
    uint8_t max_subindex)
 {
@@ -100,7 +103,7 @@ static inline int co_obj_reduce (
    do
    {
       subindex = entry->subindex;
-      state = fn (net, entry, arg, state);
+      state    = fn (net, entry, arg, state);
       entry++;
    } while (subindex < max_subindex);
 
@@ -160,8 +163,7 @@ uint32_t co_od_load (co_net_t * net, co_store_t store);
  * @param min           minimum index
  * @param max           maximum index
  */
-void co_od_reset (co_net_t * net, co_store_t store, uint16_t min,
-                  uint16_t max);
+void co_od_reset (co_net_t * net, co_store_t store, uint16_t min, uint16_t max);
 
 /**
  * Save dictionary in store
@@ -176,8 +178,7 @@ void co_od_reset (co_net_t * net, co_store_t store, uint16_t min,
  *
  * @return sdo abort code
  */
-uint32_t co_od_store (co_net_t * net, co_store_t store, uint16_t min,
-                      uint16_t max);
+uint32_t co_od_store (co_net_t * net, co_store_t store, uint16_t min, uint16_t max);
 
 /**
  * Find object in dictionary
@@ -202,7 +203,10 @@ const co_obj_t * co_obj_find (co_net_t * net, uint16_t index);
  *
  * @return entry descriptor, or NULL if not found
  */
-const co_entry_t * co_entry_find (co_net_t * net, const co_obj_t * obj, uint8_t subindex);
+const co_entry_t * co_entry_find (
+   co_net_t * net,
+   const co_obj_t * obj,
+   uint8_t subindex);
 
 /**
  * Get subindex pointer
@@ -218,8 +222,12 @@ const co_entry_t * co_entry_find (co_net_t * net, const co_obj_t * obj, uint8_t 
  *
  * @return 0 or CO_SDO_ABORT_GENERAL if object has no storage
  */
-uint32_t co_od_get_ptr (co_net_t * net, const co_obj_t * obj,
-                        const co_entry_t * entry, uint8_t subindex, uint8_t ** ptr);
+uint32_t co_od_get_ptr (
+   co_net_t * net,
+   const co_obj_t * obj,
+   const co_entry_t * entry,
+   uint8_t subindex,
+   uint8_t ** ptr);
 
 /**
  * Get subindex value
@@ -235,8 +243,12 @@ uint32_t co_od_get_ptr (co_net_t * net, const co_obj_t * obj,
  *
  * @return 0 or sdo abort code
  */
-uint32_t co_od_get_value (co_net_t * net, const co_obj_t * obj,
-                          const co_entry_t * entry, uint8_t subindex, uint64_t * value);
+uint32_t co_od_get_value (
+   co_net_t * net,
+   const co_obj_t * obj,
+   const co_entry_t * entry,
+   uint8_t subindex,
+   uint64_t * value);
 
 /**
  * Set subindex value
@@ -252,8 +264,12 @@ uint32_t co_od_get_value (co_net_t * net, const co_obj_t * obj,
  *
  * @return 0 or sdo abort code
  */
-uint32_t co_od_set_value (co_net_t * net, const co_obj_t * obj,
-                          const co_entry_t * entry, uint8_t subindex, uint64_t value);
+uint32_t co_od_set_value (
+   co_net_t * net,
+   const co_obj_t * obj,
+   const co_entry_t * entry,
+   uint8_t subindex,
+   uint64_t value);
 
 #ifdef __cplusplus
 }

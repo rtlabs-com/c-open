@@ -14,9 +14,9 @@
  ********************************************************************/
 
 #ifdef UNIT_TEST
-#define os_channel_send mock_os_channel_send
+#define os_channel_send        mock_os_channel_send
 #define os_get_current_time_us mock_os_get_current_time_us
-#define co_emcy_tx mock_co_emcy_tx
+#define co_emcy_tx             mock_co_emcy_tx
 #endif
 
 #include "co_heartbeat.h"
@@ -50,7 +50,6 @@ uint32_t co_od1017_fn (
    }
 }
 
-
 uint32_t co_od1016_fn (
    co_net_t * net,
    od_event_t event,
@@ -73,7 +72,7 @@ uint32_t co_od1016_fn (
    }
    else if (event == OD_EVENT_WRITE)
    {
-      uint8_t node = (*value >> 16) & 0xFF;
+      uint8_t node  = (*value >> 16) & 0xFF;
       uint16_t time = *value & 0xFFFF;
       int ix;
 
@@ -82,7 +81,7 @@ uint32_t co_od1016_fn (
          for (ix = 0; ix < MAX_HEARTBEATS; ix++)
          {
             if (ix == subindex - 1)
-               continue;        /* Ignore this slot */
+               continue; /* Ignore this slot */
 
             if (net->heartbeat[ix].node == node)
                return CO_SDO_ABORT_PARAM_INCOMPATIBLE;
@@ -94,9 +93,8 @@ uint32_t co_od1016_fn (
    }
    else if (event == OD_EVENT_RESTORE)
    {
-      memset (&net->heartbeat, 0, sizeof(net->heartbeat));
+      memset (&net->heartbeat, 0, sizeof (net->heartbeat));
    }
-
 
    return 0;
 }
@@ -110,10 +108,10 @@ int co_heartbeat_rx (co_net_t * net, uint8_t node, void * msg, size_t dlc)
       if (net->heartbeat[ix].node == node)
       {
          co_heartbeat_t * heartbeat = &net->heartbeat[ix];
+
          heartbeat->timestamp = os_get_current_time_us();
-         heartbeat->is_alive = true;
-         LOG_DEBUG (CO_HEARTBEAT_LOG, "node %d got heartbeat\n",
-                    heartbeat->node);
+         heartbeat->is_alive  = true;
+         LOG_DEBUG (CO_HEARTBEAT_LOG, "node %d got heartbeat\n", heartbeat->node);
       }
    }
 
@@ -139,7 +137,7 @@ int co_heartbeat_timer (co_net_t * net, uint32_t now)
 
          net->hb_timestamp = now;
 
-         switch(net->state)
+         switch (net->state)
          {
          case STATE_STOP:
             state = 4;
@@ -156,7 +154,7 @@ int co_heartbeat_timer (co_net_t * net, uint32_t now)
          }
 
          co_put_uint8 (msg, state);
-         os_channel_send (net->channel, 0x700 + net->node, msg, sizeof(msg));
+         os_channel_send (net->channel, 0x700 + net->node, msg, sizeof (msg));
       }
    }
 
@@ -178,8 +176,10 @@ int co_heartbeat_timer (co_net_t * net, uint32_t now)
       {
          /* Expired */
          heartbeat->is_alive = false;
-         LOG_ERROR (CO_HEARTBEAT_LOG, "node %d heartbeat expired\n",
-                    heartbeat->node);
+         LOG_ERROR (
+            CO_HEARTBEAT_LOG,
+            "node %d heartbeat expired\n",
+            heartbeat->node);
 
          heartbeat_error = true;
          co_emcy_error_register_set (net, CO_ERR_COMMUNICATION);

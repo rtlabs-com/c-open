@@ -22,17 +22,24 @@
 
 #include <string.h>
 
-#define OD_RESTORE 0x64616F6C   /* Signature for restore ("load") */
-#define OD_STORE   0x65766173   /* Signature for store ("save") */
+#define OD_RESTORE 0x64616F6C /* Signature for restore ("load") */
+#define OD_STORE   0x65766173 /* Signature for store ("save") */
 
-static int co_subindex_equals (co_net_t * net, const co_obj_t * obj, const co_entry_t * entry, uintptr_t arg)
+static int co_subindex_equals (
+   co_net_t * net,
+   const co_obj_t * obj,
+   const co_entry_t * entry,
+   uintptr_t arg)
 {
    uint8_t subindex = (uint8_t)arg;
    return entry->subindex == subindex;
 }
 
-static void co_od_notify (co_net_t * net, const co_obj_t * obj,
-                          const co_entry_t * entry, uint8_t subindex)
+static void co_od_notify (
+   co_net_t * net,
+   const co_obj_t * obj,
+   const co_entry_t * entry,
+   uint8_t subindex)
 {
    if (entry->flags & OD_NOTIFY)
    {
@@ -41,7 +48,10 @@ static void co_od_notify (co_net_t * net, const co_obj_t * obj,
    }
 }
 
-const co_entry_t * co_entry_find (co_net_t * net, const co_obj_t * obj, uint8_t subindex)
+const co_entry_t * co_entry_find (
+   co_net_t * net,
+   const co_obj_t * obj,
+   uint8_t subindex)
 {
    CC_ASSERT (obj->entries != NULL);
 
@@ -67,8 +77,7 @@ const co_entry_t * co_entry_find (co_net_t * net, const co_obj_t * obj, uint8_t 
    }
 
    /* Otherwise search descriptor for matching subindex */
-   return co_obj_traverse (net, obj, co_subindex_equals, subindex,
-                           obj->max_subindex);
+   return co_obj_traverse (net, obj, co_subindex_equals, subindex, obj->max_subindex);
 }
 
 const co_obj_t * co_obj_find (co_net_t * net, uint16_t index)
@@ -89,8 +98,12 @@ const co_obj_t * co_obj_find (co_net_t * net, uint16_t index)
    return NULL;
 }
 
-uint32_t co_od_get_ptr (co_net_t * net, const co_obj_t * obj,
-        const co_entry_t * entry, uint8_t subindex, uint8_t ** ptr)
+uint32_t co_od_get_ptr (
+   co_net_t * net,
+   const co_obj_t * obj,
+   const co_entry_t * entry,
+   uint8_t subindex,
+   uint8_t ** ptr)
 {
    if (obj->access)
    {
@@ -113,9 +126,12 @@ uint32_t co_od_get_ptr (co_net_t * net, const co_obj_t * obj,
    return 0;
 }
 
-
-uint32_t co_od_get_value (co_net_t * net, const co_obj_t * obj,
-        const co_entry_t * entry, uint8_t subindex, uint64_t * value)
+uint32_t co_od_get_value (
+   co_net_t * net,
+   const co_obj_t * obj,
+   const co_entry_t * entry,
+   uint8_t subindex,
+   uint64_t * value)
 {
    uint32_t abort;
    uint8_t * data;
@@ -148,7 +164,7 @@ uint32_t co_od_get_value (co_net_t * net, const co_obj_t * obj,
       data += (subindex - 1) * CO_BYTELENGTH (entry->bitlength);
    }
 
-   switch(entry->datatype)
+   switch (entry->datatype)
    {
    case DTYPE_BOOLEAN:
    case DTYPE_UNSIGNED8:
@@ -187,13 +203,16 @@ uint32_t co_od_get_value (co_net_t * net, const co_obj_t * obj,
    return 0;
 }
 
-uint32_t co_od_set_value (co_net_t * net, const co_obj_t * obj,
-        const co_entry_t * entry, uint8_t subindex, uint64_t value)
+uint32_t co_od_set_value (
+   co_net_t * net,
+   const co_obj_t * obj,
+   const co_entry_t * entry,
+   uint8_t subindex,
+   uint64_t value)
 {
    uint8_t * data;
 
-   LOG_DEBUG (CO_OD_LOG, "set %x:%x = %"PRIx64"\n", obj->index,
-              subindex, value);
+   LOG_DEBUG (CO_OD_LOG, "set %x:%x = %" PRIx64 "\n", obj->index, subindex, value);
 
    if (obj->access)
    {
@@ -213,7 +232,7 @@ uint32_t co_od_set_value (co_net_t * net, const co_obj_t * obj,
    }
 
    /* Set value in dictionary */
-   switch(entry->datatype)
+   switch (entry->datatype)
    {
    case DTYPE_BOOLEAN:
    case DTYPE_UNSIGNED8:
@@ -272,16 +291,22 @@ void co_od_set_defaults (co_net_t * net, uint16_t min, uint16_t max)
       entry = co_entry_find (net, obj, item->subindex);
       if (entry == NULL)
       {
-         LOG_WARNING (CO_OD_LOG, "bad subindex %x:%x\n",
-                      item->index, item->subindex);
+         LOG_WARNING (
+            CO_OD_LOG,
+            "bad subindex %x:%x\n",
+            item->index,
+            item->subindex);
          continue;
       }
 
       abort = co_od_set_value (net, obj, entry, item->subindex, item->value);
       if (abort)
       {
-         LOG_WARNING (CO_OD_LOG, "abort restoring %x:%x\n",
-                      item->index, item->subindex);
+         LOG_WARNING (
+            CO_OD_LOG,
+            "abort restoring %x:%x\n",
+            item->index,
+            item->subindex);
       }
    }
 }
@@ -338,7 +363,7 @@ uint32_t co_od_load (co_net_t * net, co_store_t store)
       return CO_SDO_ABORT_GENERAL;
 
    /* Get number of entries */
-   if (net->read (arg, &entries, sizeof(entries)) < 0)
+   if (net->read (arg, &entries, sizeof (entries)) < 0)
       goto error;
 
    /* Load entries */
@@ -350,13 +375,13 @@ uint32_t co_od_load (co_net_t * net, co_store_t store)
       size_t size;
       uint32_t value;
 
-      if (net->read (arg, &index, sizeof(index)) < 0)
+      if (net->read (arg, &index, sizeof (index)) < 0)
          goto error;
 
-      if (net->read (arg, &subindex, sizeof(subindex)) < 0)
+      if (net->read (arg, &subindex, sizeof (subindex)) < 0)
          goto error;
 
-      if (net->read (arg, &size, sizeof(size)) < 0)
+      if (net->read (arg, &size, sizeof (size)) < 0)
          goto error;
 
       if (net->read (arg, &value, size) < 0)
@@ -380,7 +405,7 @@ uint32_t co_od_load (co_net_t * net, co_store_t store)
    net->close (arg);
    return 0;
 
- error:
+error:
    net->close (arg);
    LOG_ERROR (CO_OD_LOG, "Failed to load OD\n");
    return CO_SDO_ABORT_GENERAL;
@@ -393,8 +418,7 @@ void co_od_reset (co_net_t * net, co_store_t store, uint16_t min, uint16_t max)
    co_od_load (net, store);
 }
 
-uint32_t co_od_store (co_net_t * net, co_store_t store, uint16_t min,
-                      uint16_t max)
+uint32_t co_od_store (co_net_t * net, co_store_t store, uint16_t min, uint16_t max)
 {
    const co_obj_t * obj;
    uint8_t subindex;
@@ -424,7 +448,7 @@ uint32_t co_od_store (co_net_t * net, co_store_t store, uint16_t min,
    }
 
    /* Store number of entries */
-   if (net->write (arg, &entries, sizeof(entries)) < 0)
+   if (net->write (arg, &entries, sizeof (entries)) < 0)
       goto error;
 
    /* Store entries */
@@ -446,18 +470,18 @@ uint32_t co_od_store (co_net_t * net, co_store_t store, uint16_t min,
             uint32_t abort;
 
             /* Write index */
-            if (net->write (arg, &obj->index, sizeof(obj->index)) < 0)
+            if (net->write (arg, &obj->index, sizeof (obj->index)) < 0)
                goto error;
 
             /* Write subindex */
-            if (net->write (arg, &subindex, sizeof(subindex)) < 0)
+            if (net->write (arg, &subindex, sizeof (subindex)) < 0)
                goto error;
 
             /* Write size of entry */
-            if (net->write (arg, &size, sizeof(size)) < 0)
+            if (net->write (arg, &size, sizeof (size)) < 0)
                goto error;
 
-            if (size > sizeof(value))
+            if (size > sizeof (value))
             {
                /* Get pointer to storage */
                abort = co_od_get_ptr (net, obj, entry, subindex, &ptr);
@@ -487,7 +511,7 @@ uint32_t co_od_store (co_net_t * net, co_store_t store, uint16_t min,
 
    return 0;
 
- error:
+error:
    /* Ignore any error on close */
    net->close (arg);
    LOG_ERROR (CO_OD_LOG, "Failed to store OD\n");
@@ -507,7 +531,7 @@ uint32_t co_od_restore (co_net_t * net, co_store_t store)
       return CO_SDO_ABORT_HW_ERROR;
 
    /* Clear entries */
-   if (net->write (arg, &entries, sizeof(entries)) < 0)
+   if (net->write (arg, &entries, sizeof (entries)) < 0)
       goto error;
 
    /* Finalize write */
@@ -516,7 +540,7 @@ uint32_t co_od_restore (co_net_t * net, co_store_t store)
 
    return 0;
 
- error:
+error:
    /* Ignore any error on close */
    net->close (arg);
    LOG_ERROR (CO_OD_LOG, "Failed to restore OD\n");
@@ -545,7 +569,7 @@ uint32_t co_od1010_fn (
    case OD_EVENT_WRITE:
       if (*value == OD_STORE)
       {
-         switch(subindex)
+         switch (subindex)
          {
          case 1:
             /* Store communication related parameters */
@@ -605,7 +629,7 @@ uint32_t co_od1011_fn (
    case OD_EVENT_WRITE:
       if (*value == OD_RESTORE)
       {
-         switch(subindex)
+         switch (subindex)
          {
          case 1:
             /* Restore communication related parameters */
@@ -658,7 +682,7 @@ uint32_t co_od1020_fn (
    switch (event)
    {
    case OD_EVENT_READ:
-      switch(subindex)
+      switch (subindex)
       {
       case 1:
          *value = (net->config_dirty) ? 0 : net->config_date;
@@ -669,7 +693,7 @@ uint32_t co_od1020_fn (
       }
       return 0;
    case OD_EVENT_WRITE:
-      switch(subindex)
+      switch (subindex)
       {
       case 1:
          net->config_date = *value;

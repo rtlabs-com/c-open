@@ -25,13 +25,22 @@ void os_log (uint8_t type, const char * fmt, ...)
 {
    va_list list;
 
-   switch(LOG_LEVEL_GET (type))
+   switch (LOG_LEVEL_GET (type))
    {
-   case LOG_LEVEL_DEBUG:   rprintf ("%10d [DEBUG] ", tick_get()); break;
-   case LOG_LEVEL_INFO:    rprintf ("%10d [INFO ] ", tick_get()); break;
-   case LOG_LEVEL_WARNING: rprintf ("%10d [WARN ] ", tick_get()); break;
-   case LOG_LEVEL_ERROR:   rprintf ("%10d [ERROR] ", tick_get()); break;
-   default: break;
+   case LOG_LEVEL_DEBUG:
+      rprintf ("%10d [DEBUG] ", tick_get());
+      break;
+   case LOG_LEVEL_INFO:
+      rprintf ("%10d [INFO ] ", tick_get());
+      break;
+   case LOG_LEVEL_WARNING:
+      rprintf ("%10d [WARN ] ", tick_get());
+      break;
+   case LOG_LEVEL_ERROR:
+      rprintf ("%10d [ERROR] ", tick_get());
+      break;
+   default:
+      break;
    }
 
    va_start (list, fmt);
@@ -44,8 +53,12 @@ void * os_malloc (size_t size)
    return malloc (size);
 }
 
-os_thread_t * os_thread_create (const char * name, uint32_t priority,
-        size_t stacksize, void (*entry) (void * arg), void * arg)
+os_thread_t * os_thread_create (
+   const char * name,
+   uint32_t priority,
+   size_t stacksize,
+   void (*entry) (void * arg),
+   void * arg)
 {
    return task_spawn (name, entry, priority, stacksize, arg);
 }
@@ -190,11 +203,17 @@ void os_mbox_destroy (os_mbox_t * mbox)
    mbox_destroy (mbox);
 }
 
-os_timer_t * os_timer_create (uint32_t us, void (*fn) (os_timer_t *, void * arg),
-                              void * arg, bool oneshot)
+os_timer_t * os_timer_create (
+   uint32_t us,
+   void (*fn) (os_timer_t *, void * arg),
+   void * arg,
+   bool oneshot)
 {
-   return tmr_create (tick_from_ms (us / 1000), fn, arg,
-                      (oneshot) ? TMR_ONCE : TMR_CYCL);
+   return tmr_create (
+      tick_from_ms (us / 1000),
+      fn,
+      arg,
+      (oneshot) ? TMR_ONCE : TMR_CYCL);
 }
 
 void os_timer_set (os_timer_t * timer, uint32_t us)

@@ -17,8 +17,7 @@
 #define OSAL_CAN_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <stdarg.h>
@@ -40,9 +39,17 @@ typedef struct os_channel_state
 } os_channel_state_t;
 
 os_channel_t * os_channel_open (const char * name, void * callback, void * arg);
-int os_channel_send (os_channel_t * channel, uint32_t id, const void * data, size_t dlc);
+int os_channel_send (
+   os_channel_t * channel,
+   uint32_t id,
+   const void * data,
+   size_t dlc);
 int os_channel_send_rtr (os_channel_t * channel, uint32_t id, size_t dlc);
-int os_channel_receive (os_channel_t * channel, uint32_t * id, void * data, size_t * dlc);
+int os_channel_receive (
+   os_channel_t * channel,
+   uint32_t * id,
+   void * data,
+   size_t * dlc);
 int os_channel_set_bitrate (os_channel_t * channel, int bitrate);
 int os_channel_set_filter (os_channel_t * channel, uint8_t * filter, size_t size);
 int os_channel_bus_on (os_channel_t * channel);

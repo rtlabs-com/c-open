@@ -17,8 +17,7 @@
 #define OSAL_SYS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <pthread.h>
@@ -65,7 +64,7 @@ typedef struct os_timer
    os_thread_t * thread;
    pid_t thread_id;
    bool exit;
-   void(*fn) (struct os_timer *, void * arg);
+   void (*fn) (struct os_timer *, void * arg);
    void * arg;
    uint32_t us;
    bool oneshot;

@@ -14,8 +14,8 @@
  ********************************************************************/
 
 #ifdef UNIT_TEST
-#define os_channel_send mock_os_channel_send
-#define os_channel_receive mock_os_channel_receive
+#define os_channel_send        mock_os_channel_send
+#define os_channel_receive     mock_os_channel_receive
 #define os_get_current_time_us mock_os_get_current_time_us
 #endif
 
@@ -72,25 +72,24 @@ uint32_t co_od100D_fn (
    }
 }
 
-
 int co_node_guard_rx (co_net_t * net, uint32_t id, void * msg, size_t dlc)
 {
    uint8_t _msg[1];
    uint8_t state;
 
    if (id != (CO_RTR_MASK | CO_FUNCTION_NMT_ERR | net->node))
-       return -1;
+      return -1;
 
    if (dlc != 1)
       return -1;
 
-   net->node_guard.is_alive = true;
+   net->node_guard.is_alive  = true;
    net->node_guard.timestamp = os_get_current_time_us();
 
    /* Heartbeat producer (heartbeat is prioritised over node guarding)*/
    if (net->hb_time == 0)
    {
-      switch(net->state)
+      switch (net->state)
       {
       case STATE_STOP:
          state = 4;
@@ -107,7 +106,7 @@ int co_node_guard_rx (co_net_t * net, uint32_t id, void * msg, size_t dlc)
       }
 
       co_put_uint8 (_msg, net->node_guard.toggle | state);
-      os_channel_send (net->channel, 0x700 + net->node, _msg, sizeof(_msg));
+      os_channel_send (net->channel, 0x700 + net->node, _msg, sizeof (_msg));
       net->node_guard.toggle = ~net->node_guard.toggle & 0x80;
    }
 
@@ -117,7 +116,7 @@ int co_node_guard_rx (co_net_t * net, uint32_t id, void * msg, size_t dlc)
 int co_node_guard_timer (co_net_t * net, uint32_t now)
 {
    uint32_t guard_factor =
-         (net->node_guard.guard_time * net->node_guard.life_time_factor);
+      (net->node_guard.guard_time * net->node_guard.life_time_factor);
 
    if (net->state == STATE_INIT)
       return -1;

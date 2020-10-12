@@ -17,8 +17,7 @@
 #define OSAL_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <stdarg.h>
@@ -42,7 +41,7 @@ extern "C"
 #endif
 
 #ifndef NELEMENTS
-#define NELEMENTS(a) (sizeof(a)/sizeof((a)[0]))
+#define NELEMENTS(a) (sizeof (a) / sizeof ((a)[0]))
 #endif
 
 #ifndef OS_WAIT_FOREVER
@@ -73,14 +72,18 @@ typedef void os_mbox_t;
 typedef void os_timer_t;
 #endif
 
-void os_log (uint8_t type, const char * fmt, ...) CC_FORMAT (2,3);
+void os_log (uint8_t type, const char * fmt, ...) CC_FORMAT (2, 3);
 void * os_malloc (size_t size);
 
 void os_usleep (uint32_t us);
 uint32_t os_get_current_time_us (void);
 
-os_thread_t * os_thread_create (const char * name, uint32_t priority,
-        size_t stacksize, void (*entry) (void * arg), void * arg);
+os_thread_t * os_thread_create (
+   const char * name,
+   uint32_t priority,
+   size_t stacksize,
+   void (*entry) (void * arg),
+   void * arg);
 
 os_mutex_t * os_mutex_create (void);
 void os_mutex_lock (os_mutex_t * mutex);
@@ -93,7 +96,11 @@ void os_sem_signal (os_sem_t * sem);
 void os_sem_destroy (os_sem_t * sem);
 
 os_event_t * os_event_create (void);
-bool os_event_wait (os_event_t * event, uint32_t mask, uint32_t * value, uint32_t time);
+bool os_event_wait (
+   os_event_t * event,
+   uint32_t mask,
+   uint32_t * value,
+   uint32_t time);
 void os_event_set (os_event_t * event, uint32_t value);
 void os_event_clr (os_event_t * event, uint32_t value);
 void os_event_destroy (os_event_t * event);
@@ -103,8 +110,11 @@ bool os_mbox_fetch (os_mbox_t * mbox, void ** msg, uint32_t time);
 bool os_mbox_post (os_mbox_t * mbox, void * msg, uint32_t time);
 void os_mbox_destroy (os_mbox_t * mbox);
 
-os_timer_t * os_timer_create (uint32_t us, void (*fn) (os_timer_t * timer, void * arg),
-                              void * arg, bool oneshot);
+os_timer_t * os_timer_create (
+   uint32_t us,
+   void (*fn) (os_timer_t * timer, void * arg),
+   void * arg,
+   bool oneshot);
 void os_timer_set (os_timer_t * timer, uint32_t us);
 void os_timer_start (os_timer_t * timer);
 void os_timer_stop (os_timer_t * timer);

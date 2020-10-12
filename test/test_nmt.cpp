@@ -20,8 +20,9 @@
 
 class NmtTest : public TestBase
 {
-protected:
-   virtual void SetUp() {
+ protected:
+   virtual void SetUp()
+   {
       TestBase::SetUp();
    }
 };
@@ -31,13 +32,13 @@ protected:
 TEST_F (NmtTest, Fsm)
 {
    uint8_t command[][8] = {
-      { CO_NMT_OPERATIONAL, 0x01 },
-      { CO_NMT_STOPPED, 0x01 },
-      { CO_NMT_OPERATIONAL, 0x01 },
-      { CO_NMT_PRE_OPERATIONAL, 0x01 },
-      { CO_NMT_RESET_NODE, 0x01 },
-      { CO_NMT_RESET_COMMUNICATION, 0x01 },
-      { CO_NMT_OPERATIONAL, 0x00 },
+      {CO_NMT_OPERATIONAL, 0x01},
+      {CO_NMT_STOPPED, 0x01},
+      {CO_NMT_OPERATIONAL, 0x01},
+      {CO_NMT_PRE_OPERATIONAL, 0x01},
+      {CO_NMT_RESET_NODE, 0x01},
+      {CO_NMT_RESET_COMMUNICATION, 0x01},
+      {CO_NMT_OPERATIONAL, 0x00},
    };
 
    // Poweron, should go to PREOP
@@ -87,14 +88,13 @@ TEST_F (NmtTest, Fsm)
    co_nmt_rx (&net, 0, command[6], 2);
    EXPECT_EQ (STATE_OP, net.state);
    EXPECT_EQ (11u, cb_nmt_calls);
-
 }
 
 TEST_F (NmtTest, BadNMT)
 {
    uint8_t command[][8] = {
-      { 0x42, 0x01 },
-      { CO_NMT_OPERATIONAL, 0x03 },
+      {0x42, 0x01},
+      {CO_NMT_OPERATIONAL, 0x03},
    };
 
    // Bad NMT command, should stay in PREOP

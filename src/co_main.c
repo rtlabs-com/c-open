@@ -14,15 +14,15 @@
  ********************************************************************/
 
 #ifdef UNIT_TEST
-#define os_usleep mock_os_usleep
-#define os_thread_create mock_os_thread_create
-#define os_channel_open mock_os_channel_open
-#define os_channel_send mock_os_channel_send
-#define os_channel_receive mock_os_channel_receive
+#define os_usleep              mock_os_usleep
+#define os_thread_create       mock_os_thread_create
+#define os_channel_open        mock_os_channel_open
+#define os_channel_send        mock_os_channel_send
+#define os_channel_receive     mock_os_channel_receive
 #define os_channel_set_bitrate mock_os_channel_set_bitrate
-#define os_channel_set_filter mock_os_channel_set_filter
-#define os_channel_bus_on mock_os_channel_bus_on
-#define os_channel_bus_off mock_os_channel_bus_off
+#define os_channel_set_filter  mock_os_channel_set_filter
+#define os_channel_bus_on      mock_os_channel_bus_on
+#define os_channel_bus_off     mock_os_channel_bus_off
 #endif
 
 #include "co_main.h"
@@ -41,8 +41,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define IS_PDO(f) \
-   ((f) >= CO_FUNCTION_PDO1_TX && (f) <= CO_FUNCTION_PDO4_RX)
+#define IS_PDO(f) ((f) >= CO_FUNCTION_PDO1_TX && (f) <= CO_FUNCTION_PDO4_RX)
 
 void co_handle_rx (co_net_t * net)
 {
@@ -57,7 +56,7 @@ void co_handle_rx (co_net_t * net)
       if (status == 0)
       {
          uint16_t function = id & CO_FUNCTION_MASK;
-         uint8_t node = CO_NODE_GET (id);
+         uint8_t node      = CO_NODE_GET (id);
 
          /* Process messages */
          if (function == CO_FUNCTION_NMT)
@@ -121,7 +120,7 @@ void co_main (void * arg)
    {
       os_mbox_fetch (net->mbox, (void **)&job, OS_WAIT_FOREVER);
 
-      switch(job->type)
+      switch (job->type)
       {
       case CO_JOB_PERIODIC:
          co_handle_periodic (net);
@@ -186,14 +185,14 @@ static void co_job_callback (co_job_t * job)
 void co_nmt (co_client_t * client, co_nmt_cmd_t cmd, uint8_t node)
 {
    co_net_t * net = client->net;
-   uint8_t data[] = { cmd, node };
+   uint8_t data[] = {cmd, node};
 
    if (node == net->node || node == 0)
    {
-      co_nmt_rx (net, 0, data, sizeof(data));
+      co_nmt_rx (net, 0, data, sizeof (data));
    }
 
-   os_channel_send (net->channel, CO_FUNCTION_NMT + node, data, sizeof(data));
+   os_channel_send (net->channel, CO_FUNCTION_NMT + node, data, sizeof (data));
 }
 
 /* TODO: issue sync job? */
@@ -218,16 +217,21 @@ int co_pdo_event (co_client_t * client)
    co_net_t * net = client->net;
    co_job_t * job = &client->job;
 
-   job->client    = client;
-   job->callback  = NULL;
-   job->type      = CO_JOB_PDO_EVENT;
+   job->client   = client;
+   job->callback = NULL;
+   job->type     = CO_JOB_PDO_EVENT;
 
    os_mbox_post (net->mbox, job, OS_WAIT_FOREVER);
    return 0;
 }
 
-int co_sdo_read (co_client_t * client, uint8_t node, uint16_t index,
-                 uint8_t subindex, void * data, size_t size)
+int co_sdo_read (
+   co_client_t * client,
+   uint8_t node,
+   uint16_t index,
+   uint8_t subindex,
+   void * data,
+   size_t size)
 {
    co_net_t * net = client->net;
    co_job_t * job = &client->job;
@@ -250,8 +254,13 @@ int co_sdo_read (co_client_t * client, uint8_t node, uint16_t index,
    return job->result;
 }
 
-int co_sdo_write (co_client_t * client, uint8_t node, uint16_t index,
-                  uint8_t subindex, const void * data, size_t size)
+int co_sdo_write (
+   co_client_t * client,
+   uint8_t node,
+   uint16_t index,
+   uint8_t subindex,
+   const void * data,
+   size_t size)
 {
    co_net_t * net = client->net;
    co_job_t * job = &client->job;
@@ -274,8 +283,11 @@ int co_sdo_write (co_client_t * client, uint8_t node, uint16_t index,
    return job->result;
 }
 
-int co_emcy_issue (co_client_t * client, uint16_t code, uint16_t info,
-                   uint8_t msef[5])
+int co_emcy_issue (
+   co_client_t * client,
+   uint16_t code,
+   uint16_t info,
+   uint8_t msef[5])
 {
    co_net_t * net = client->net;
    co_job_t * job = &client->job;
@@ -299,7 +311,7 @@ int co_error_set (co_client_t * client, uint8_t mask)
    co_job_t * job = &client->job;
 
    job->client     = client;
-   job->callback  = co_job_callback;
+   job->callback   = co_job_callback;
    job->emcy.value = mask;
    job->type       = CO_JOB_ERROR_SET;
 
@@ -315,7 +327,7 @@ int co_error_clear (co_client_t * client, uint8_t mask)
    co_job_t * job = &client->job;
 
    job->client     = client;
-   job->callback  = co_job_callback;
+   job->callback   = co_job_callback;
    job->emcy.value = mask;
    job->type       = CO_JOB_ERROR_CLEAR;
 
@@ -330,9 +342,9 @@ int co_error_get (co_client_t * client, uint8_t * error)
    co_net_t * net = client->net;
    co_job_t * job = &client->job;
 
-   job->client = client;
-   job->callback  = co_job_callback;
-   job->type   = CO_JOB_ERROR_GET;
+   job->client   = client;
+   job->callback = co_job_callback;
+   job->type     = CO_JOB_ERROR_GET;
 
    os_mbox_post (net->mbox, job, OS_WAIT_FOREVER);
    os_sem_wait (client->sem, OS_WAIT_FOREVER);
@@ -346,7 +358,7 @@ co_client_t * co_client_init (co_net_t * net)
 {
    co_client_t * client;
 
-   client = calloc (1, sizeof(*client));
+   client = calloc (1, sizeof (*client));
    if (client == NULL)
       return NULL;
 
@@ -361,29 +373,29 @@ co_net_t * co_init (const char * canif, const co_cfg_t * cfg)
    co_net_t * net;
    os_timer_t * tmr;
 
-   net = calloc (1, sizeof(*net));
+   net = calloc (1, sizeof (*net));
    if (net == NULL)
       goto error1;
 
-   net->bitrate = cfg->bitrate;
-   net->node = cfg->node;
-   net->od = cfg->od;
+   net->bitrate  = cfg->bitrate;
+   net->node     = cfg->node;
+   net->od       = cfg->od;
    net->defaults = cfg->defaults;
 
-   net->cb_arg = cfg->cb_arg;
-   net->cb_reset = cfg->cb_reset;
-   net->cb_nmt = cfg->cb_nmt;
-   net->cb_sync = cfg->cb_sync;
-   net->cb_emcy = cfg->cb_emcy;
+   net->cb_arg    = cfg->cb_arg;
+   net->cb_reset  = cfg->cb_reset;
+   net->cb_nmt    = cfg->cb_nmt;
+   net->cb_sync   = cfg->cb_sync;
+   net->cb_emcy   = cfg->cb_emcy;
    net->cb_notify = cfg->cb_notify;
 
-   net->open = cfg->open;
-   net->read = cfg->read;
+   net->open  = cfg->open;
+   net->read  = cfg->read;
    net->write = cfg->write;
    net->close = cfg->close;
 
    net->job_periodic = CO_JOB_PERIODIC;
-   net->job_rx = CO_JOB_RX;
+   net->job_rx       = CO_JOB_RX;
 
    if (co_pdo_init (net) != 0)
       goto error2;
@@ -400,11 +412,7 @@ co_net_t * co_init (const char * canif, const co_cfg_t * cfg)
    if (net->channel == NULL)
       goto error4;
 
-   if (os_thread_create ("co_thread",
-                         CO_THREAD_PRIO,
-                         CO_THREAD_STACK_SIZE,
-                         co_main,
-                         net) == NULL)
+   if (os_thread_create ("co_thread", CO_THREAD_PRIO, CO_THREAD_STACK_SIZE, co_main, net) == NULL)
       goto error4;
 
    os_timer_start (tmr);
@@ -412,12 +420,12 @@ co_net_t * co_init (const char * canif, const co_cfg_t * cfg)
 
    return net;
 
- error4:
+error4:
    os_timer_destroy (tmr);
- error3:
+error3:
    os_mbox_destroy (net->mbox);
- error2:
+error2:
    free (net);
- error1:
+error1:
    return NULL;
 }

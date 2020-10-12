@@ -21,8 +21,7 @@
 #define CO_RTK_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <can/can.h>

@@ -35,22 +35,31 @@
 #include <sys/syscall.h>
 
 /* Priority of timer callback thread (if USE_SCHED_FIFO is set) */
-#define TIMER_PRIO        30
+#define TIMER_PRIO 30
 
-#define USECS_PER_SEC     (1 * 1000 * 1000)
-#define NSECS_PER_SEC     (1 * 1000 * 1000 * 1000)
+#define USECS_PER_SEC (1 * 1000 * 1000)
+#define NSECS_PER_SEC (1 * 1000 * 1000 * 1000)
 
 void os_log (uint8_t type, const char * fmt, ...)
 {
    va_list list;
 
-   switch(LOG_LEVEL_GET (type))
+   switch (LOG_LEVEL_GET (type))
    {
-   case LOG_LEVEL_DEBUG:   printf ("[DEBUG] "); break;
-   case LOG_LEVEL_INFO:    printf ("[INFO ] "); break;
-   case LOG_LEVEL_WARNING: printf ("[WARN ] "); break;
-   case LOG_LEVEL_ERROR:   printf ("[ERROR] "); break;
-   default: break;
+   case LOG_LEVEL_DEBUG:
+      printf ("[DEBUG] ");
+      break;
+   case LOG_LEVEL_INFO:
+      printf ("[INFO ] ");
+      break;
+   case LOG_LEVEL_WARNING:
+      printf ("[WARN ] ");
+      break;
+   case LOG_LEVEL_ERROR:
+      printf ("[ERROR] ");
+      break;
+   default:
+      break;
    }
 
    va_start (list, fmt);
@@ -64,19 +73,23 @@ void * os_malloc (size_t size)
    return malloc (size);
 }
 
-os_thread_t * os_thread_create (const char * name, uint32_t priority,
-        size_t stacksize, void (*entry) (void * arg), void * arg)
+os_thread_t * os_thread_create (
+   const char * name,
+   uint32_t priority,
+   size_t stacksize,
+   void (*entry) (void * arg),
+   void * arg)
 {
    int result;
-   pthread_t * thread = malloc (sizeof(*thread));
+   pthread_t * thread = malloc (sizeof (*thread));
    pthread_attr_t attr;
 
    pthread_attr_init (&attr);
    pthread_attr_setstacksize (&attr, PTHREAD_STACK_MIN + stacksize);
 
-#if defined (USE_SCHED_FIFO)
+#if defined(USE_SCHED_FIFO)
    CC_STATIC_ASSERT (_POSIX_THREAD_PRIORITY_SCHEDULING > 0);
-   struct sched_param param = { .sched_priority = priority };
+   struct sched_param param = {.sched_priority = priority};
    pthread_attr_setinheritsched (&attr, PTHREAD_EXPLICIT_SCHED);
    pthread_attr_setschedpolicy (&attr, SCHED_FIFO);
    pthread_attr_setschedparam (&attr, &param);
@@ -93,7 +106,7 @@ os_thread_t * os_thread_create (const char * name, uint32_t priority,
 os_mutex_t * os_mutex_create (void)
 {
    int result;
-   pthread_mutex_t * mutex = malloc (sizeof(*mutex));
+   pthread_mutex_t * mutex = malloc (sizeof (*mutex));
    pthread_mutexattr_t attr;
 
    CC_STATIC_ASSERT (_POSIX_THREAD_PRIO_INHERIT > 0);
@@ -131,7 +144,7 @@ os_sem_t * os_sem_create (size_t count)
    os_sem_t * sem;
    pthread_mutexattr_t attr;
 
-   sem = (os_sem_t *)malloc (sizeof(*sem));
+   sem = (os_sem_t *)malloc (sizeof (*sem));
 
    pthread_cond_init (&sem->cond, NULL);
    pthread_mutexattr_init (&attr);
@@ -145,7 +158,7 @@ os_sem_t * os_sem_create (size_t count)
 bool os_sem_wait (os_sem_t * sem, uint32_t time)
 {
    struct timespec ts;
-   int error = 0;
+   int error     = 0;
    uint64_t nsec = (uint64_t)time * 1000 * 1000;
 
    clock_gettime (CLOCK_MONOTONIC, &ts);
@@ -178,7 +191,7 @@ bool os_sem_wait (os_sem_t * sem, uint32_t time)
 
    sem->count--;
 
- timeout:
+timeout:
    pthread_mutex_unlock (&sem->mutex);
    return (error != 0);
 }
@@ -203,7 +216,7 @@ void os_usleep (uint32_t usec)
    struct timespec ts;
    struct timespec remain;
 
-   ts.tv_sec = usec / USECS_PER_SEC;
+   ts.tv_sec  = usec / USECS_PER_SEC;
    ts.tv_nsec = (usec % USECS_PER_SEC) * 1000;
    while (clock_nanosleep (CLOCK_MONOTONIC, 0, &ts, &remain) == -1)
    {
@@ -224,7 +237,7 @@ os_event_t * os_event_create (void)
    os_event_t * event;
    pthread_mutexattr_t attr;
 
-   event = (os_event_t *)malloc (sizeof(*event));
+   event = (os_event_t *)malloc (sizeof (*event));
 
    pthread_cond_init (&event->cond, NULL);
    pthread_mutexattr_init (&attr);
@@ -238,7 +251,7 @@ os_event_t * os_event_create (void)
 bool os_event_wait (os_event_t * event, uint32_t mask, uint32_t * value, uint32_t time)
 {
    struct timespec ts;
-   int error = 0;
+   int error     = 0;
    uint64_t nsec = (uint64_t)time * 1000 * 1000;
 
    if (time != OS_WAIT_FOREVER)
@@ -270,7 +283,7 @@ bool os_event_wait (os_event_t * event, uint32_t mask, uint32_t * value, uint32_
       }
    }
 
- timeout:
+timeout:
    *value = event->flags & mask;
    pthread_mutex_unlock (&event->mutex);
    return (error != 0);
@@ -304,7 +317,7 @@ os_mbox_t * os_mbox_create (size_t size)
    os_mbox_t * mbox;
    pthread_mutexattr_t attr;
 
-   mbox = (os_mbox_t *)malloc (sizeof(*mbox) + size * sizeof(void *));
+   mbox = (os_mbox_t *)malloc (sizeof (*mbox) + size * sizeof (void *));
 
    pthread_cond_init (&mbox->cond, NULL);
    pthread_mutexattr_init (&attr);
@@ -322,7 +335,7 @@ os_mbox_t * os_mbox_create (size_t size)
 bool os_mbox_fetch (os_mbox_t * mbox, void ** msg, uint32_t time)
 {
    struct timespec ts;
-   int error = 0;
+   int error     = 0;
    uint64_t nsec = (uint64_t)time * 1000 * 1000;
 
    if (time != OS_WAIT_FOREVER)
@@ -360,7 +373,7 @@ bool os_mbox_fetch (os_mbox_t * mbox, void ** msg, uint32_t time)
 
    mbox->count--;
 
- timeout:
+timeout:
    pthread_mutex_unlock (&mbox->mutex);
    pthread_cond_signal (&mbox->cond);
 
@@ -370,7 +383,7 @@ bool os_mbox_fetch (os_mbox_t * mbox, void ** msg, uint32_t time)
 bool os_mbox_post (os_mbox_t * mbox, void * msg, uint32_t time)
 {
    struct timespec ts;
-   int error = 0;
+   int error     = 0;
    uint64_t nsec = (uint64_t)time * 1000 * 1000;
 
    if (time != OS_WAIT_FOREVER)
@@ -408,7 +421,7 @@ bool os_mbox_post (os_mbox_t * mbox, void * msg, uint32_t time)
 
    mbox->count++;
 
- timeout:
+timeout:
    pthread_mutex_unlock (&mbox->mutex);
    pthread_cond_signal (&mbox->cond);
 
@@ -434,9 +447,9 @@ static void os_timer_thread (void * arg)
    /* Add SIGALRM */
    sigemptyset (&sigset);
    sigprocmask (SIG_BLOCK, &sigset, NULL);
-   sigaddset(&sigset, SIGALRM);
+   sigaddset (&sigset, SIGALRM);
 
-   tmo.tv_sec = 0;
+   tmo.tv_sec  = 0;
    tmo.tv_nsec = 500 * 1000 * 1000;
 
    while (!timer->exit)
@@ -450,8 +463,11 @@ static void os_timer_thread (void * arg)
    }
 }
 
-os_timer_t * os_timer_create (uint32_t us, void (*fn) (os_timer_t *, void * arg),
-                              void * arg, bool oneshot)
+os_timer_t * os_timer_create (
+   uint32_t us,
+   void (*fn) (os_timer_t *, void * arg),
+   void * arg,
+   bool oneshot)
 {
    os_timer_t * timer;
    struct sigevent sev;
@@ -462,7 +478,7 @@ os_timer_t * os_timer_create (uint32_t us, void (*fn) (os_timer_t *, void * arg)
    sigaddset (&sigset, SIGALRM);
    sigprocmask (SIG_BLOCK, &sigset, NULL);
 
-   timer = (os_timer_t *)malloc (sizeof(*timer));
+   timer = (os_timer_t *)malloc (sizeof (*timer));
 
    timer->exit      = false;
    timer->thread_id = 0;
@@ -472,8 +488,8 @@ os_timer_t * os_timer_create (uint32_t us, void (*fn) (os_timer_t *, void * arg)
    timer->oneshot   = oneshot;
 
    /* Create timer thread */
-   timer->thread = os_thread_create ("os_timer", TIMER_PRIO, 1024,
-                                     os_timer_thread,timer);
+   timer->thread =
+      os_thread_create ("os_timer", TIMER_PRIO, 1024, os_timer_thread, timer);
    if (timer->thread == NULL)
       return NULL;
 
@@ -484,10 +500,10 @@ os_timer_t * os_timer_create (uint32_t us, void (*fn) (os_timer_t *, void * arg)
    } while (timer->thread_id == 0);
 
    /* Create timer */
-   sev.sigev_notify = SIGEV_THREAD_ID;
-   sev.sigev_value.sival_ptr = timer;
-   sev._sigev_un._tid = timer->thread_id;
-   sev.sigev_signo = SIGALRM;
+   sev.sigev_notify            = SIGEV_THREAD_ID;
+   sev.sigev_value.sival_ptr   = timer;
+   sev._sigev_un._tid          = timer->thread_id;
+   sev.sigev_signo             = SIGALRM;
    sev.sigev_notify_attributes = NULL;
 
    if (timer_create (CLOCK_MONOTONIC, &sev, &timer->timerid) == -1)
@@ -506,9 +522,9 @@ void os_timer_start (os_timer_t * timer)
    struct itimerspec its;
 
    /* Start timer */
-   its.it_value.tv_sec = 0;
-   its.it_value.tv_nsec = 1000 * timer->us;
-   its.it_interval.tv_sec = (timer->oneshot) ? 0 : its.it_value.tv_sec;
+   its.it_value.tv_sec     = 0;
+   its.it_value.tv_nsec    = 1000 * timer->us;
+   its.it_interval.tv_sec  = (timer->oneshot) ? 0 : its.it_value.tv_sec;
    its.it_interval.tv_nsec = (timer->oneshot) ? 0 : its.it_value.tv_nsec;
    timer_settime (timer->timerid, 0, &its, NULL);
 }
@@ -518,9 +534,9 @@ void os_timer_stop (os_timer_t * timer)
    struct itimerspec its;
 
    /* Stop timer */
-   its.it_value.tv_sec = 0;
-   its.it_value.tv_nsec = 0;
-   its.it_interval.tv_sec = 0;
+   its.it_value.tv_sec     = 0;
+   its.it_value.tv_nsec    = 0;
+   its.it_interval.tv_sec  = 0;
    its.it_interval.tv_nsec = 0;
    timer_settime (timer->timerid, 0, &its, NULL);
 }

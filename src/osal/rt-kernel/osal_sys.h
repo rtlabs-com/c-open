@@ -17,8 +17,7 @@
 #define OSAL_SYS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <kern.h>

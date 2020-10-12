@@ -25,13 +25,22 @@ void os_log (uint8_t type, const char * fmt, ...)
 {
    va_list list;
 
-   switch(LOG_LEVEL_GET (type))
+   switch (LOG_LEVEL_GET (type))
    {
-   case LOG_LEVEL_DEBUG:   printf ("[DEBUG] "); break;
-   case LOG_LEVEL_INFO:    printf ("[INFO ] "); break;
-   case LOG_LEVEL_WARNING: printf ("[WARN ] "); break;
-   case LOG_LEVEL_ERROR:   printf ("[ERROR] "); break;
-   default: break;
+   case LOG_LEVEL_DEBUG:
+      printf ("[DEBUG] ");
+      break;
+   case LOG_LEVEL_INFO:
+      printf ("[INFO ] ");
+      break;
+   case LOG_LEVEL_WARNING:
+      printf ("[WARN ] ");
+      break;
+   case LOG_LEVEL_ERROR:
+      printf ("[ERROR] ");
+      break;
+   default:
+      break;
    }
 
    va_start (list, fmt);
@@ -70,16 +79,16 @@ void os_usleep (uint32_t usec)
    Sleep (usec / 1000);
 }
 
-os_thread_t * os_thread_create (const char * name, uint32_t priority,
-        size_t stacksize, void (*entry) (void * arg), void * arg)
+os_thread_t * os_thread_create (
+   const char * name,
+   uint32_t priority,
+   size_t stacksize,
+   void (*entry) (void * arg),
+   void * arg)
 {
    HANDLE handle;
-   handle = CreateThread(NULL,
-                         0,
-                         (LPTHREAD_START_ROUTINE)entry,
-                         (LPVOID)arg,
-                         0,
-                         NULL);
+   handle =
+      CreateThread (NULL, 0, (LPTHREAD_START_ROUTINE)entry, (LPVOID)arg, 0, NULL);
 
    SetThreadPriority (handle, THREAD_PRIORITY_TIME_CRITICAL);
    return handle;
@@ -94,7 +103,7 @@ os_sem_t * os_sem_create (size_t count)
 {
    os_sem_t * sem;
 
-   sem = (os_sem_t *)malloc (sizeof(*sem));
+   sem = (os_sem_t *)malloc (sizeof (*sem));
 
    InitializeConditionVariable (&sem->condition);
    InitializeCriticalSection (&sem->lock);
@@ -121,7 +130,7 @@ bool os_sem_wait (os_sem_t * sem, uint32_t time)
 
    sem->count--;
 
- timeout:
+timeout:
    LeaveCriticalSection (&sem->lock);
    return !success;
 }
@@ -144,7 +153,7 @@ os_event_t * os_event_create (void)
 {
    os_event_t * event;
 
-   event = (os_event_t *)malloc (sizeof(*event));
+   event = (os_event_t *)malloc (sizeof (*event));
 
    InitializeConditionVariable (&event->condition);
    InitializeCriticalSection (&event->lock);
@@ -197,7 +206,7 @@ os_mbox_t * os_mbox_create (size_t size)
 {
    os_mbox_t * mbox;
 
-   mbox = (os_mbox_t *)malloc (sizeof(*mbox) + size * sizeof(void *));
+   mbox = (os_mbox_t *)malloc (sizeof (*mbox) + size * sizeof (void *));
 
    InitializeConditionVariable (&mbox->condition);
    InitializeCriticalSection (&mbox->lock);
@@ -232,7 +241,7 @@ bool os_mbox_fetch (os_mbox_t * mbox, void ** msg, uint32_t time)
 
    mbox->count--;
 
- timeout:
+timeout:
    LeaveCriticalSection (&mbox->lock);
    WakeAllConditionVariable (&mbox->condition);
 
@@ -261,7 +270,7 @@ bool os_mbox_post (os_mbox_t * mbox, void * msg, uint32_t time)
 
    mbox->count++;
 
- timeout:
+timeout:
    LeaveCriticalSection (&mbox->lock);
    WakeAllConditionVariable (&mbox->condition);
 
@@ -274,23 +283,27 @@ void os_mbox_destroy (os_mbox_t * mbox)
    free (mbox);
 }
 
-static VOID CALLBACK os_timer_callback (os_timer_t * timer, BOOLEAN timer_or_waitfired)
+static VOID CALLBACK
+os_timer_callback (os_timer_t * timer, BOOLEAN timer_or_waitfired)
 {
    if (timer->fn)
       timer->fn (timer, timer->arg);
 }
 
-os_timer_t * os_timer_create (uint32_t us, void (*fn) (os_timer_t *, void * arg), void * arg,
-                              bool oneshot)
+os_timer_t * os_timer_create (
+   uint32_t us,
+   void (*fn) (os_timer_t *, void * arg),
+   void * arg,
+   bool oneshot)
 {
    DWORD period = us / 1000;
    os_timer_t * timer;
 
-   timer = (os_timer_t *)malloc (sizeof(*timer));
+   timer = (os_timer_t *)malloc (sizeof (*timer));
 
-   timer->fn = fn;
-   timer->arg = arg;
-   timer->us = us;
+   timer->fn      = fn;
+   timer->arg     = arg;
+   timer->us      = us;
    timer->oneshot = oneshot;
 
    return timer;
@@ -303,7 +316,7 @@ void os_timer_set (os_timer_t * timer, uint32_t us)
 
 void os_timer_start (os_timer_t * timer)
 {
-   DWORD period = timer->us / 1000;
+   DWORD period  = timer->us / 1000;
    DWORD dueTime = period;
    ULONG flags;
 
@@ -314,8 +327,14 @@ void os_timer_start (os_timer_t * timer)
       period = 0;
    }
 
-   CreateTimerQueueTimer (&timer->handle, NULL, os_timer_callback,
-                          timer, dueTime, period, flags);
+   CreateTimerQueueTimer (
+      &timer->handle,
+      NULL,
+      os_timer_callback,
+      timer,
+      dueTime,
+      period,
+      flags);
 }
 
 void os_timer_stop (os_timer_t * timer)

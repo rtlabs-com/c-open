@@ -32,8 +32,8 @@ IndentWidth: 3
 PenaltyBreakAssignment: 10
 PenaltyBreakBeforeFirstCallParameter: 30
 PenaltyBreakComment: 10
-PenaltyBreakString: 100
-PenaltyExcessCharacter: 100
+PenaltyBreakString: 1000
+PenaltyExcessCharacter: 15
 PenaltyReturnTypeOnItsOwnLine: 100000
 PointerAlignment: Middle
 SortIncludes: false

@@ -21,22 +21,21 @@
 
 class EmcyTest : public TestBase
 {
-protected:
-   virtual void SetUp() {
+ protected:
+   virtual void SetUp()
+   {
       TestBase::SetUp();
       net.emcy.cobid = 0x81;
    }
 
-   uint8_t msef[5] = { 5, 4, 3, 2, 1 };
+   uint8_t msef[5] = {5, 4, 3, 2, 1};
 };
 
 // Tests
 
 TEST_F (EmcyTest, MsgFormat)
 {
-   uint8_t expected[8] = {
-      0x30, 0x81, 0x03, 0x05, 0x04, 0x03, 0x02, 0x01
-   };
+   uint8_t expected[8] = {0x30, 0x81, 0x03, 0x05, 0x04, 0x03, 0x02, 0x01};
 
    net.emcy.error = CO_ERR_CURRENT;
 
@@ -71,19 +70,19 @@ TEST_F (EmcyTest, AddError)
    EXPECT_EQ (0x12340001u, net.errors[2]);
 
    // Read back number of errors
-   value = 99;
+   value  = 99;
    result = co_od1003_fn (&net, OD_EVENT_READ, NULL, NULL, 0, &value);
    EXPECT_EQ (0u, result);
    EXPECT_EQ (3u, value);
 
    // Read back error at position 1 (latest error)
-   value = 99;
+   value  = 99;
    result = co_od1003_fn (&net, OD_EVENT_READ, NULL, NULL, 1, &value);
    EXPECT_EQ (0u, result);
    EXPECT_EQ (3u, value);
 
    // Read at bad position
-   value = 99;
+   value  = 99;
    result = co_od1003_fn (&net, OD_EVENT_READ, NULL, NULL, 4, &value);
    EXPECT_EQ (CO_SDO_ABORT_NO_DATA, result);
 }
@@ -118,23 +117,22 @@ TEST_F (EmcyTest, ClearErrors)
    EXPECT_EQ (MAX_ERRORS, net.number_of_errors);
 
    // Write invalid value
-   value = 99;
+   value  = 99;
    result = co_od1003_fn (&net, OD_EVENT_WRITE, NULL, NULL, 0, &value);
    EXPECT_EQ (CO_SDO_ABORT_VALUE, result);
    EXPECT_EQ (MAX_ERRORS, net.number_of_errors);
 
    // Clear errors
-   value = 0;
+   value  = 0;
    result = co_od1003_fn (&net, OD_EVENT_WRITE, NULL, NULL, 0, &value);
    EXPECT_EQ (0u, result);
    EXPECT_EQ (0u, net.number_of_errors);
 
    // Read back number of errors
-   value = 99;
+   value  = 99;
    result = co_od1003_fn (&net, OD_EVENT_READ, NULL, NULL, 0, &value);
    EXPECT_EQ (0u, result);
    EXPECT_EQ (0u, value);
-
 }
 
 TEST_F (EmcyTest, EmcyCobId)
@@ -143,17 +141,17 @@ TEST_F (EmcyTest, EmcyCobId)
    uint32_t value;
 
    // Write invalid value
-   value = 0x601;
+   value  = 0x601;
    result = co_od1014_fn (&net, OD_EVENT_WRITE, NULL, NULL, 0, &value);
    EXPECT_EQ (CO_SDO_ABORT_VALUE, result);
 
    // Write new cobid
-   value = 0x82;
+   value  = 0x82;
    result = co_od1014_fn (&net, OD_EVENT_WRITE, NULL, NULL, 0, &value);
    EXPECT_EQ (0u, result);
 
    // Read back cobid
-   value = 99;
+   value  = 99;
    result = co_od1014_fn (&net, OD_EVENT_READ, NULL, NULL, 0, &value);
    EXPECT_EQ (0u, result);
    EXPECT_EQ (0x82u, value);
@@ -162,20 +160,21 @@ TEST_F (EmcyTest, EmcyCobId)
 TEST_F (EmcyTest, EmcyConsumer)
 {
    const co_obj_t * obj1028 = find_obj (0x1028);
-   uint8_t emcy[8] = { 0x30, 0x81, 0x03, 0x05, 0x04, 0x03, 0x02, 0x01 };
-   uint8_t msef[5] = { 0x05, 0x04, 0x03, 0x02, 0x01 };
+
+   uint8_t emcy[8] = {0x30, 0x81, 0x03, 0x05, 0x04, 0x03, 0x02, 0x01};
+   uint8_t msef[5] = {0x05, 0x04, 0x03, 0x02, 0x01};
    uint32_t result;
    uint32_t value;
 
    net.emcy.cobids[0] = CO_COBID_INVALID;
 
    // Setup node 1 emergencies
-   value = 0x81;
+   value  = 0x81;
    result = co_od1028_fn (&net, OD_EVENT_WRITE, obj1028, NULL, 1, &value);
    EXPECT_EQ (0u, result);
 
    // Should call cb_emcy with emergency for node 1
-   co_emcy_rx (&net, 0x81, emcy, sizeof(emcy));
+   co_emcy_rx (&net, 0x81, emcy, sizeof (emcy));
    EXPECT_EQ (1u, cb_emcy_calls);
    EXPECT_EQ (1u, cb_emcy_node);
    EXPECT_EQ (0x8130u, cb_emcy_code);
@@ -183,12 +182,12 @@ TEST_F (EmcyTest, EmcyConsumer)
    EXPECT_TRUE (ArraysMatch (msef, cb_emcy_msef));
 
    // Should not be able to change from valid to valid cobid
-   value = 0x82;
+   value  = 0x82;
    result = co_od1028_fn (&net, OD_EVENT_WRITE, obj1028, NULL, 1, &value);
    EXPECT_EQ (CO_SDO_ABORT_VALUE, result);
 
    // Should be able to change from valid to invalid cobid
-   value = CO_COBID_INVALID | 0x82;
+   value  = CO_COBID_INVALID | 0x82;
    result = co_od1028_fn (&net, OD_EVENT_WRITE, obj1028, NULL, 1, &value);
    EXPECT_EQ (0u, result);
 }
@@ -200,13 +199,13 @@ TEST_F (EmcyTest, NMTErrorBehavior)
    uint32_t value;
 
    net.state = STATE_INIT;
-   value = 0;
-   result = co_od1029_fn (&net, OD_EVENT_WRITE, obj1029, NULL, 1, &value);
-   EXPECT_EQ(0u, result);
+   value     = 0;
+   result    = co_od1029_fn (&net, OD_EVENT_WRITE, obj1029, NULL, 1, &value);
+   EXPECT_EQ (0u, result);
 
    result = co_od1029_fn (&net, OD_EVENT_READ, obj1029, NULL, 1, &value);
-   EXPECT_EQ(0u, result);
-   EXPECT_EQ(0u, value);
+   EXPECT_EQ (0u, result);
+   EXPECT_EQ (0u, value);
 
    co_emcy_tx (&net, 1, 0x1234, msef);
    EXPECT_EQ (STATE_INIT, net.state);
@@ -230,10 +229,10 @@ TEST_F (EmcyTest, NMTErrorBehavior)
    co_emcy_tx (&net, 1, 0x1234, msef);
    EXPECT_EQ (STATE_PREOP, net.state);
 
-   value = 2;
+   value  = 2;
    result = co_od1029_fn (&net, OD_EVENT_WRITE, obj1029, NULL, 1, &value);
-   EXPECT_EQ(0u, result);
-   EXPECT_EQ(2, net.error_behavior);
+   EXPECT_EQ (0u, result);
+   EXPECT_EQ (2, net.error_behavior);
 
    net.state = STATE_INIT;
    co_emcy_tx (&net, 1, 0x1234, msef);
@@ -263,8 +262,8 @@ TEST_F (EmcyTest, EmcyOverrun)
 {
    uint32_t error_register;
    uint8_t expected[][8] = {
-      { 0x10, 0x81, 0x11, 0x00, 0x00, 0x00, 0x00, 0x00 },
-      { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 },
+      {0x10, 0x81, 0x11, 0x00, 0x00, 0x00, 0x00, 0x00},
+      {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
    };
 
    // Set overrun error state
@@ -301,8 +300,8 @@ TEST_F (EmcyTest, EmcyErrorPassive)
 {
    uint32_t error_register;
    uint8_t expected[][8] = {
-      { 0x20, 0x81, 0x11, 0x00, 0x00, 0x00, 0x00, 0x00 },
-      { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 },
+      {0x20, 0x81, 0x11, 0x00, 0x00, 0x00, 0x00, 0x00},
+      {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
    };
 
    // Set error_passive error state
@@ -339,7 +338,7 @@ TEST_F (EmcyTest, EmcyBusOff)
 {
    uint32_t error_register;
    uint8_t expected[][8] = {
-      { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 },
+      {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
    };
 
    // Set bus_off error state
@@ -366,7 +365,7 @@ TEST_F (EmcyTest, EmcyBusOff)
 
 TEST_F (EmcyTest, EmcyInhibit)
 {
-   net.emcy.inhibit = 10;       // 10 * 100 us
+   net.emcy.inhibit = 10; // 10 * 100 us
 
    // Should send EMCY
    mock_os_get_current_time_us_result = 10 * 100;

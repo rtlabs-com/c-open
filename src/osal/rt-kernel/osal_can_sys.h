@@ -17,8 +17,7 @@
 #define OSAL_CAN_SYS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #define OS_CHANNEL
