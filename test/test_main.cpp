@@ -14,7 +14,6 @@
  ********************************************************************/
 
 #include "options.h"
-#include "osal.h"
 #include <gtest/gtest.h>
 
 extern "C" {

@@ -24,6 +24,8 @@
 #include "co_od.h"
 #include "co_util.h"
 
+#include <inttypes.h>
+
 #define CO_SDO_xCS(v) ((v)&0xE0)
 #define CO_SDO_N(v)   (((v) >> 2) & 0x03)
 #define CO_SDO_E      BIT (1)

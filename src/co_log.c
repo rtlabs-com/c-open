@@ -17,6 +17,7 @@
 #include "co_main.h"
 
 #include <stdio.h>
+#include <inttypes.h>
 
 void co_msg_log (char * prefix, uint32_t id, const uint8_t * data, size_t dlc)
 {

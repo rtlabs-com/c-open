@@ -18,7 +18,6 @@
 
 #include "co_bitmap.h"
 #include "osal.h"
-#include "cc.h"
 
 void co_bitmap_set (uint32_t * bm, int bit)
 {

@@ -27,9 +27,9 @@ extern "C" {
 
 #include "co_api.h"
 #include "osal.h"
-#include "osal_can.h"
+#include "coal_can.h"
 #include "options.h"
-#include "log.h"
+#include "osal_log.h"
 
 #include <stdbool.h>
 

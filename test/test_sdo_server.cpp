@@ -17,7 +17,6 @@
 #include "co_od.h"
 
 #include "options.h"
-#include "osal.h"
 #include <gtest/gtest.h>
 
 #include "mocks.h"

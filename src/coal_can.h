@@ -13,19 +13,18 @@
  * full license information.
  ********************************************************************/
 
-#ifndef OSAL_CAN_H
-#define OSAL_CAN_H
+#ifndef COAL_CAN_H
+#define COAL_CAN_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <stdarg.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "osal_can_sys.h"
+#include "coal_can_sys.h"
 
 #ifndef OS_CHANNEL
 typedef void os_channel_t;
@@ -60,4 +59,4 @@ int os_channel_get_state (os_channel_t * channel, os_channel_state_t * state);
 }
 #endif
 
-#endif /* OSAL_CAN_H */
+#endif /* COAL_CAN_H */

@@ -13,9 +13,10 @@
  * full license information.
  ********************************************************************/
 
+#include "coal_can.h"
 #include "osal.h"
 #include "options.h"
-#include "log.h"
+#include "osal_log.h"
 #include "co_log.h"
 #include "co_main.h"
 

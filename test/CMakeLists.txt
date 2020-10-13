@@ -27,7 +27,6 @@ target_sources(co_test PRIVATE
   test_bitmap.cpp
   test_node_guard.cpp
   test_heartbeat.cpp
-  test_osal.cpp
 
   # Test utils
   mocks.h
@@ -79,3 +78,6 @@ target_link_libraries(co_test
   PRIVATE
   canopen
   )
+
+# No need for gmock
+set(BUILD_GMOCK OFF CACHE BOOL "")

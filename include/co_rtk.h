@@ -24,7 +24,7 @@
 extern "C" {
 #endif
 
-#include <can/can.h>
+#include <drivers/can/can.h>
 
 /**
  * Get can configuration for bitrate

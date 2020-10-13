@@ -13,32 +13,24 @@
  * full license information.
  ********************************************************************/
 
-#include <stddef.h>
-#include <kern/types.h>
+#ifndef COAL_CAN_SYS_H
+#define COAL_CAN_SYS_H
 
-char * getcwd (char * buf, size_t size)
-{
-   buf[0] = '/';
-   buf[1] = 0;
-   return buf;
-}
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-void regfree()
-{
-}
+#define OS_CHANNEL
 
-void regexec()
+typedef struct
 {
-}
+   int handle;
+   void (*callback) (void * arg);
+   void * arg;
+} os_channel_t;
 
-void regcomp()
-{
+#ifdef __cplusplus
 }
+#endif
 
-void dup()
-{
-}
-
-void dup2()
-{
-}
+#endif /* COAL_CAN_SYS_H */

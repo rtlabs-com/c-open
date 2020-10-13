@@ -25,8 +25,6 @@ extern "C" {
 #include "co_api.h"
 #include "co_main.h"
 
-#include "osal.h"
-
 extern uint32_t mock_os_get_current_time_us_result;
 uint32_t mock_os_get_current_time_us (void);
 

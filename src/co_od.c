@@ -21,6 +21,7 @@
 #include "co_util.h"
 
 #include <string.h>
+#include <inttypes.h>
 
 #define OD_RESTORE 0x64616F6C /* Signature for restore ("load") */
 #define OD_STORE   0x65766173 /* Signature for store ("save") */

@@ -13,16 +13,15 @@
  * full license information.
  ********************************************************************/
 
-#include "osal_can.h"
+#include "coal_can.h"
 #include "osal.h"
 #include "options.h"
-#include "log.h"
+#include "osal_log.h"
 #include "co_log.h"
 #include "co_main.h"
 #include "co_rtk.h"
-#include "cc.h"
 
-#include <can/can.h>
+#include <drivers/can/can.h>
 #include <fcntl.h>
 #include <string.h>
 

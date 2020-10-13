@@ -24,6 +24,8 @@
 #include "co_od.h"
 #include "co_util.h"
 
+#include <inttypes.h>
+
 static void co_sdo_done (co_net_t * net)
 {
    co_job_t * job = net->job_client;

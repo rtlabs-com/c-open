@@ -23,7 +23,7 @@ extern "C" {
 #include <stdint.h>
 #include <string.h>
 
-#include "cc.h"
+#include "osal.h"
 
 static inline int co_is_expired (uint32_t now, uint32_t timestamp, uint32_t timeout)
 {
