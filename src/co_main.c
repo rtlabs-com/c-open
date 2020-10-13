@@ -182,6 +182,29 @@ static void co_job_callback (co_job_t * job)
    os_sem_signal (client->sem);
 }
 
+void co_nmt_rtr(co_net_t * net, uint8_t node)
+{
+   uint8_t _data[1];
+   os_channel_send (net->channel, CO_RTR_MASK + CO_FUNCTION_NMT_ERR + node, _data, 1);
+}
+
+/* TODO: issue nmt job? */
+void co_nmt_net (co_net_t * net, co_nmt_cmd_t cmd, uint8_t node)
+{
+   uint8_t data[] = { cmd, node };
+
+   if ((net->node == node))
+   {
+      co_nmt_rx(net, node, data, sizeof(data));
+      return;
+   }
+   else if (node == 0)
+   {
+      co_nmt_rx(net, node, data, sizeof(data));
+   }
+   os_channel_send (net->channel, CO_FUNCTION_NMT, data, sizeof(data));
+}
+
 /* TODO: issue nmt job? */
 void co_nmt (co_client_t * client, co_nmt_cmd_t cmd, uint8_t node)
 {
@@ -381,6 +404,10 @@ co_net_t * co_init (const char * canif, const co_cfg_t * cfg)
    net->read = cfg->read;
    net->write = cfg->write;
    net->close = cfg->close;
+
+#if CO_CONF_MNGR > 0
+   net->cb_write_dcf = cfg->cb_write_dcf;
+#endif
 
    net->job_periodic = CO_JOB_PERIODIC;
    net->job_rx = CO_JOB_RX;

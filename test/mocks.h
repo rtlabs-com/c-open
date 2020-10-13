@@ -25,6 +25,7 @@ extern "C"
 
 #include "co_api.h"
 #include "co_main.h"
+#include "co_nmt.h"
 
 #include "osal.h"
 
@@ -78,6 +79,9 @@ extern unsigned int mock_co_emcy_tx_calls;
 extern uint16_t mock_co_emcy_tx_code;
 void mock_co_emcy_tx (co_net_t * net, uint16_t code);
 
+extern unsigned int mock_co_nmt_rtr_calls;
+void mock_co_nmt_rtr (co_net_t * net, uint8_t node);
+
 extern unsigned int cb_reset_calls;
 void cb_reset (void * arg);
 
@@ -107,6 +111,12 @@ void * store_open (co_store_t store);
 int store_read (void * arg, void * data, size_t size);
 int store_write (void * arg, const void * data, size_t size);
 int store_close (void * arg);
+
+int mock_co_sdo_read (co_client_t * client, uint8_t node, uint16_t index,
+                 uint8_t subindex, void * data, size_t size);
+
+void mock_co_nmt (co_client_t * client, co_nmt_cmd_t cmd, uint8_t node);
+void mock_co_nmt_net (co_net_t * net, co_nmt_cmd_t cmd, uint8_t node);
 
 #ifdef __cplusplus
 }

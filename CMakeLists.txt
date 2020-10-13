@@ -65,6 +65,9 @@ set_property(CACHE CO_NODE_GUARD_LOG PROPERTY STRINGS ${LOG_STATE_VALUES})
 set(CO_LSS_LOG ON CACHE STRING "log lss events")
 set_property(CACHE CO_LSS_LOG PROPERTY STRINGS ${LOG_STATE_VALUES})
 
+set(CO_CONF_MNGR_LOG ON CACHE STRING "log mngr events")
+set_property(CACHE CO_CONF_MNGR_LOG PROPERTY STRINGS ${LOG_STATE_VALUES})
+
 set(MAX_NODES "16"
   CACHE STRING "max number of statically allocated nodes")
 
@@ -91,6 +94,9 @@ set(SDO_TIMEOUT "100"
 
 set(CO_THREAD_PRIO "10"
   CACHE STRING "priority of main thread")
+
+set(CO_CONF_MNGR "127"
+  CACHE STRING "number of supported slaves in configuration manager")
 
 set(CO_THREAD_STACK_SIZE "4096"
   CACHE STRING "stack size of main thread")
