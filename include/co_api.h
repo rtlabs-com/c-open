@@ -172,6 +172,28 @@ typedef enum co_dtype
    DTYPE_IDENTITY        = 0x0023,
 } co_dtype_t;
 
+#if CO_CONF_MNGR > 1
+typedef enum co_mngr_status
+{
+   ERROR_STATUS_OK,
+   ERROR_STATUS_A,
+   ERROR_STATUS_B,
+   ERROR_STATUS_C,
+   ERROR_STATUS_D,
+   ERROR_STATUS_E,
+   ERROR_STATUS_F,
+   ERROR_STATUS_G,
+   ERROR_STATUS_H,
+   ERROR_STATUS_I,
+   ERROR_STATUS_J,
+   ERROR_STATUS_K,
+   ERROR_STATUS_L,
+   ERROR_STATUS_M,
+   ERROR_STATUS_N,
+   ERROR_STATUS_O,
+} co_mngr_status_t;
+#endif
+
 /* Entry flags */
 #define OD_READ      (1U << 0)  /**< Entry is readable */
 #define OD_WRITE     (1U << 1)  /**< Entry is writeable */
@@ -284,6 +306,13 @@ typedef struct co_cfg
 
    /** Function to close dictionary store */
    int (*close)(void * arg);
+
+#if CO_CONF_MNGR > 1
+   /** Function to write dcf configuration to slaves */
+   co_mngr_status_t (*cb_write_dcf) (void * arg, uint8_t node);
+#endif
+
+   int num_devices;
 } co_cfg_t;
 
 /**
@@ -458,6 +487,10 @@ CO_EXPORT int co_error_clear (co_client_t * client, uint8_t mask);
  * @return 0 on success, CO_STATUS error code otherwise
  */
 CO_EXPORT int co_error_get (co_client_t * client, uint8_t * error);
+
+CO_EXPORT co_mngr_status_t co_nmt_mngr_startup (co_client_t * client);
+
+CO_EXPORT co_mngr_status_t co_nmt_mngr_startup_node (co_client_t * client, uint8_t node);
 
 #ifdef __cplusplus
 }

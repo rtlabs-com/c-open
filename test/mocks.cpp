@@ -126,6 +126,13 @@ void mock_co_emcy_tx (co_net_t * net, uint16_t code)
    mock_co_emcy_tx_code = code;
 }
 
+unsigned int mock_co_nmt_rtr_calls = 0;
+void mock_co_nmt_rtr (co_net_t * net, uint8_t node)
+{
+   uint8_t _data[1];
+   mock_co_nmt_rtr_calls++;
+   mock_os_channel_send (net->channel, CO_RTR_MASK + CO_FUNCTION_NMT_ERR + node, _data, 1);
+}
 
 unsigned int cb_reset_calls;
 void cb_reset (void * arg)
@@ -209,4 +216,33 @@ int store_write (void * arg, const void * data, size_t size)
 int store_close (void * arg)
 {
    return 0;
+}
+
+int mock_co_sdo_read (co_client_t * client, uint8_t node, uint16_t index,
+                 uint8_t subindex, void * data, size_t size)
+{
+   return size;
+}
+
+void mock_co_nmt (co_client_t * client, co_nmt_cmd_t cmd, uint8_t node)
+{
+   co_net_t * net = client->net;
+   mock_co_nmt_net (net, cmd, node);
+}
+
+void mock_co_nmt_net (co_net_t * net, co_nmt_cmd_t cmd, uint8_t node)
+{
+   uint8_t data[] = { static_cast<uint8_t>(cmd), node };
+
+   if ((node == 0) || (net->node == node))
+   {
+      co_nmt_rx(net, node, data, sizeof(data));
+
+      if (node != 0)
+      {
+         return;
+      }
+   }
+
+   mock_os_channel_send (net->channel, CO_FUNCTION_NMT + node, data, sizeof(data));
 }

@@ -40,7 +40,7 @@ extern "C"
 #define CO_EXT_MASK         BIT (29)
 #define CO_ID_MASK          0x1FFFFFFF
 
-#define CO_COBID_INVALID    BIT (31)
+#define CO_COBID_INVALID    (uint32_t)BIT (31)
 #define CO_NODE_GET(id)     ((id) & 0x7F)
 
 /* Pre-defined connection set (see CiA 301 chapter 7.3.3) */
@@ -275,7 +275,32 @@ struct co_net
 
    /** Function to close dictionary store */
    int (*close)(void * arg);
+
+#if CO_CONF_MNGR > 1
+   uint32_t conf_exp_conf_date[CO_CONF_MNGR];
+   uint32_t conf_exp_conf_time[CO_CONF_MNGR];
+
+   uint16_t nmt_inhibit;
+   uint32_t nmt_startup;
+   uint32_t nmt_slave_assignment[CO_CONF_MNGR];
+   uint8_t nmt_request[CO_CONF_MNGR];
+   uint8_t nmt_request_node_guard[CO_CONF_MNGR];
+   uint32_t nmt_node_ts_resp[CO_CONF_MNGR];
+   uint32_t nmt_node_ts_req[CO_CONF_MNGR];
+   uint32_t nmt_slave_device_type[CO_CONF_MNGR];
+   uint32_t nmt_slave_vendor_id[CO_CONF_MNGR];
+   uint32_t nmt_slave_prod_code[CO_CONF_MNGR];
+   uint32_t nmt_slave_rev_num[CO_CONF_MNGR];
+   uint32_t nmt_slave_ser_num[CO_CONF_MNGR];
+   uint32_t nmt_slave_boot_time[CO_CONF_MNGR];
+
+   /** Function to write dcf configuration to slaves */
+   co_mngr_status_t (*cb_write_dcf) (void * arg, uint8_t node);
+#endif
 };
+
+void co_nmt_rtr (co_net_t * net, uint8_t node);
+void co_nmt_net (co_net_t * net, co_nmt_cmd_t cmd, uint8_t node);
 
 #ifdef __cplusplus
 }

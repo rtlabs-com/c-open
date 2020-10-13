@@ -28,6 +28,7 @@ target_sources(co_test PRIVATE
   test_node_guard.cpp
   test_heartbeat.cpp
   test_osal.cpp
+  test_mngr.cpp
 
   # Test utils
   mocks.h
@@ -54,6 +55,7 @@ target_sources(co_test PRIVATE
   ${CANOPEN_SOURCE_DIR}/src/co_node_guard.c
   ${CANOPEN_SOURCE_DIR}/src/co_heartbeat.c
   ${CANOPEN_SOURCE_DIR}/src/co_obj.c
+  ${CANOPEN_SOURCE_DIR}/src/co_mngr.c
   )
 
 get_target_property(CANOPEN_OPTIONS canopen COMPILE_OPTIONS)

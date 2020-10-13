@@ -42,4 +42,6 @@ target_sources (canopen PRIVATE
   co_node_guard.c
   co_node_guard.h
   co_obj.c
+  co_mngr.c
+  co_mngr.h
   )

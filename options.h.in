@@ -70,4 +70,8 @@
 #define CO_THREAD_STACK_SIZE (@CO_THREAD_STACK_SIZE@)
 #endif
 
+#ifndef CO_CONF_MNGR_LOG
+#define CO_CONF_MNGR_LOG     (LOG_STATE_@CO_CONF_MNGR_LOG@)
+#endif
+
 #endif  /* OPTIONS_H */

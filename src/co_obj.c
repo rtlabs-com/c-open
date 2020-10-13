@@ -158,3 +158,92 @@ const co_entry_t OD1A00[] =
    { 0x00, OD_RW, DTYPE_UNSIGNED8, 8, MAX_PDO_ENTRIES, NULL },
    { 0x01, OD_RW | OD_ARRAY, DTYPE_UNSIGNED32, 32, 0, NULL },
 };
+
+/* Entry descriptor for NMT inhibit time value object (102Ah) */
+const co_entry_t OD102A[] =
+{
+   { 0x00, OD_RW, DTYPE_UNSIGNED16, 16, 0, NULL },
+};
+
+/* Entry descriptor for Expected configuration date value object (1F26h) */
+const co_entry_t OD1F26[] =
+{
+   { 0x00, OD_RO, DTYPE_UNSIGNED8, 8, CO_CONF_MNGR, NULL },
+   { 0x01, OD_RW | OD_ARRAY, DTYPE_UNSIGNED32, 32, 0x0, NULL },
+};
+
+/* Entry descriptor for Expected configuration time value object (1F27h) */
+const co_entry_t OD1F27[] =
+{
+   { 0x00, OD_RO, DTYPE_UNSIGNED8, 8, CO_CONF_MNGR, NULL },
+   { 0x01, OD_RW | OD_ARRAY, DTYPE_UNSIGNED32, 32, 0x0, NULL },
+};
+
+/* Entry descriptor for NMT startup value object (1F80h) */
+const co_entry_t OD1F80[] =
+{
+   { 0x00, OD_RW, DTYPE_UNSIGNED32, 32, 0, NULL },
+};
+
+/* Entry descriptor for NMT slave assignment value object (1F81h) */
+const co_entry_t OD1F81[] =
+{
+   { 0x00, OD_RO, DTYPE_UNSIGNED8, 8, CO_CONF_MNGR, NULL },
+   { 0x01, OD_RW | OD_ARRAY, DTYPE_UNSIGNED32, 32, 0x0, NULL },
+};
+
+/* Entry descriptor for Request NMT value object (1F82h) */
+const co_entry_t OD1F82[] =
+{
+   { 0x00, OD_RO, DTYPE_UNSIGNED8, 8, CO_CONF_MNGR + 1, NULL },
+   { 0x01, OD_RW | OD_ARRAY, DTYPE_UNSIGNED8, 8, 0x0, NULL },
+};
+
+/* Entry descriptor for Request node guarding value object (1F83h) */
+const co_entry_t OD1F83[] =
+{
+   { 0x00, OD_RO, DTYPE_UNSIGNED8, 8, CO_CONF_MNGR + 1, NULL },
+   { 0x01, OD_RW | OD_ARRAY, DTYPE_UNSIGNED8, 8, 0x0, NULL },
+};
+
+/* Entry descriptor for Device type identification value object (1F84h) */
+const co_entry_t OD1F84[] =
+{
+   { 0x00, OD_RO, DTYPE_UNSIGNED8, 8, CO_CONF_MNGR, NULL },
+   { 0x01, OD_RW | OD_ARRAY, DTYPE_UNSIGNED32, 32, 0x0, NULL },
+};
+
+/* Entry descriptor for Vendor identification value object (1F85h) */
+const co_entry_t OD1F85[] =
+{
+   { 0x00, OD_RO, DTYPE_UNSIGNED8, 8, CO_CONF_MNGR, NULL },
+   { 0x01, OD_RW | OD_ARRAY, DTYPE_UNSIGNED32, 32, 0x0, NULL },
+};
+
+/* Entry descriptor for Product code value object (1F86h) */
+const co_entry_t OD1F86[] =
+{
+   { 0x00, OD_RO, DTYPE_UNSIGNED8, 8, CO_CONF_MNGR, NULL },
+   { 0x01, OD_RW | OD_ARRAY, DTYPE_UNSIGNED32, 32, 0x0, NULL },
+};
+
+/* Entry descriptor for Revision number value object (1F87h) */
+const co_entry_t OD1F87[] =
+{
+   { 0x00, OD_RO, DTYPE_UNSIGNED8, 8, CO_CONF_MNGR, NULL },
+   { 0x01, OD_RW | OD_ARRAY, DTYPE_UNSIGNED32, 32, 0x0, NULL },
+};
+
+/* Entry descriptor for Serial number value object (1F88h) */
+const co_entry_t OD1F88[] =
+{
+   { 0x00, OD_RO, DTYPE_UNSIGNED8, 8, CO_CONF_MNGR, NULL },
+   { 0x01, OD_RW | OD_ARRAY, DTYPE_UNSIGNED32, 32, 0x0, NULL },
+};
+
+/* Entry descriptor for Boot time value object (1F89h) */
+const co_entry_t OD1F89[] =
+{
+   { 0x00, OD_RO, DTYPE_UNSIGNED8, 8, CO_CONF_MNGR, NULL },
+   { 0x01, OD_RW | OD_ARRAY, DTYPE_UNSIGNED32, 32, 0x0, NULL },
+};

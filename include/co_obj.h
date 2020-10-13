@@ -91,6 +91,45 @@ extern const co_entry_t OD1800[];
 /** Entry descriptor for RPDO mapping parameter object (1A00h - 1BFFh) */
 extern const co_entry_t OD1A00[];
 
+/** Entry descriptor for NMT inhibit time value object (102Ah) */
+extern const co_entry_t OD102A[];
+
+/** Entry descriptor for Expected configuration date value object (1F26h) */
+extern const co_entry_t OD1F26[];
+
+/** Entry descriptor for Expected configuration time value object (1F27h) */
+extern const co_entry_t OD1F27[];
+
+/** Entry descriptor for NMT startup value object (1F80h) */
+extern const co_entry_t OD1F80[];
+
+/** Entry descriptor for NMT slave assignment value object (1F81h) */
+extern const co_entry_t OD1F81[];
+
+/** Entry descriptor for Request NMT value object (1F82h) */
+extern const co_entry_t OD1F82[];
+
+/** Entry descriptor for Request node guarding value object (1F83h) */
+extern const co_entry_t OD1F83[];
+
+/** Entry descriptor for Device type identification value object (1F84h) */
+extern const co_entry_t OD1F84[];
+
+/** Entry descriptor for Vendor identification value object (1F85h) */
+extern const co_entry_t OD1F85[];
+
+/** Entry descriptor for Product code value object (1F86h) */
+extern const co_entry_t OD1F86[];
+
+/** Entry descriptor for Revision number value object (1F87h) */
+extern const co_entry_t OD1F87[];
+
+/** Entry descriptor for Serial number value object (1F88h) */
+extern const co_entry_t OD1F88[];;
+
+/** Entry descriptor for Boot time value object (1F89h) */
+extern const co_entry_t OD1F89[];
+
 /**
  * Access function for Error register object (1001h)
  *
@@ -512,6 +551,266 @@ uint32_t co_od1800_fn (
  * @return sdo abort code
  */
 uint32_t co_od1A00_fn (
+   co_net_t * net,
+   od_event_t event,
+   const co_obj_t * obj,
+   const co_entry_t * entry,
+   uint8_t subindex,
+   uint32_t * value);
+
+/**
+ * Access function for NMT inhibit time value object (102Ah)
+ *
+ * @param net           network handle
+ * @param event         read/write/restore
+ * @param obj           object descriptor
+ * @param entry         entry descriptor
+ * @param subindex      subindex
+ * @param value         value to read or write
+ *
+ * @return sdo abort code
+ */
+uint32_t co_od102a_fn (
+   co_net_t * net,
+   od_event_t event,
+   const co_obj_t * obj,
+   const co_entry_t * entry,
+   uint8_t subindex,
+   uint32_t * value);
+
+/**
+ * Access function for Expected configuration date value object (1F26h)
+ *
+ * @param net           network handle
+ * @param event         read/write/restore
+ * @param obj           object descriptor
+ * @param entry         entry descriptor
+ * @param subindex      subindex
+ * @param value         value to read or write
+ *
+ * @return sdo abort code
+ */
+uint32_t co_od1f26_fn (
+   co_net_t * net,
+   od_event_t event,
+   const co_obj_t * obj,
+   const co_entry_t * entry,
+   uint8_t subindex,
+   uint32_t * value);
+
+/**
+ * Access function for Expected configuration time value object (1F27h)
+ *
+ * @param net           network handle
+ * @param event         read/write/restore
+ * @param obj           object descriptor
+ * @param entry         entry descriptor
+ * @param subindex      subindex
+ * @param value         value to read or write
+ *
+ * @return sdo abort code
+ */
+uint32_t co_od1f27_fn (
+   co_net_t * net,
+   od_event_t event,
+   const co_obj_t * obj,
+   const co_entry_t * entry,
+   uint8_t subindex,
+   uint32_t * value);
+
+/**
+ * Access function for NMT startup value object (1F80h)
+ *
+ * @param net           network handle
+ * @param event         read/write/restore
+ * @param obj           object descriptor
+ * @param entry         entry descriptor
+ * @param subindex      subindex
+ * @param value         value to read or write
+ *
+ * @return sdo abort code
+ */
+uint32_t co_od1f80_fn (
+   co_net_t * net,
+   od_event_t event,
+   const co_obj_t * obj,
+   const co_entry_t * entry,
+   uint8_t subindex,
+   uint32_t * value);
+
+/**
+ * Access function for NMT slave assignment value object (1F81h)
+ *
+ * @param net           network handle
+ * @param event         read/write/restore
+ * @param obj           object descriptor
+ * @param entry         entry descriptor
+ * @param subindex      subindex
+ * @param value         value to read or write
+ *
+ * @return sdo abort code
+ */
+uint32_t co_od1f81_fn (
+   co_net_t * net,
+   od_event_t event,
+   const co_obj_t * obj,
+   const co_entry_t * entry,
+   uint8_t subindex,
+   uint32_t * value);
+
+/**
+ * Access function for Request NMT value object (1F82h)
+ *
+ * @param net           network handle
+ * @param event         read/write/restore
+ * @param obj           object descriptor
+ * @param entry         entry descriptor
+ * @param subindex      subindex
+ * @param value         value to read or write
+ *
+ * @return sdo abort code
+ */
+uint32_t co_od1f82_fn (
+   co_net_t * net,
+   od_event_t event,
+   const co_obj_t * obj,
+   const co_entry_t * entry,
+   uint8_t subindex,
+   uint32_t * value);
+
+/**
+ * Access function for Request node guarding value object (1F83h)
+ *
+ * @param net           network handle
+ * @param event         read/write/restore
+ * @param obj           object descriptor
+ * @param entry         entry descriptor
+ * @param subindex      subindex
+ * @param value         value to read or write
+ *
+ * @return sdo abort code
+ */
+uint32_t co_od1f83_fn (
+   co_net_t * net,
+   od_event_t event,
+   const co_obj_t * obj,
+   const co_entry_t * entry,
+   uint8_t subindex,
+   uint32_t * value);
+
+/**
+ * Access function for Device type identification value object (1F84h)
+ *
+ * @param net           network handle
+ * @param event         read/write/restore
+ * @param obj           object descriptor
+ * @param entry         entry descriptor
+ * @param subindex      subindex
+ * @param value         value to read or write
+ *
+ * @return sdo abort code
+ */
+uint32_t co_od1f84_fn (
+   co_net_t * net,
+   od_event_t event,
+   const co_obj_t * obj,
+   const co_entry_t * entry,
+   uint8_t subindex,
+   uint32_t * value);
+
+/**
+ * Access function for Vendor identification value object (1F85h)
+ *
+ * @param net           network handle
+ * @param event         read/write/restore
+ * @param obj           object descriptor
+ * @param entry         entry descriptor
+ * @param subindex      subindex
+ * @param value         value to read or write
+ *
+ * @return sdo abort code
+ */
+uint32_t co_od1f85_fn (
+   co_net_t * net,
+   od_event_t event,
+   const co_obj_t * obj,
+   const co_entry_t * entry,
+   uint8_t subindex,
+   uint32_t * value);
+
+/**
+ * Access function for Product code value object (1F86h)
+ *
+ * @param net           network handle
+ * @param event         read/write/restore
+ * @param obj           object descriptor
+ * @param entry         entry descriptor
+ * @param subindex      subindex
+ * @param value         value to read or write
+ *
+ * @return sdo abort code
+ */
+uint32_t co_od1f86_fn (
+   co_net_t * net,
+   od_event_t event,
+   const co_obj_t * obj,
+   const co_entry_t * entry,
+   uint8_t subindex,
+   uint32_t * value);
+
+/**
+ * Access function for Revision number value object (1F87h)
+ *
+ * @param net           network handle
+ * @param event         read/write/restore
+ * @param obj           object descriptor
+ * @param entry         entry descriptor
+ * @param subindex      subindex
+ * @param value         value to read or write
+ *
+ * @return sdo abort code
+ */
+uint32_t co_od1f87_fn (
+   co_net_t * net,
+   od_event_t event,
+   const co_obj_t * obj,
+   const co_entry_t * entry,
+   uint8_t subindex,
+   uint32_t * value);
+
+/**
+ * Access function for Serial number value object (1F88h)
+ *
+ * @param net           network handle
+ * @param event         read/write/restore
+ * @param obj           object descriptor
+ * @param entry         entry descriptor
+ * @param subindex      subindex
+ * @param value         value to read or write
+ *
+ * @return sdo abort code
+ */
+uint32_t co_od1f88_fn (
+   co_net_t * net,
+   od_event_t event,
+   const co_obj_t * obj,
+   const co_entry_t * entry,
+   uint8_t subindex,
+   uint32_t * value);
+
+/**
+ * Access function for Boot time value object (1F89h)
+ *
+ * @param net           network handle
+ * @param event         read/write/restore
+ * @param obj           object descriptor
+ * @param entry         entry descriptor
+ * @param subindex      subindex
+ * @param value         value to read or write
+ *
+ * @return sdo abort code
+ */
+uint32_t co_od1f89_fn (
    co_net_t * net,
    od_event_t event,
    const co_obj_t * obj,

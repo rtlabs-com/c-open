@@ -44,4 +44,8 @@
 #define MAX_ERRORS      (@MAX_ERRORS@)
 #endif
 
+#ifndef CO_CONF_MNGR
+#define CO_CONF_MNGR    (@CO_CONF_MNGR@)
+#endif
+
 #endif /* CO_OPTIONS_H */
