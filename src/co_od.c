@@ -374,7 +374,9 @@ uint32_t co_od_load (co_net_t * net, co_store_t store)
       uint16_t index;
       uint8_t subindex;
       size_t size;
-      uint32_t value;
+      uint64_t value;
+      uint8_t * ptr;
+      uint32_t abort;
 
       if (net->read (arg, &index, sizeof (index)) < 0)
          goto error;
@@ -383,9 +385,6 @@ uint32_t co_od_load (co_net_t * net, co_store_t store)
          goto error;
 
       if (net->read (arg, &size, sizeof (size)) < 0)
-         goto error;
-
-      if (net->read (arg, &value, size) < 0)
          goto error;
 
       /* Attempt to set value. Errors are ignored to support firmware
@@ -399,7 +398,23 @@ uint32_t co_od_load (co_net_t * net, co_store_t store)
       if (entry == NULL || !(entry->flags & OD_WRITE))
          continue;
 
-      co_od_set_value (net, obj, entry, subindex, value);
+      if (size > sizeof (value))
+      {
+         /* Get pointer to storage */
+         abort = co_od_get_ptr (net, obj, entry, subindex, &ptr);
+         if (abort)
+            goto error;
+
+         if (net->read (arg, ptr, size) < 0)
+            goto error;
+      }
+      else
+      {
+         if (net->read (arg, &value, size) < 0)
+            goto error;
+
+         co_od_set_value (net, obj, entry, subindex, value);
+      }
    }
 
    /* Ignore any error on close */
