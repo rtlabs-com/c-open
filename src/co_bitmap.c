@@ -18,11 +18,10 @@
 
 #include "co_bitmap.h"
 #include "osal.h"
-#include "cc.h"
 
 void co_bitmap_set (uint32_t * bm, int bit)
 {
-   int ix = bit / 32;
+   int ix     = bit / 32;
    int offset = bit % 32;
 
    CC_ASSERT (bit < 128);
@@ -31,7 +30,7 @@ void co_bitmap_set (uint32_t * bm, int bit)
 
 void co_bitmap_clear (uint32_t * bm, int bit)
 {
-   int ix = bit / 32;
+   int ix     = bit / 32;
    int offset = bit % 32;
 
    CC_ASSERT (bit < 128);
@@ -40,7 +39,7 @@ void co_bitmap_clear (uint32_t * bm, int bit)
 
 int co_bitmap_get (uint32_t * bm, int bit)
 {
-   int ix = bit / 32;
+   int ix     = bit / 32;
    int offset = bit % 32;
 
    CC_ASSERT (bit < 128);

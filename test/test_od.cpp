@@ -25,12 +25,13 @@ int obj_sum (co_net_t * net, const co_entry_t * entry, uintptr_t arg, int sum)
 
 int cb2001_calls;
 uint32_t cb2001_value;
-extern "C" uint32_t cb2001 (co_net_t * net,
-                 od_event_t event,
-                 const co_obj_t * obj,
-                 const co_entry_t * entry,
-                 uint8_t subindex,
-                 uint32_t * value)
+extern "C" uint32_t cb2001 (
+   co_net_t * net,
+   od_event_t event,
+   const co_obj_t * obj,
+   const co_entry_t * entry,
+   uint8_t subindex,
+   uint32_t * value)
 {
    cb2001_calls++;
 
@@ -46,22 +47,22 @@ extern "C" uint32_t cb2001 (co_net_t * net,
    return 0;
 }
 
-static const co_default_t od_defaults[] =
-{
-   { 0x2000, 1, 11 },
-   { 0x2000, 2, 22 },
-   { 0x2000, 3, 33 },
-   { 0x2000, 4, 44 },
-   { 0x2000, 5, 55 },
-   { 0x2000, 6, 66 },
-   { 0x2000, 7, 77 },
-   { 0x2000, 8, 88 },
+static const co_default_t od_defaults[] = {
+   {0x2000, 1, 11},
+   {0x2000, 2, 22},
+   {0x2000, 3, 33},
+   {0x2000, 4, 44},
+   {0x2000, 5, 55},
+   {0x2000, 6, 66},
+   {0x2000, 7, 77},
+   {0x2000, 8, 88},
 };
 
 class OdTest : public TestBase
 {
-protected:
-   virtual void SetUp() {
+ protected:
+   virtual void SetUp()
+   {
       TestBase::SetUp();
       cb2001_calls = 0;
 
@@ -128,8 +129,8 @@ TEST_F (OdTest, EntryFindVar)
 TEST_F (OdTest, ObjReduce)
 {
    const co_obj_t * obj = find_obj (0x1018);
-   int sum = 4 + 1 + 2 + 3 + 4; // sum of index 0 to 4
 
+   int sum = 4 + 1 + 2 + 3 + 4; // sum of index 0 to 4
    EXPECT_EQ (sum, co_obj_reduce (&net, obj, obj_sum, 0, 0, 4));
 }
 
@@ -150,7 +151,7 @@ TEST_F (OdTest, ReadArray)
 
 TEST_F (OdTest, WriteArray)
 {
-   const co_obj_t * obj = find_obj(0x2000);
+   const co_obj_t * obj = find_obj (0x2000);
 
    co_od_set_value (&net, obj, &obj->entries[1], 1, 10);
    co_od_set_value (&net, obj, &obj->entries[1], 2, 20);
@@ -163,7 +164,7 @@ TEST_F (OdTest, WriteArray)
 
 TEST_F (OdTest, ReadRecord)
 {
-   const co_obj_t * obj = find_obj(0x2001);
+   const co_obj_t * obj = find_obj (0x2001);
    uint64_t value;
 
    co_od_get_value (&net, obj, &obj->entries[0], 0, &value);
@@ -175,7 +176,7 @@ TEST_F (OdTest, ReadRecord)
 
 TEST_F (OdTest, NumberOfElementsUsingAccessFunction)
 {
-   const co_obj_t * obj = find_obj(0x2001);
+   const co_obj_t * obj = find_obj (0x2001);
    uint64_t value;
 
    co_od_get_value (&net, obj, &obj->entries[0], 0, &value);
@@ -184,7 +185,7 @@ TEST_F (OdTest, NumberOfElementsUsingAccessFunction)
 
 TEST_F (OdTest, ZeroOD)
 {
-   const co_obj_t * obj = find_obj(0x2000);
+   const co_obj_t * obj = find_obj (0x2000);
 
    co_od_set_value (&net, obj, &obj->entries[1], 1, 10);
    co_od_set_value (&net, obj, &obj->entries[1], 2, 20);
@@ -199,7 +200,7 @@ TEST_F (OdTest, ZeroOD)
 
 TEST_F (OdTest, DefaultValues)
 {
-   const co_obj_t * obj = find_obj(0x2000);
+   const co_obj_t * obj = find_obj (0x2000);
 
    co_od_set_value (&net, obj, &obj->entries[1], 1, 10);
    co_od_set_value (&net, obj, &obj->entries[1], 2, 20);
@@ -215,12 +216,12 @@ TEST_F (OdTest, DefaultValues)
 
 TEST_F (OdTest, StoreThenLoadOD)
 {
-   const co_obj_t * obj1020 = find_obj(0x1020);
+   const co_obj_t * obj1020 = find_obj (0x1020);
    uint32_t value;
    uint32_t result;
 
    // Store configuration date/time
-   value = 0x12345678;
+   value  = 0x12345678;
    result = co_od1020_fn (&net, OD_EVENT_WRITE, obj1020, NULL, 1, &value);
    EXPECT_EQ (0u, result);
    result = co_od1020_fn (&net, OD_EVENT_WRITE, obj1020, NULL, 2, &value);
@@ -250,11 +251,11 @@ TEST_F (OdTest, OD1010)
    EXPECT_EQ (1u, value);
 
    // Bad command
-   value = 0;
+   value  = 0;
    result = co_od1010_fn (&net, OD_EVENT_WRITE, obj1010, NULL, 1, &value);
    EXPECT_EQ (CO_SDO_ABORT_WRITE, result);
 
-   value = 0x65766173;          // "SAVE"
+   value = 0x65766173; // "SAVE"
 
    // Store all parameters
    result = co_od1010_fn (&net, OD_EVENT_WRITE, obj1010, NULL, 1, &value);
@@ -289,11 +290,11 @@ TEST_F (OdTest, OD1011)
    EXPECT_EQ (1u, value);
 
    // Bad command
-   value = 0;
+   value  = 0;
    result = co_od1011_fn (&net, OD_EVENT_WRITE, obj1011, NULL, 1, &value);
    EXPECT_EQ (CO_SDO_ABORT_WRITE, result);
 
-   value = 0x64616F6C;          // "LOAD"
+   value = 0x64616F6C; // "LOAD"
 
    // Restore all parameters
    result = co_od1011_fn (&net, OD_EVENT_WRITE, obj1011, NULL, 1, &value);
@@ -318,7 +319,7 @@ TEST_F (OdTest, OD1011)
 
 TEST_F (OdTest, Notify)
 {
-   const co_obj_t * obj = find_obj(0x6000);
+   const co_obj_t * obj = find_obj (0x6000);
 
    co_od_set_value (&net, obj, &obj->entries[0], 0, 1234);
    EXPECT_EQ (1u, cb_notify_calls);

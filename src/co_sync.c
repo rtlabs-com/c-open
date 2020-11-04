@@ -43,7 +43,7 @@ uint32_t co_od1005_fn (
 
       if ((*value & sync->cobid & BIT (30)) == 0)
       {
-         sync->cobid = *value;
+         sync->cobid     = *value;
          sync->timestamp = os_get_current_time_us();
          return 0;
       }
@@ -81,7 +81,7 @@ uint32_t co_od1006_fn (
       return 0;
 
    case OD_EVENT_RESTORE:
-      sync->period = 0;
+      sync->period  = 0;
       sync->counter = 1;
       return 0;
 
@@ -120,7 +120,7 @@ uint32_t co_od1019_fn (
       if (*value == 1 || *value > 240)
          return CO_SDO_ABORT_VALUE;
 
-      sync->overflow = *value;
+      sync->overflow  = *value;
       sync->timestamp = os_get_current_time_us();
       return 0;
 
@@ -155,7 +155,11 @@ int co_sync_timer (co_net_t * net, uint32_t now)
          {
             uint8_t msg[1];
             co_put_uint8 (msg, sync->counter);
-            os_channel_send (net->channel, sync->cobid & 0x1FFFFFF, msg, sizeof(msg));
+            os_channel_send (
+               net->channel,
+               sync->cobid & 0x1FFFFFF,
+               msg,
+               sizeof (msg));
 
             if (sync->counter++ == sync->overflow)
                sync->counter = 1;

@@ -22,8 +22,7 @@
 #define CO_API_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <stdint.h>
@@ -56,47 +55,78 @@ typedef struct co_client co_client_t;
 /** Abort error codes. See CiA 301 7.2.4 */
 typedef enum co_sdo_abort
 {
-   CO_SDO_ABORT_TOGGLE                = 0x05030000, /**< Toggle bit not alternated. */
-   CO_SDO_ABORT_TIMEOUT               = 0x05040000, /**< SDO protocol timed out. */
-   CO_SDO_ABORT_UNKNOWN               = 0x05040001, /**< Client/server command specifier not valid or unknown. */
-   CO_SDO_ABORT_INVALID_BLOCK_SIZE    = 0x05040002, /**< Invalid block size (block mode only). */
-   CO_SDO_ABORT_INVALID_SEQ_NO        = 0x05040003, /**< Invalid sequence number (block mode only). */
-   CO_SDO_ABORT_CRC_ERROR             = 0x05040004, /**< CRC error (block mode only). */
-   CO_SDO_ABORT_OUT_OF_MEMORY         = 0x05040005, /**< Out of memory. */
-   CO_SDO_ABORT_ACCESS                = 0x06010000, /**< Unsupported access to an object. */
-   CO_SDO_ABORT_ACCESS_WO             = 0x06010001, /**< Attempt to read a write only object. */
-   CO_SDO_ABORT_ACCESS_RO             = 0x06010002, /**< Attempt to write a read only object. */
-   CO_SDO_ABORT_BAD_INDEX             = 0x06020000, /**< Object does not exist in the object dictionary. */
-   CO_SDO_ABORT_UNMAPPABLE            = 0x06040041, /**< Object cannot be mapped to the PDO. */
-   CO_SDO_ABORT_PDO_LENGTH            = 0x06040042, /**< The number and length of the objects to be
-                                                       mapped would exceed PDO length. */
-   CO_SDO_ABORT_PARAM_INCOMPATIBLE    = 0x06040043, /**< General parameter incompatibility reason. */
-   CO_SDO_ABORT_INTERNAL_INCOMPATIBLE = 0x06040047, /**< General internal incompatibility in the device. */
-   CO_SDO_ABORT_HW_ERROR              = 0x06060000, /**< Access failed due to a hardware error. */
-   CO_SDO_ABORT_LENGTH                = 0x06070010, /**< Data type does not match, length of service
-                                                       parameter does not match */
-   CO_SDO_ABORT_LENGTH_TOO_HIGH       = 0x06070012, /**< Data type does not match, length of service
-                                                       parameter too high */
-   CO_SDO_ABORT_LENGTH_TOO_LOW        = 0x06070013, /**< Data type does not match, length of service
-                                                       parameter too low */
-   CO_SDO_ABORT_BAD_SUBINDEX          = 0x06090011, /**< Sub-index does not exist. */
-   CO_SDO_ABORT_VALUE                 = 0x06090030, /**< Invalid value for parameter (download only). */
-   CO_SDO_ABORT_VALUE_TOO_HIGH        = 0x06090031, /**< Value of parameter written too high (download only). */
-   CO_SDO_ABORT_VALUE_TOO_LOW         = 0x06090032, /**< Value of parameter written too low (download only). */
-   CO_SDO_ABORT_MAX_LT_MIN            = 0x06090036, /**< Maximum value is less than minimum value. */
-   CO_SDO_ABORT_OUT_OF_RESOURCE       = 0x060A0023, /**< Resource not available: SDO connection */
-   CO_SDO_ABORT_GENERAL               = 0x08000000, /**< General error */
-   CO_SDO_ABORT_WRITE                 = 0x08000020, /**< Data cannot be transferred or stored to the
-                                                       application. */
-   CO_SDO_ABORT_WRITE_LOCAL_DENIED    = 0x08000021, /**< Data cannot be transferred or stored to the
-                                                       application because of local control. */
-   CO_SDO_ABORT_WRITE_STATE_DENIED    = 0x08000022, /**< Data cannot be transferred or stored to the
-                                                       application because of the present device state. */
-   CO_SDO_ABORT_BAD_OD                = 0x08000023, /**< Object dictionary dynamic generation fails or no
-                                                       object dictionary is present (e.g. object dictionary
-                                                       is generated from file and generation fails
-                                                       because of an file error). */
-   CO_SDO_ABORT_NO_DATA               = 0x08000024, /**< No data available */
+   // clang-format off
+   /** Toggle bit not alternated. */
+   CO_SDO_ABORT_TOGGLE                = 0x05030000,
+   /** SDO protocol timed out. */
+   CO_SDO_ABORT_TIMEOUT               = 0x05040000,
+   /** Client/server command specifier not valid or unknown. */
+   CO_SDO_ABORT_UNKNOWN               = 0x05040001,
+   /** Invalid block size (block mode only). */
+   CO_SDO_ABORT_INVALID_BLOCK_SIZE    = 0x05040002,
+   /** Invalid sequence number (block mode only). */
+   CO_SDO_ABORT_INVALID_SEQ_NO        = 0x05040003,
+   /** CRC error (block mode only). */
+   CO_SDO_ABORT_CRC_ERROR             = 0x05040004,
+   /** Out of memory. */
+   CO_SDO_ABORT_OUT_OF_MEMORY         = 0x05040005,
+   /** Unsupported access to an object. */
+   CO_SDO_ABORT_ACCESS                = 0x06010000,
+   /** Attempt to read a write only object. */
+   CO_SDO_ABORT_ACCESS_WO             = 0x06010001,
+   /** Attempt to write a read only object. */
+   CO_SDO_ABORT_ACCESS_RO             = 0x06010002,
+   /** Object does not exist in the object dictionary. */
+   CO_SDO_ABORT_BAD_INDEX             = 0x06020000,
+   /** Object cannot be mapped to the PDO. */
+   CO_SDO_ABORT_UNMAPPABLE            = 0x06040041,
+   /** The number and length of the objects to be mapped would exceed
+      PDO length. */
+   CO_SDO_ABORT_PDO_LENGTH            = 0x06040042,
+   /** General parameter incompatibility reason. */
+   CO_SDO_ABORT_PARAM_INCOMPATIBLE    = 0x06040043,
+   /** General internal incompatibility in the device. */
+   CO_SDO_ABORT_INTERNAL_INCOMPATIBLE = 0x06040047,
+   /** Access failed due to a hardware error. */
+   CO_SDO_ABORT_HW_ERROR              = 0x06060000,
+   /** Data type does not match, length of service parameter does not
+      match */
+   CO_SDO_ABORT_LENGTH                = 0x06070010,
+   /** Data type does not match, length of service parameter too
+      high */
+   CO_SDO_ABORT_LENGTH_TOO_HIGH       = 0x06070012,
+   /** Data type does not match, length of service parameter too
+      low */
+   CO_SDO_ABORT_LENGTH_TOO_LOW        = 0x06070013,
+   /** Sub-index does not exist. */
+   CO_SDO_ABORT_BAD_SUBINDEX          = 0x06090011,
+   /** Invalid value for parameter (download only). */
+   CO_SDO_ABORT_VALUE                 = 0x06090030,
+   /** Value of parameter written too high (download only). */
+   CO_SDO_ABORT_VALUE_TOO_HIGH        = 0x06090031,
+   /** Value of parameter written too low (download only). */
+   CO_SDO_ABORT_VALUE_TOO_LOW         = 0x06090032,
+   /** Maximum value is less than minimum value. */
+   CO_SDO_ABORT_MAX_LT_MIN            = 0x06090036,
+   /** Resource not available: SDO connection */
+   CO_SDO_ABORT_OUT_OF_RESOURCE       = 0x060A0023,
+   /** General error */
+   CO_SDO_ABORT_GENERAL               = 0x08000000,
+   /** Data cannot be transferred or stored to the application. */
+   CO_SDO_ABORT_WRITE                 = 0x08000020,
+   /** Data cannot be transferred or stored to the application
+      because of local control. */
+   CO_SDO_ABORT_WRITE_LOCAL_DENIED    = 0x08000021,
+   /** Data cannot be transferred or stored to the application
+      because of the present device state. */
+   CO_SDO_ABORT_WRITE_STATE_DENIED    = 0x08000022,
+   /** Object dictionary dynamic generation fails or no object
+      dictionary is present (e.g. object dictionary is generated from
+      file and generation fails because of an file error). */
+   CO_SDO_ABORT_BAD_OD                = 0x08000023,
+   /** No data available */
+   CO_SDO_ABORT_NO_DATA               = 0x08000024,
+   // clang-format on
 } co_sdo_abort_t;
 
 /**
@@ -173,25 +203,25 @@ typedef enum co_dtype
 } co_dtype_t;
 
 /* Entry flags */
-#define OD_READ      (1U << 0)  /**< Entry is readable */
-#define OD_WRITE     (1U << 1)  /**< Entry is writeable */
-#define OD_TRANSIENT (1U << 2)  /**< Entry is transient (not persisted) */
-#define OD_TPDO      (1U << 3)  /**< Entry is mappable as TPDO */
-#define OD_RPDO      (1U << 4)  /**< Entry is mappable as RPDO */
-#define OD_ARRAY     (1U << 5)  /**< Entry is an array */
-#define OD_NOTIFY    (1U << 6)  /**< Entry notifies when updated */
+#define OD_READ      (1U << 0) /**< Entry is readable */
+#define OD_WRITE     (1U << 1) /**< Entry is writeable */
+#define OD_TRANSIENT (1U << 2) /**< Entry is transient (not persisted) */
+#define OD_TPDO      (1U << 3) /**< Entry is mappable as TPDO */
+#define OD_RPDO      (1U << 4) /**< Entry is mappable as RPDO */
+#define OD_ARRAY     (1U << 5) /**< Entry is an array */
+#define OD_NOTIFY    (1U << 6) /**< Entry notifies when updated */
 
 /* Entry convenience flags */
-#define OD_RO        (OD_READ)
-#define OD_WO        (OD_WRITE)
-#define OD_RW        (OD_READ | OD_WRITE)
+#define OD_RO (OD_READ)
+#define OD_WO (OD_WRITE)
+#define OD_RW (OD_READ | OD_WRITE)
 
 /** Access function event */
 typedef enum od_event
 {
-   OD_EVENT_READ,               /**< Read subindex */
-   OD_EVENT_WRITE,              /**< Write subindex */
-   OD_EVENT_RESTORE,            /**< Restore default value */
+   OD_EVENT_READ,    /**< Read subindex */
+   OD_EVENT_WRITE,   /**< Write subindex */
+   OD_EVENT_RESTORE, /**< Restore default value */
 } od_event_t;
 
 struct co_obj;
@@ -200,62 +230,62 @@ struct co_entry;
 /** Access function for object. This function is called to
     programmatically handle access of the object. */
 typedef uint32_t (*co_access_fn) (
-        struct co_net *,                     /**< network handle */
-        od_event_t event,                    /**< access event */
-        const struct co_obj * obj,           /**< object descriptor */
-        const struct co_entry * entry,       /**< entry descriptor */
-        uint8_t subindex,                    /**< subindex */
-        uint32_t * value                     /**< value to set or get */
-        );
+   struct co_net *,               /**< network handle */
+   od_event_t event,              /**< access event */
+   const struct co_obj * obj,     /**< object descriptor */
+   const struct co_entry * entry, /**< entry descriptor */
+   uint8_t subindex,              /**< subindex */
+   uint32_t * value               /**< value to set or get */
+);
 
 /** Entry descriptor. Describes a subindex, or a series of subindexes
     as an array. */
 typedef struct co_entry
 {
-   uint8_t subindex;            /**< subindex */
-   uint8_t flags;               /**< subindex flags */
-   co_dtype_t datatype;         /**< datatype */
-   size_t bitlength;            /**< bitlength */
-   uint32_t value;              /**< current value if data is NULL */
-   void * data;                 /**< pointer to value */
+   uint8_t subindex;    /**< subindex */
+   uint8_t flags;       /**< subindex flags */
+   co_dtype_t datatype; /**< datatype */
+   size_t bitlength;    /**< bitlength */
+   uint32_t value;      /**< current value if data is NULL */
+   void * data;         /**< pointer to value */
 } co_entry_t;
 
 /** Object descriptor. Describes an index. */
 typedef struct co_obj
 {
-   uint16_t index;              /**< index */
-   co_otype_t objtype;          /**< type of object */
-   uint8_t max_subindex;        /**< max subindex of object */
-   const co_entry_t * entries;  /**< list of entries in object */
-   co_access_fn access;         /**< access function for object if not NULL */
+   uint16_t index;             /**< index */
+   co_otype_t objtype;         /**< type of object */
+   uint8_t max_subindex;       /**< max subindex of object */
+   const co_entry_t * entries; /**< list of entries in object */
+   co_access_fn access;        /**< access function for object if not NULL */
 } co_obj_t;
 
 /** Default value for subindex */
 typedef struct co_default
 {
-   uint16_t index;              /**< index of object */
-   uint8_t subindex;            /**< subindex */
-   uint64_t value;              /**< default value to set */
+   uint16_t index;   /**< index of object */
+   uint8_t subindex; /**< subindex */
+   uint64_t value;   /**< default value to set */
 } co_default_t;
 
 /** Dictionary stores */
 typedef enum co_store
 {
-   CO_STORE_COMM,               /**< Communication objects */
-   CO_STORE_APP,                /**< Application objects */
-   CO_STORE_MFG,                /**< Manufacturer objects */
-   CO_STORE_LSS,                /**< LSS data */
+   CO_STORE_COMM, /**< Communication objects */
+   CO_STORE_APP,  /**< Application objects */
+   CO_STORE_MFG,  /**< Manufacturer objects */
+   CO_STORE_LSS,  /**< LSS data */
    CO_STORE_LAST,
 } co_store_t;
 
 /** CANopen stack configuration */
 typedef struct co_cfg
 {
-   uint8_t node;                /**< Initial node ID */
-   int bitrate;                 /**< Initial bitrate (bits per second) */
-   const co_obj_t * od;         /**< Application dictionary */
+   uint8_t node;                  /**< Initial node ID */
+   int bitrate;                   /**< Initial bitrate (bits per second) */
+   const co_obj_t * od;           /**< Application dictionary */
    const co_default_t * defaults; /**< Dictionary default values */
-   void * cb_arg;               /**< Callback opaque argument */
+   void * cb_arg;                 /**< Callback opaque argument */
 
    /** Reset callback */
    void (*cb_reset) (void * arg);
@@ -267,23 +297,27 @@ typedef struct co_cfg
    void (*cb_sync) (void * arg);
 
    /** EMCY callback */
-   void (*cb_emcy) (void * arg, uint8_t node, uint16_t code, uint8_t reg,
-                    uint8_t msef[5]);
+   void (*cb_emcy) (
+      void * arg,
+      uint8_t node,
+      uint16_t code,
+      uint8_t reg,
+      uint8_t msef[5]);
 
    /** Notify callback */
    void (*cb_notify) (void * arg, uint16_t index, uint8_t subindex);
 
    /** Function to open dictionary store */
-   void * (*open)(co_store_t store);
+   void * (*open) (co_store_t store);
 
    /** Function to read from dictionary store */
-   int (*read)(void * arg, void * data, size_t size);
+   int (*read) (void * arg, void * data, size_t size);
 
    /** Function to write to dictionary store */
-   int (*write)(void * arg, const void * data, size_t size);
+   int (*write) (void * arg, const void * data, size_t size);
 
    /** Function to close dictionary store */
-   int (*close)(void * arg);
+   int (*close) (void * arg);
 } co_cfg_t;
 
 /**
@@ -374,8 +408,13 @@ CO_EXPORT void co_sync (co_client_t * client);
  *
  * @return 0 on success, CO_STATUS error code otherwise
  */
-CO_EXPORT int co_sdo_read (co_client_t * client, uint8_t node, uint16_t index,
-                           uint8_t subindex, void * data, size_t size);
+CO_EXPORT int co_sdo_read (
+   co_client_t * client,
+   uint8_t node,
+   uint16_t index,
+   uint8_t subindex,
+   void * data,
+   size_t size);
 
 /**
  * Write dictionary object entry
@@ -391,8 +430,13 @@ CO_EXPORT int co_sdo_read (co_client_t * client, uint8_t node, uint16_t index,
  *
  * @return 0 on success, CO_STATUS error code otherwise
  */
-CO_EXPORT int co_sdo_write (co_client_t * client, uint8_t node, uint16_t index,
-                            uint8_t subindex, const void * data, size_t size);
+CO_EXPORT int co_sdo_write (
+   co_client_t * client,
+   uint8_t node,
+   uint16_t index,
+   uint8_t subindex,
+   const void * data,
+   size_t size);
 
 /**
  * Transmit emergency object (EMCY)
@@ -415,8 +459,11 @@ CO_EXPORT int co_sdo_write (co_client_t * client, uint8_t node, uint16_t index,
  *
  * @return 0 on success, CO_STATUS error code otherwise
  */
-CO_EXPORT int co_emcy_issue (co_client_t * client, uint16_t code,
-                             uint16_t info, uint8_t msef[5]);
+CO_EXPORT int co_emcy_issue (
+   co_client_t * client,
+   uint16_t code,
+   uint16_t info,
+   uint8_t msef[5]);
 
 /**
  * Set error register

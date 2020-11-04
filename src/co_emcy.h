@@ -22,8 +22,7 @@
 #define CO_EMCY_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include "co_main.h"
@@ -116,7 +115,6 @@ uint8_t co_emcy_error_register_get (co_net_t * net);
  * @param job           emcy job
  */
 void co_emcy_job (co_net_t * net, co_job_t * job);
-
 
 #ifdef __cplusplus
 }

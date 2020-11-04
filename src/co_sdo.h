@@ -22,18 +22,16 @@
 #define CO_SDO_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include "co_api.h"
 #include "co_main.h"
 
-
-#define CO_SDO_xCS(v)      ((v) & 0xE0)
-#define CO_SDO_N(v)        (((v) >> 2) & 0x03)
-#define CO_SDO_E           BIT (1)
-#define CO_SDO_S           BIT (0)
+#define CO_SDO_xCS(v) ((v)&0xE0)
+#define CO_SDO_N(v)   (((v) >> 2) & 0x03)
+#define CO_SDO_E      BIT (1)
+#define CO_SDO_S      BIT (0)
 
 #define CO_SDO_CCS_DOWNLOAD_SEG_REQ  (0 << 5)
 #define CO_SDO_CCS_DOWNLOAD_INIT_REQ (1 << 5)
@@ -45,11 +43,11 @@ extern "C"
 #define CO_SDO_SCS_UPLOAD_INIT_RSP   (2 << 5)
 #define CO_SDO_SCS_DOWNLOAD_INIT_RSP (3 << 5)
 
-#define CO_SDO_xCS_ABORT             (4 << 5)
+#define CO_SDO_xCS_ABORT (4 << 5)
 
-#define CO_SDO_TOGGLE      BIT (4)
-#define CO_SDO_N_SEG(v)    (((v) >> 1) & 0x07)
-#define CO_SDO_C           BIT (0)
+#define CO_SDO_TOGGLE   BIT (4)
+#define CO_SDO_N_SEG(v) (((v) >> 1) & 0x07)
+#define CO_SDO_C        BIT (0)
 
 #define CO_SDO_INDEX(d)    (d[1] << 8 | d[2])
 #define CO_SDO_SUBINDEX(d) (d[3])
@@ -65,7 +63,12 @@ extern "C"
  * @param subindex      failed subindex
  * @param code          abort code
  */
-void co_sdo_abort (co_net_t * net, uint16_t id, uint16_t index, uint8_t subindex, uint32_t code);
+void co_sdo_abort (
+   co_net_t * net,
+   uint16_t id,
+   uint16_t index,
+   uint8_t subindex,
+   uint32_t code);
 
 /**
  * @internal

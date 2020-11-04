@@ -23,13 +23,12 @@ endif()
 
 target_include_directories(canopen
   PRIVATE
-  src/osal/linux
+  src/ports/linux
   )
 
 target_sources(canopen
   PRIVATE
-  src/osal/linux/osal.c
-  src/osal/linux/osal_can.c
+  src/ports/linux/coal_can.c
   )
 
 target_compile_options(canopen
@@ -52,22 +51,18 @@ target_link_libraries(canopen
 
 target_include_directories(slave
   PRIVATE
-  src/osal/linux
+  src/ports/linux
   )
 
 target_include_directories(slaveinfo
   PRIVATE
-  src/osal/linux
+  src/ports/linux
   )
 
 if (BUILD_TESTING)
   set(GOOGLE_TEST_INDIVIDUAL TRUE)
-  target_sources(co_test
-    PRIVATE
-    ${CANOPEN_SOURCE_DIR}/src/osal/linux/osal.c
-    )
   target_include_directories(co_test
     PRIVATE
-    src/osal/linux
+    src/ports/linux
     )
 endif()

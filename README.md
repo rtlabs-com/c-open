@@ -18,7 +18,7 @@ bus and a comprehensive set of unit-tests.
 Prerequisites for all platforms
 ===============================
 
- * CMake 3.13 or later
+ * CMake 3.14 or later
 
 Out-of-tree builds are recommended. Create a build directory and run
 the following commands from that directory. In the following
@@ -75,15 +75,13 @@ rt-kernel
 
 Set the following environment variables. You should use a bash shell,
 such as for instance the Command Line in your Toolbox
-installation. Set BSP and ARCH values as appropriate for your
-hardware.
+installation. Set the BSP variable to the name of the BSP you wish to
+build for. Set the RTK variable to the path of your rt-kernel tree.
 
 
 ```console
-user@host:~/build$ export COMPILERS=/opt/rt-tools/compilers
 user@host:~/build$ export RTK=/path/to/rt-kernel
 user@host:~/build$ export BSP=<bsp>
-user@host:~/build$ export ARCH=<arch>
 ```
 
 Standalone project
@@ -93,7 +91,7 @@ This creates standalone makefiles.
 
 ```console
 user@host:~/build$ cmake $repo \
-    -DCMAKE_TOOLCHAIN_FILE=$repo/cmake/toolchain/rt-kernel-$ARCH.cmake \
+    -DCMAKE_TOOLCHAIN_FILE=$repo/cmake/tools/toolchain/rt-kernel.cmake \
     -G "Unix Makefiles"
 user@host:~/build$ make all
 ```
@@ -106,7 +104,7 @@ project will be created in the build directory.
 
 ```console
 user@host:~/build$ cmake $repo \
-    -DCMAKE_TOOLCHAIN_FILE=$repo/cmake/toolchain/rt-kernel-$ARCH.cmake \
+    -DCMAKE_TOOLCHAIN_FILE=$repo/cmake/tools/toolchain/rt-kernel.cmake \
     -DCMAKE_ECLIPSE_EXECUTABLE=/opt/rt-tools/workbench/Workbench \
     -DCMAKE_ECLIPSE_GENERATE_SOURCE_PROJECT=TRUE \
     -G "Eclipse CDT4 - Unix Makefiles"

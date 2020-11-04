@@ -13,16 +13,11 @@
  * full license information.
  ********************************************************************/
 
-#ifndef OSAL_CAN_SYS_H
-#define OSAL_CAN_SYS_H
+#ifndef COAL_CAN_SYS_H
+#define COAL_CAN_SYS_H
 
 #ifdef __cplusplus
-extern "C"
-{
-#endif
-
-#ifdef __cplusplus
-}
+extern "C" {
 #endif
 
 #define OS_CHANNEL
@@ -34,4 +29,8 @@ typedef struct
    void * arg;
 } os_channel_t;
 
-#endif /* OSAL_CAN_SYS_H */
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* COAL_CAN_SYS_H */

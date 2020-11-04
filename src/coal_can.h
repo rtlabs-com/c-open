@@ -13,20 +13,18 @@
  * full license information.
  ********************************************************************/
 
-#ifndef OSAL_CAN_H
-#define OSAL_CAN_H
+#ifndef COAL_CAN_H
+#define COAL_CAN_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-#include <stdarg.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "osal_can_sys.h"
+#include "coal_can_sys.h"
 
 #ifndef OS_CHANNEL
 typedef void os_channel_t;
@@ -40,9 +38,17 @@ typedef struct os_channel_state
 } os_channel_state_t;
 
 os_channel_t * os_channel_open (const char * name, void * callback, void * arg);
-int os_channel_send (os_channel_t * channel, uint32_t id, const void * data, size_t dlc);
+int os_channel_send (
+   os_channel_t * channel,
+   uint32_t id,
+   const void * data,
+   size_t dlc);
 int os_channel_send_rtr (os_channel_t * channel, uint32_t id, size_t dlc);
-int os_channel_receive (os_channel_t * channel, uint32_t * id, void * data, size_t * dlc);
+int os_channel_receive (
+   os_channel_t * channel,
+   uint32_t * id,
+   void * data,
+   size_t * dlc);
 int os_channel_set_bitrate (os_channel_t * channel, int bitrate);
 int os_channel_set_filter (os_channel_t * channel, uint8_t * filter, size_t size);
 int os_channel_bus_on (os_channel_t * channel);
@@ -53,4 +59,4 @@ int os_channel_get_state (os_channel_t * channel, os_channel_state_t * state);
 }
 #endif
 
-#endif /* OSAL_CAN_H */
+#endif /* COAL_CAN_H */

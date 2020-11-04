@@ -21,11 +21,10 @@
 #define CO_RTK_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-#include <can/can.h>
+#include <drivers/can/can.h>
 
 /**
  * Get can configuration for bitrate

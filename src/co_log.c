@@ -17,6 +17,7 @@
 #include "co_main.h"
 
 #include <stdio.h>
+#include <inttypes.h>
 
 void co_msg_log (char * prefix, uint32_t id, const uint8_t * data, size_t dlc)
 {
@@ -37,5 +38,5 @@ void co_msg_log (char * prefix, uint32_t id, const uint8_t * data, size_t dlc)
       }
    }
 
-   LOG_DEBUG (CO_CAN_LOG, "%s %04"PRIx32":%s\n", prefix, id & CO_ID_MASK, s);
+   LOG_DEBUG (CO_CAN_LOG, "%s %04" PRIx32 ":%s\n", prefix, id & CO_ID_MASK, s);
 }

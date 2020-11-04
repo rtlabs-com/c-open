@@ -14,9 +14,9 @@
  ********************************************************************/
 
 #ifdef UNIT_TEST
-#define os_channel_send mock_os_channel_send
-#define os_channel_bus_off mock_os_channel_bus_off
-#define os_channel_bus_on mock_os_channel_bus_on
+#define os_channel_send        mock_os_channel_send
+#define os_channel_bus_off     mock_os_channel_bus_off
+#define os_channel_bus_on      mock_os_channel_bus_on
 #define os_channel_set_bitrate mock_os_channel_set_bitrate
 #endif
 
@@ -64,7 +64,7 @@ typedef enum lss_bitrate
    LSS_BITRATE_50K      = 6,
    LSS_BITRATE_20K      = 7,
    LSS_BITRATE_10K      = 8,
-   LSS_BITRATE_AUTO     = 9,     /* TODO */
+   LSS_BITRATE_AUTO     = 9, /* TODO */
 } lss_bitrate_t;
 
 typedef enum lss_match_type
@@ -86,22 +86,19 @@ typedef enum lss_store_error
 
 #define LSS_MATCH_ALL (BIT (MATCH_SERIAL_HIGH + 1) - 1)
 
-static int co_lss_bitrates[] =
-{
+static int co_lss_bitrates[] = {
    1000 * 1000,
-    800 * 1000,
-    500 * 1000,
-    250 * 1000,
-    125 * 1000,
-            -1,
-     50 * 1000,
-     20 * 1000,
-     10 * 1000,
-             0
-};
+   800 * 1000,
+   500 * 1000,
+   250 * 1000,
+   125 * 1000,
+   -1,
+   50 * 1000,
+   20 * 1000,
+   10 * 1000,
+   0};
 
-const char * co_lss_state_literals[] =
-{
+const char * co_lss_state_literals[] = {
    "STATE_WAITING",
    "STATE_CONFIG",
 };
@@ -125,7 +122,7 @@ static void co_lss_match (co_net_t * net, uint8_t type, uint32_t expected)
    if ((net->lss.match & mask) != mask)
       return;
 
-   switch(type)
+   switch (type)
    {
    case MATCH_VENDOR_ID:
       is_match = co_lss_identity_get (net, 1) == expected;
@@ -153,12 +150,12 @@ static void co_lss_match (co_net_t * net, uint8_t type, uint32_t expected)
    if (is_match)
       net->lss.match |= BIT (type);
    else
-      net->lss.match = 0;       /* clear all previous results */
+      net->lss.match = 0; /* clear all previous results */
 }
 
 static void co_lss_switch_global (co_net_t * net, uint8_t * msg)
 {
-   uint8_t mode = msg[1];
+   uint8_t mode         = msg[1];
    lss_state_t previous = net->lss.state;
 
    if (mode > LSS_STATE_CONFIG)
@@ -184,8 +181,8 @@ static void co_lss_switch_global (co_net_t * net, uint8_t * msg)
 
 static void co_lss_configure_node_id (co_net_t * net, uint8_t * _msg)
 {
-   uint8_t node = _msg[1];
-   uint8_t msg[8] = { 0 };
+   uint8_t node   = _msg[1];
+   uint8_t msg[8] = {0};
 
    /* Ignore if not in config state */
    if (net->lss.state != LSS_STATE_CONFIG)
@@ -199,26 +196,26 @@ static void co_lss_configure_node_id (co_net_t * net, uint8_t * _msg)
    else
    {
       LOG_DEBUG (CO_LSS_LOG, "lss bad node id %d\n", node);
-      msg[1] = 1;               /* out of range */
+      msg[1] = 1; /* out of range */
    }
 
    msg[0] = CS_CONFIGURE_NODE_ID;
-   os_channel_send (net->channel, 0x7E4, msg, sizeof(msg));
+   os_channel_send (net->channel, 0x7E4, msg, sizeof (msg));
 }
 
 static void co_lss_configure_bit_timing (co_net_t * net, uint8_t * _msg)
 {
-   uint8_t table = _msg[1];
-   uint8_t ix = _msg[2];
-   uint8_t msg[8] = { 0 };
+   uint8_t table  = _msg[1];
+   uint8_t ix     = _msg[2];
+   uint8_t msg[8] = {0};
 
    /* Ignore if not in config state */
    if (net->lss.state != LSS_STATE_CONFIG)
       return;
 
-   if (table == 0 &&
-       ix <= LSS_BITRATE_10K && /* TODO: auto */
-       ix != LSS_BITRATE_RESERVED)
+   if (
+      table == 0 && ix <= LSS_BITRATE_10K && /* TODO: auto */
+      ix != LSS_BITRATE_RESERVED)
    {
       LOG_DEBUG (CO_LSS_LOG, "lss pending bitrate ix %d\n", ix);
       net->lss.bitrate = co_lss_bitrates[ix];
@@ -226,11 +223,11 @@ static void co_lss_configure_bit_timing (co_net_t * net, uint8_t * _msg)
    else
    {
       LOG_DEBUG (CO_LSS_LOG, "lss bad bitrate ix %d\n", ix);
-      msg[1] = 1;               /* bitrate not supported */
+      msg[1] = 1; /* bitrate not supported */
    }
 
    msg[0] = CS_CONFIGURE_BIT_TIMING;
-   os_channel_send (net->channel, 0x7E4, msg, sizeof(msg));
+   os_channel_send (net->channel, 0x7E4, msg, sizeof (msg));
 }
 
 static void co_lss_activate_bit_timing (co_net_t * net, uint8_t * _msg)
@@ -253,7 +250,7 @@ static void co_lss_activate_bit_timing (co_net_t * net, uint8_t * _msg)
 
 static void co_lss_store_configuration (co_net_t * net, uint8_t * _msg)
 {
-   uint8_t msg[8] = { 0 };
+   uint8_t msg[8] = {0};
    void * arg;
 
    /* Ignore if not in config state */
@@ -274,11 +271,11 @@ static void co_lss_store_configuration (co_net_t * net, uint8_t * _msg)
       goto error1;
 
    /* Store node id */
-   if (net->write (arg, &net->lss.node, sizeof(net->lss.node)) < 0)
+   if (net->write (arg, &net->lss.node, sizeof (net->lss.node)) < 0)
       goto error2;
 
    /* Store bitrate */
-   if (net->write (arg, &net->lss.bitrate, sizeof(net->lss.bitrate)) < 0)
+   if (net->write (arg, &net->lss.bitrate, sizeof (net->lss.bitrate)) < 0)
       goto error2;
 
    /* Finalize write */
@@ -286,21 +283,21 @@ static void co_lss_store_configuration (co_net_t * net, uint8_t * _msg)
       goto error1;
 
    msg[1] = SUCCESS;
-   os_channel_send (net->channel, 0x7E4, msg, sizeof(msg));
+   os_channel_send (net->channel, 0x7E4, msg, sizeof (msg));
    return;
 
- error2:
+error2:
    net->close (arg);
- error1:
-   os_channel_send (net->channel, 0x7E4, msg, sizeof(msg));
+error1:
+   os_channel_send (net->channel, 0x7E4, msg, sizeof (msg));
 }
 
 static void co_lss_switch_selective (co_net_t * net, uint8_t * msg)
 {
-   uint8_t cmd = msg[0];
+   uint8_t cmd       = msg[0];
    uint32_t expected = co_fetch_uint32 (&msg[1]);
 
-   switch(cmd)
+   switch (cmd)
    {
    case CS_SWITCH_SELECTIVE_VENDOR_ID:
       co_lss_match (net, MATCH_VENDOR_ID, expected);
@@ -321,26 +318,28 @@ static void co_lss_switch_selective (co_net_t * net, uint8_t * msg)
    /* Enter config mode if all requests matched */
    if (net->lss.match == LSS_MATCH_ALL)
    {
-      uint8_t msg[8] = { 0 };
+      uint8_t msg[8] = {0};
 
       net->lss.match = 0;
       net->lss.state = LSS_STATE_CONFIG;
 
       /* Indicate success */
-      LOG_DEBUG (CO_LSS_LOG, "lss state = %s\n",
-              co_lss_state_literals[LSS_STATE_CONFIG]);
+      LOG_DEBUG (
+         CO_LSS_LOG,
+         "lss state = %s\n",
+         co_lss_state_literals[LSS_STATE_CONFIG]);
       co_put_uint8 (msg, CS_SWITCH_SELECTIVE_SUCCESS);
-      os_channel_send (net->channel, 0x7E4, msg, sizeof(msg));
+      os_channel_send (net->channel, 0x7E4, msg, sizeof (msg));
    }
 }
 
 static void co_lss_inquire_identity (co_net_t * net, uint8_t * _msg)
 {
-   uint8_t cmd = _msg[0];
+   uint8_t cmd     = _msg[0];
    uint8_t request = cmd - CS_INQUIRE_IDENTITY_VENDOR_ID;
    uint64_t value;
    const co_entry_t * entry;
-   uint8_t msg[8] = { 0 };
+   uint8_t msg[8] = {0};
    uint8_t * p;
 
    /* Ignore if not in config state */
@@ -361,12 +360,12 @@ static void co_lss_inquire_identity (co_net_t * net, uint8_t * _msg)
    /* Send response */
    p = co_put_uint8 (msg, cmd);
    co_put_uint32 (p, value & UINT32_MAX);
-   os_channel_send (net->channel, 0x7E4, msg, sizeof(msg));
+   os_channel_send (net->channel, 0x7E4, msg, sizeof (msg));
 }
 
 static void co_lss_identify_non_configured_remote (co_net_t * net)
 {
-   uint8_t msg[8] = { 0 };
+   uint8_t msg[8] = {0};
 
    /* Ignore if not in config state */
    if (net->lss.state != LSS_STATE_CONFIG)
@@ -379,15 +378,15 @@ static void co_lss_identify_non_configured_remote (co_net_t * net)
 
    /* Send response */
    co_put_uint8 (msg, CS_IDENTIFY_NON_CONFIGURED_SLAVE);
-   os_channel_send (net->channel, 0x7E4, msg, sizeof(msg));
+   os_channel_send (net->channel, 0x7E4, msg, sizeof (msg));
 }
 
 static void co_lss_identify_remote (co_net_t * net, uint8_t * msg)
 {
-   uint8_t cmd = msg[0];
+   uint8_t cmd       = msg[0];
    uint32_t expected = co_fetch_uint32 (&msg[1]);
 
-   switch(cmd)
+   switch (cmd)
    {
    case CS_IDENTIFY_REMOTE_VENDOR_ID:
       co_lss_match (net, MATCH_VENDOR_ID, expected);
@@ -412,14 +411,14 @@ static void co_lss_identify_remote (co_net_t * net, uint8_t * msg)
    /* Enter config mode if all requests matched */
    if (net->lss.match == LSS_MATCH_ALL)
    {
-      uint8_t msg[8] = { 0 };
+      uint8_t msg[8] = {0};
 
       net->lss.match = 0;
 
       /* Indicate success */
       LOG_DEBUG (CO_LSS_LOG, "lss identified\n");
       co_put_uint8 (msg, CS_IDENTIFY_SLAVE);
-      os_channel_send (net->channel, 0x7E4, msg, sizeof(msg));
+      os_channel_send (net->channel, 0x7E4, msg, sizeof (msg));
    }
 }
 
@@ -495,7 +494,7 @@ uint8_t co_lss_get_persistent_node_id (co_net_t * net)
       goto error1;
 
    /* Get persistent node id */
-   if (net->read (arg, &node, sizeof(node)) < 0)
+   if (net->read (arg, &node, sizeof (node)) < 0)
       goto error2;
 
    /* Node-ID 0 is invalid */
@@ -507,9 +506,9 @@ uint8_t co_lss_get_persistent_node_id (co_net_t * net)
 
    return node;
 
- error2:
+error2:
    net->close (arg);
- error1:
+error1:
    return net->node;
 }
 
@@ -527,7 +526,7 @@ int co_lss_get_persistent_bitrate (co_net_t * net)
       goto error1;
 
    /* Get persistent node id */
-   if (net->read (arg, &node, sizeof(node)) < 0)
+   if (net->read (arg, &node, sizeof (node)) < 0)
       goto error2;
 
    /* Node-ID 0 is invalid */
@@ -535,7 +534,7 @@ int co_lss_get_persistent_bitrate (co_net_t * net)
       goto error2;
 
    /* Get persistent bitrate */
-   if (net->read (arg, &bitrate, sizeof(bitrate)) < 0)
+   if (net->read (arg, &bitrate, sizeof (bitrate)) < 0)
       goto error2;
 
    if (net->close (arg) < 0)
@@ -543,16 +542,15 @@ int co_lss_get_persistent_bitrate (co_net_t * net)
 
    return bitrate;
 
- error2:
+error2:
    net->close (arg);
- error1:
+error1:
    return net->bitrate;
 }
 
-
 void co_lss_init (co_net_t * net)
 {
-   net->lss.state = LSS_STATE_WAITING;
+   net->lss.state    = LSS_STATE_WAITING;
    net->lss.identity = co_obj_find (net, 0x1018);
-   net->lss.match = 0;
+   net->lss.match    = 0;
 }

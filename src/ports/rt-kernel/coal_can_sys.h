@@ -13,32 +13,24 @@
  * full license information.
  ********************************************************************/
 
-#ifndef OSAL_SYS_H
-#define OSAL_SYS_H
+#ifndef COAL_CAN_SYS_H
+#define COAL_CAN_SYS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-#include <kern.h>
+#define OS_CHANNEL
 
-#define OS_THREAD
-#define OS_MUTEX
-#define OS_SEM
-#define OS_EVENT
-#define OS_MBOX
-#define OS_TIMER
-
-typedef task_t os_thread_t;
-typedef mtx_t os_mutex_t;
-typedef sem_t os_sem_t;
-typedef flags_t os_event_t;
-typedef mbox_t os_mbox_t;
-typedef tmr_t os_timer_t;
+typedef struct
+{
+   int handle;
+   void (*callback) (void * arg);
+   void * arg;
+} os_channel_t;
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* OSAL_SYS_H */
+#endif /* COAL_CAN_SYS_H */

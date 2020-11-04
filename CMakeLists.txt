@@ -13,13 +13,18 @@
 # full license information.
 #*******************************************************************/
 
-cmake_minimum_required (VERSION 3.13)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+cmake_minimum_required (VERSION 3.14)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/tools")
 project (CANOPEN VERSION 0.1.0)
 
-include(CTest)
+include(AddOsal)
 include(GenerateExportHeader)
 include(CMakeDependentOption)
+
+if (CMAKE_PROJECT_NAME STREQUAL CANOPEN)
+  include(CTest)
+endif()
 
 # Set required standard level
 set (CMAKE_C_STANDARD 99)
@@ -132,7 +137,7 @@ add_library(canopen "")
 add_executable (slave "")
 add_executable (slaveinfo "")
 
-if (BUILD_TESTING)
+if (CMAKE_PROJECT_NAME STREQUAL CANOPEN AND BUILD_TESTING)
   add_executable(co_test "")
 endif()
 
@@ -155,6 +160,7 @@ target_include_directories(canopen
   src
   )
 
+target_link_libraries(canopen PUBLIC osal)
 
 install (
   TARGETS canopen
@@ -178,7 +184,7 @@ install (FILES
 add_subdirectory (src)
 add_subdirectory (util)
 
-if (BUILD_TESTING)
+if (CMAKE_PROJECT_NAME STREQUAL CANOPEN AND BUILD_TESTING)
   add_subdirectory (test)
   include(AddGoogleTest)
   add_gtest(co_test)
@@ -187,7 +193,7 @@ endif()
 # Doxygen configuration
 cmake_policy(SET CMP0057 NEW)
 find_package(Doxygen)
-if (DOXYGEN_FOUND)
+if (CMAKE_PROJECT_NAME STREQUAL CANOPEN AND DOXYGEN_FOUND)
   set(DOXYGEN_OPTIMIZE_OUTPUT_FOR_C YES)
   set(DOXYGEN_TYPEDEF_HIDES_STRUCT YES)
   set(DOXYGEN_EXTRACT_STATIC YES)
@@ -207,7 +213,7 @@ if (DOXYGEN_FOUND)
     include
     src
     )
-endif (DOXYGEN_FOUND)
+endif()
 
 include (InstallRequiredSystemLibraries)
 set (CPACK_RESOURCE_FILE_LICENSE "${CANOPEN_SOURCE_DIR}/LICENSE.md")

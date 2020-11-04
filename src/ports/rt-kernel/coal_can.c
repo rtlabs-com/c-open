@@ -13,16 +13,15 @@
  * full license information.
  ********************************************************************/
 
-#include "osal_can.h"
+#include "coal_can.h"
 #include "osal.h"
 #include "options.h"
-#include "log.h"
+#include "osal_log.h"
 #include "co_log.h"
 #include "co_main.h"
 #include "co_rtk.h"
-#include "cc.h"
 
-#include <can/can.h>
+#include <drivers/can/can.h>
 #include <fcntl.h>
 #include <string.h>
 
@@ -36,8 +35,11 @@ static void os_can_callback (void * arg, can_event_t event)
 
 os_channel_t * os_channel_open (const char * name, void * callback, void * arg)
 {
-   os_channel_t * channel = malloc (sizeof(*channel));
-   can_filter_t filter = { .id = 0xFFFFFFFF, .mask = 0, };
+   os_channel_t * channel = malloc (sizeof (*channel));
+   can_filter_t filter    = {
+      .id   = 0xFFFFFFFF,
+      .mask = 0,
+   };
 
    /* Create file descriptor for CAN bus */
    channel->handle = open (name, O_RDWR);
@@ -48,10 +50,13 @@ os_channel_t * os_channel_open (const char * name, void * callback, void * arg)
    }
 
    channel->callback = callback;
-   channel->arg = arg;
+   channel->arg      = arg;
 
-   can_set_callback(channel->handle, os_can_callback,
-                    CAN_EVENT_MSG_RECEIVED, channel);
+   can_set_callback (
+      channel->handle,
+      os_can_callback,
+      CAN_EVENT_MSG_RECEIVED,
+      channel);
 
    can_filter (channel->handle, &filter);
 
@@ -67,7 +72,7 @@ int os_channel_send (os_channel_t * channel, uint32_t id, const void * data, siz
    frame.id = id & CO_ID_MASK;
    frame.id |= (id & CO_RTR_MASK) ? CAN_ID_RTR : 0;
    frame.id |= (id & CO_EXT_MASK) ? CAN_ID_EXT : 0;
-   frame.id = id;
+   frame.id  = id;
    frame.dlc = dlc;
    memcpy (frame.data, data, dlc);
 
@@ -76,7 +81,11 @@ int os_channel_send (os_channel_t * channel, uint32_t id, const void * data, siz
    return 0;
 }
 
-int os_channel_receive (os_channel_t * channel, uint32_t * id, void * data, size_t * dlc)
+int os_channel_receive (
+   os_channel_t * channel,
+   uint32_t * id,
+   void * data,
+   size_t * dlc)
 {
    can_frame_t frame;
    int result;

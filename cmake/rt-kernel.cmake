@@ -13,23 +13,14 @@
 # full license information.
 #*******************************************************************/
 
-# Fix inclusion order of assert.h and log.h by including our
-# definition before anything else. FIXME: these files should be
-# renamed.
-include_directories(BEFORE
-  src/osal/rt-kernel/
-  src
-  )
-
 target_include_directories(canopen
   PRIVATE
-  src/osal/rt-kernel
+  src/ports/rt-kernel
   )
 
 target_sources(canopen
   PRIVATE
-  src/osal/rt-kernel/osal.c
-  src/osal/rt-kernel/osal_can.c
+  src/ports/rt-kernel/coal_can.c
   )
 
 target_compile_options(canopen
@@ -47,22 +38,17 @@ install (FILES
 
 target_include_directories(slave
   PRIVATE
-  src/osal/rt-kernel
+  src/ports/rt-kernel
   )
 
 target_include_directories(slaveinfo
   PRIVATE
-  src/osal/rt-kernel
+  src/ports/rt-kernel
   )
 
 if (BUILD_TESTING)
-  target_sources(co_test
-    PRIVATE
-    ${CANOPEN_SOURCE_DIR}/src/osal/rt-kernel/osal.c
-    ${CANOPEN_SOURCE_DIR}/src/osal/rt-kernel/stubs.c
-    )
   target_include_directories(co_test
     PRIVATE
-    src/osal/rt-kernel
+    src/ports/rt-kernel
     )
 endif()
