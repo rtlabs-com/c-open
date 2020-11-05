@@ -71,7 +71,7 @@ user@host:~/build$ scan-build make
 rt-kernel
 =========
 
- * Workbench 2017.1 or later
+ * Workbench 2020.1 or later
 
 Set the following environment variables. You should use a bash shell,
 such as for instance the Command Line in your Toolbox
