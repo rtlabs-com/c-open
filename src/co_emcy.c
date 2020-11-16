@@ -270,8 +270,9 @@ int co_emcy_tx (co_net_t * net, uint16_t code, uint16_t info, uint8_t msef[5])
       net->emcy.timestamp = now;
    }
 
-   /* Call user callback */
-   if (net->cb_emcy)
+   /* Call user callback, except for bus-off recovery, where it was
+    * called at the actual bus-off event. */
+   if (net->cb_emcy && code != 0x8140)
    {
       error_behavior = net->cb_emcy (net->cb_arg, net->node, code, reg, msef);
    }
@@ -349,6 +350,13 @@ void co_emcy_handle_can_state (co_net_t * net)
    {
       /* Entered bus off */
       co_emcy_error_register_set (net, CO_ERR_COMMUNICATION);
+
+      /* Call user callback directly, cannot call co_emcy_tx() now */
+      if (net->cb_emcy)
+      {
+         net->cb_emcy (net->cb_arg, net->node, 0x8140,
+                       co_emcy_error_register_get(net), NULL);
+      }
    }
 
    if (!net->emcy.state.bus_off && previous.bus_off)
