@@ -35,9 +35,10 @@ extern "C" {
 
 #define CO_BYTELENGTH(bitlength) (((bitlength) + 7) / 8)
 
-#define CO_RTR_MASK BIT (30)
-#define CO_EXT_MASK BIT (29)
-#define CO_ID_MASK  0x1FFFFFFF
+#define CO_RTR_MASK   BIT (30)
+#define CO_EXT_MASK   BIT (29)
+#define CO_ID_MASK    0x1FFFFFFF
+#define CO_EXTID_MASK (CO_EXT_MASK | CO_ID_MASK)
 
 #define CO_COBID_INVALID BIT (31)
 #define CO_NODE_GET(id)  ((id)&0x7F)

@@ -538,7 +538,7 @@ static void co_pdo_transmit (co_net_t * net, co_pdo_t * pdo)
    /* Transmit PDO */
    co_pdo_pack (net, pdo);
    dlc = CO_BYTELENGTH (pdo->bitlength);
-   os_channel_send (net->channel, pdo->cobid, &pdo->frame, dlc);
+   os_channel_send (net->channel, pdo->cobid & CO_EXTID_MASK, &pdo->frame, dlc);
    pdo->timestamp = now;
    pdo->queued    = false;
 }
@@ -685,7 +685,7 @@ void co_pdo_rx (co_net_t * net, uint32_t id, void * msg, size_t dlc)
 
    if (id & CO_RTR_MASK)
    {
-      id &= ~CO_RTR_MASK;
+      id &= CO_EXTID_MASK;
       for (ix = 0; ix < MAX_TX_PDO; ix++)
       {
          co_pdo_t * pdo = &net->pdo_tx[ix];
