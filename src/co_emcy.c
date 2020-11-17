@@ -331,6 +331,11 @@ void co_emcy_handle_can_state (co_net_t * net)
    if (status != 0)
       return;
 
+   /* Attempt to go bus on again. */
+   if (net->emcy.state.bus_off) {
+      os_channel_bus_on(net->channel);
+   }
+
    /* Check for new communication errors */
 
    if (net->emcy.state.overrun && !previous.overrun)
