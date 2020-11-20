@@ -157,7 +157,7 @@ int co_sync_timer (co_net_t * net, uint32_t now)
             co_put_uint8 (msg, sync->counter);
             os_channel_send (
                net->channel,
-               sync->cobid & 0x1FFFFFF,
+               sync->cobid & CO_EXTID_MASK,
                msg,
                sizeof (msg));
 
@@ -166,7 +166,7 @@ int co_sync_timer (co_net_t * net, uint32_t now)
          }
          else
          {
-            os_channel_send (net->channel, sync->cobid & 0x1FFFFFFF, NULL, 0);
+            os_channel_send (net->channel, sync->cobid & CO_EXTID_MASK, NULL, 0);
          }
 
          /* Call user callback */
