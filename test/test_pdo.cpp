@@ -240,7 +240,7 @@ TEST_F (PdoTest, CommParamsSet)
 {
    const co_obj_t * obj1400 = find_obj (0x1400);
    const co_obj_t * obj1800 = find_obj (0x1800);
-   uint32_t value;
+   uint64_t value;
    uint32_t result;
 
    // Bad COB ID
@@ -312,7 +312,7 @@ TEST_F (PdoTest, CommParamsSet)
 TEST_F (PdoTest, CommParamsGet)
 {
    const co_obj_t * obj1400 = find_obj (0x1400);
-   uint32_t value;
+   uint64_t value;
    uint32_t result;
 
    net.pdo_rx[0].cobid             = 0x207;
@@ -354,7 +354,7 @@ TEST_F (PdoTest, CommParamsGet)
 TEST_F (PdoTest, CobId)
 {
    const co_obj_t * obj1800 = find_obj (0x1800);
-   uint32_t value;
+   uint64_t value;
    uint32_t result;
 
    // Invalidate (disable) cob-id, should succeed
@@ -376,8 +376,8 @@ TEST_F (PdoTest, CobId)
 TEST_F (PdoTest, AddMapping)
 {
    const co_obj_t * obj1A00 = find_obj (0x1A00);
-   uint32_t mapping         = 0x60000020;
-   uint32_t entries;
+   uint64_t mapping         = 0x60000020;
+   uint64_t entries;
    uint32_t result;
 
    mock_co_obj_find_result   = find_obj (0x6000);
@@ -421,7 +421,7 @@ TEST_F (PdoTest, AddMapping)
 TEST_F (PdoTest, MappingGet)
 {
    const co_obj_t * obj1A00 = find_obj (0x1A00);
-   uint32_t value;
+   uint64_t value;
    uint32_t result;
 
    net.pdo_tx[0].cobid = CO_COBID_INVALID | 0x181;
@@ -449,7 +449,7 @@ TEST_F (PdoTest, MappingGet)
 
 TEST_F (PdoTest, SyncWindowGetSet)
 {
-   uint32_t value;
+   uint64_t value;
    uint32_t result;
 
    value  = 400;
@@ -775,7 +775,7 @@ TEST_F (PdoTest, SparsePdo)
    const co_obj_t * obj1733 = find_obj (0x1733);
    const co_obj_t * obj1899 = find_obj (0x1899);
    const co_obj_t * obj1A99 = find_obj (0x1A99);
-   uint32_t value;
+   uint64_t value;
    uint32_t result;
 
    // Check PDO number mapping

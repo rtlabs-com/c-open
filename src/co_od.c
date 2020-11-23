@@ -19,6 +19,7 @@
 #include "co_od.h"
 #include "co_sdo.h"
 #include "co_util.h"
+#include "co_obj.h"
 
 #include <string.h>
 #include <inttypes.h>
@@ -139,15 +140,12 @@ uint32_t co_od_get_value (
 
    if (obj->access)
    {
-      uint32_t v;
-
       /* Call object access function. For subindex 0, function may
          return BAD_SUBINDEX to indicate that it did not handle the
          access. */
-      abort = obj->access (net, OD_EVENT_READ, obj, entry, subindex, &v);
+      abort = obj->access (net, OD_EVENT_READ, obj, entry, subindex, value);
       if (!(subindex == 0 && abort == CO_SDO_ABORT_BAD_SUBINDEX))
       {
-         *value = v;
          return abort;
       }
    }
@@ -218,9 +216,8 @@ uint32_t co_od_set_value (
    if (obj->access)
    {
       uint32_t result;
-      uint32_t v = value;
 
-      result = obj->access (net, OD_EVENT_WRITE, obj, entry, subindex, &v);
+      result = obj->access (net, OD_EVENT_WRITE, obj, entry, subindex, &value);
       co_od_notify (net, obj, entry, subindex);
       return result;
    }
@@ -586,7 +583,7 @@ uint32_t co_od1010_fn (
    const co_obj_t * obj,
    const co_entry_t * entry,
    uint8_t subindex,
-   uint32_t * value)
+   uint64_t * value)
 {
    uint32_t abort;
 
@@ -647,7 +644,7 @@ uint32_t co_od1011_fn (
    const co_obj_t * obj,
    const co_entry_t * entry,
    uint8_t subindex,
-   uint32_t * value)
+   uint64_t * value)
 {
    uint32_t abort;
 
@@ -707,7 +704,7 @@ uint32_t co_od1020_fn (
    const co_obj_t * obj,
    const co_entry_t * entry,
    uint8_t subindex,
-   uint32_t * value)
+   uint64_t * value)
 {
    if (subindex == 0 || subindex > obj->max_subindex)
       return CO_SDO_ABORT_BAD_SUBINDEX;

@@ -26,7 +26,7 @@ class SyncTest : public TestBase
 
 TEST_F (SyncTest, CobIdSyncMessageConfiguration)
 {
-   uint32_t value;
+   uint64_t value;
    uint32_t result;
 
    value  = 0x40000000;
@@ -61,7 +61,7 @@ TEST_F (SyncTest, CobIdSyncMessageConfiguration)
 
 TEST_F (SyncTest, OD1006)
 {
-   uint32_t value;
+   uint64_t value;
    uint32_t result;
 
    value  = 1000;
@@ -77,7 +77,7 @@ TEST_F (SyncTest, OD1006)
 
 TEST_F (SyncTest, OD1019)
 {
-   uint32_t value;
+   uint64_t value;
    uint32_t result;
 
    value  = 240;

@@ -30,7 +30,7 @@ extern "C" uint32_t cb2001 (
    const co_obj_t * obj,
    const co_entry_t * entry,
    uint8_t subindex,
-   uint32_t * value);
+   uint64_t * value);
 
 class TestBase : public ::testing::Test
 {

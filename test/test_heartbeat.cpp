@@ -26,7 +26,7 @@ class HeartbeatTest : public TestBase
 
 TEST_F (HeartbeatTest, OD1017)
 {
-   uint32_t value;
+   uint64_t value;
    uint32_t result;
 
    value = 1000;
@@ -44,7 +44,7 @@ TEST_F (HeartbeatTest, OD1017)
 
 TEST_F (HeartbeatTest, OD1016)
 {
-   uint32_t value;
+   uint64_t value;
    uint32_t result;
 
    // Monitor node 1

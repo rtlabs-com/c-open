@@ -29,7 +29,7 @@ class NodeGuardTest : public TestBase
 TEST_F (NodeGuardTest, od100c_fn)
 {
    uint32_t result;
-   uint32_t value;
+   uint64_t value;
 
    net.node_guard.guard_time = 1000;
 
@@ -50,7 +50,7 @@ TEST_F (NodeGuardTest, od100c_fn)
 TEST_F (NodeGuardTest, od100d_fn)
 {
    uint32_t result;
-   uint32_t value;
+   uint64_t value;
 
    net.node_guard.life_time_factor = 10;
 

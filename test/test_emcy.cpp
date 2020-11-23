@@ -47,7 +47,7 @@ TEST_F (EmcyTest, MsgFormat)
 
 TEST_F (EmcyTest, AddError)
 {
-   uint32_t value;
+   uint64_t value;
    uint32_t result;
 
    // Test insertion at head of error list
@@ -108,7 +108,7 @@ TEST_F (EmcyTest, MaxErrors)
 TEST_F (EmcyTest, ClearErrors)
 {
    uint32_t result;
-   uint32_t value;
+   uint64_t value;
 
    // Fill error list
    for (uint16_t ix = 0; ix < MAX_ERRORS; ix++)
@@ -139,7 +139,7 @@ TEST_F (EmcyTest, ClearErrors)
 TEST_F (EmcyTest, EmcyCobId)
 {
    uint32_t result;
-   uint32_t value;
+   uint64_t value;
 
    // Write invalid value
    value  = 0x601;
@@ -165,7 +165,7 @@ TEST_F (EmcyTest, EmcyConsumer)
    uint8_t emcy[8] = {0x30, 0x81, 0x03, 0x05, 0x04, 0x03, 0x02, 0x01};
    uint8_t msef[5] = {0x05, 0x04, 0x03, 0x02, 0x01};
    uint32_t result;
-   uint32_t value;
+   uint64_t value;
 
    net.emcy.cobids[0] = CO_COBID_INVALID;
 
@@ -197,7 +197,7 @@ TEST_F (EmcyTest, NMTErrorBehavior)
 {
    const co_obj_t * obj1029 = find_obj (0x1029);
    uint32_t result;
-   uint32_t value;
+   uint64_t value;
 
    net.state = STATE_INIT;
    value     = 0;
@@ -297,7 +297,7 @@ TEST_F (EmcyTest, NMTErrorBehavior)
 
 TEST_F (EmcyTest, EmcyOverrun)
 {
-   uint32_t error_register;
+   uint64_t error_register;
    uint8_t expected[][8] = {
       {0x10, 0x81, 0x11, 0x00, 0x00, 0x00, 0x00, 0x00},
       {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
@@ -335,7 +335,7 @@ TEST_F (EmcyTest, EmcyOverrun)
 
 TEST_F (EmcyTest, EmcyErrorPassive)
 {
-   uint32_t error_register;
+   uint64_t error_register;
    uint8_t expected[][8] = {
       {0x20, 0x81, 0x11, 0x00, 0x00, 0x00, 0x00, 0x00},
       {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
@@ -373,7 +373,7 @@ TEST_F (EmcyTest, EmcyErrorPassive)
 
 TEST_F (EmcyTest, EmcyBusOff)
 {
-   uint32_t error_register;
+   uint64_t error_register;
    uint8_t expected[][8] = {
       {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
    };

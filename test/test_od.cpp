@@ -31,7 +31,7 @@ extern "C" uint32_t cb2001 (
    const co_obj_t * obj,
    const co_entry_t * entry,
    uint8_t subindex,
-   uint32_t * value)
+   uint64_t * value)
 {
    cb2001_calls++;
 
@@ -217,7 +217,7 @@ TEST_F (OdTest, DefaultValues)
 TEST_F (OdTest, StoreThenLoadOD)
 {
    const co_obj_t * obj1020 = find_obj (0x1020);
-   uint32_t value;
+   uint64_t value;
    uint32_t result;
 
    // Store configuration date/time
@@ -293,7 +293,7 @@ TEST_F (OdTest, StoreThenLoadNewOD)
 TEST_F (OdTest, OD1010)
 {
    const co_obj_t * obj1010 = find_obj (0x1010);
-   uint32_t value;
+   uint64_t value;
    uint32_t result;
 
    // Saves on command only
@@ -332,7 +332,7 @@ TEST_F (OdTest, OD1010)
 TEST_F (OdTest, OD1011)
 {
    const co_obj_t * obj1011 = find_obj (0x1011);
-   uint32_t value;
+   uint64_t value;
    uint32_t result;
 
    // Device restores parameters
