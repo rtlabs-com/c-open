@@ -117,6 +117,20 @@ int co_pdo_timer (co_net_t * net, uint32_t now);
 void co_pdo_trigger (co_net_t * net);
 
 /**
+ * PDO trigger with object
+ *
+ * This function triggers an event on event-driven and acyclic
+ * TPDOs that map the specified object. Event-driven TPDOs will be
+ * transmitted immediately while acyclic TPDOs will be queued for
+ * transmission at next SYNC.
+ *
+ * @param net           network handle
+ * @param index         index
+ * @param subindex      subindex
+ */
+void co_pdo_trigger_with_obj (co_net_t * net, uint16_t index, uint8_t subindex);
+
+/**
  * Start PDO job
  *
  * @param net           network handle

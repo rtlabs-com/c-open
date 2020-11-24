@@ -395,6 +395,32 @@ CO_EXPORT void co_nmt (co_client_t * client, co_nmt_cmd_t cmd, uint8_t node);
 CO_EXPORT void co_sync (co_client_t * client);
 
 /**
+ * Trigger event-based PDOs
+ *
+ * This function triggers transmission of all event-based PDOs.
+ *
+ * @param client  client handle
+ *
+ * @return 0 on success
+ */
+CO_EXPORT int co_pdo_event (co_client_t * client);
+
+/**
+ * Triggers event-based PDOs containing a specific object
+ *
+ * This function triggers transmission of all event-based PDOs
+ * that map the specified object.
+ *
+ * @param client    client handle
+ * @param index     index
+ * @param subindex  subindex
+ *
+ * @return 0 on success
+ */
+CO_EXPORT int co_pdo_obj_event (co_client_t * client, uint16_t index,
+                                uint8_t subindex);
+
+/**
  * Read dictionary object entry
  *
  * This function reads an object entry from a device.

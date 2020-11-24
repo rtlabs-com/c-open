@@ -130,6 +130,7 @@ void co_main (void * arg)
          co_handle_rx (net);
          break;
       case CO_JOB_PDO_EVENT:
+      case CO_JOB_PDO_OBJ_EVENT:
          co_pdo_job (net, job);
          break;
       case CO_JOB_SDO_READ:
@@ -220,6 +221,21 @@ int co_pdo_event (co_client_t * client)
    job->client   = client;
    job->callback = NULL;
    job->type     = CO_JOB_PDO_EVENT;
+
+   os_mbox_post (net->mbox, job, OS_WAIT_FOREVER);
+   return 0;
+}
+
+int co_pdo_obj_event (co_client_t * client, uint16_t index, uint8_t subindex)
+{
+   co_net_t * net = client->net;
+   co_job_t * job = &client->job;
+
+   job->client       = client;
+   job->callback     = NULL;
+   job->type         = CO_JOB_PDO_OBJ_EVENT;
+   job->pdo.index    = index;
+   job->pdo.subindex = subindex;
 
    os_mbox_post (net->mbox, job, OS_WAIT_FOREVER);
    return 0;
