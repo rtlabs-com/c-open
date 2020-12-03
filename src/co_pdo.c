@@ -112,18 +112,24 @@ static int co_mpdo_unpack (co_net_t * net, co_pdo_t * pdo)
 
       obj = co_obj_find (net, index);
       if (obj == NULL)
-         return co_emcy_tx (net, 0x8230, 0, NULL);
+         goto error;
 
       entry = co_entry_find (net, obj, subindex);
       if (entry == NULL || !(entry->flags & OD_WRITE))
-         return co_emcy_tx (net, 0x8230, 0, NULL);
+         goto error;
 
       if (co_od_set_value (net, obj, entry, subindex, value))
-          return co_emcy_tx (net, 0x8230, 0, NULL);
+         goto error;
 
    } else {
       /* TODO: Support SAM-MPDO Consumer using dispatcher list. */
    }
+
+   return 0;
+
+error:
+   if (node != 0)
+      return co_emcy_tx (net, 0x8230, 0, NULL);
 
    return 0;
 }
