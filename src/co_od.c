@@ -176,10 +176,30 @@ uint32_t co_od_get_value (
       *value = co_atomic_get_uint16 (data);
       break;
 
+   case DTYPE_UNSIGNED24:
+   case DTYPE_INTEGER24:
+      *value = co_atomic_get_uint32 (data) & 0xFFFFFF;
+      break;
+
    case DTYPE_REAL32:
    case DTYPE_UNSIGNED32:
    case DTYPE_INTEGER32:
       *value = co_atomic_get_uint32 (data);
+      break;
+
+   case DTYPE_UNSIGNED40:
+   case DTYPE_INTEGER40:
+      *value = co_atomic_get_uint64 (data) & 0xFFFFFFFFFF;
+      break;
+
+   case DTYPE_UNSIGNED48:
+   case DTYPE_INTEGER48:
+      *value = co_atomic_get_uint64 (data) & 0xFFFFFFFFFFFF;
+      break;
+
+   case DTYPE_UNSIGNED56:
+   case DTYPE_INTEGER56:
+      *value = co_atomic_get_uint64 (data) & 0xFFFFFFFFFFFFFF;
       break;
 
    case DTYPE_REAL64:
@@ -243,10 +263,30 @@ uint32_t co_od_set_value (
       co_atomic_set_uint16 (data, value & UINT16_MAX);
       break;
 
+   case DTYPE_UNSIGNED24:
+   case DTYPE_INTEGER24:
+      co_atomic_set_uint32 (data, value & 0xFFFFFF);
+      break;
+
    case DTYPE_REAL32:
    case DTYPE_UNSIGNED32:
    case DTYPE_INTEGER32:
       co_atomic_set_uint32 (data, value & UINT32_MAX);
+      break;
+
+   case DTYPE_UNSIGNED40:
+   case DTYPE_INTEGER40:
+      co_atomic_set_uint64 (data, value & 0xFFFFFFFFFF);
+      break;
+
+   case DTYPE_UNSIGNED48:
+   case DTYPE_INTEGER48:
+      co_atomic_set_uint64 (data, value & 0xFFFFFFFFFFFF);
+      break;
+
+   case DTYPE_UNSIGNED56:
+   case DTYPE_INTEGER56:
+      co_atomic_set_uint64 (data, value & 0xFFFFFFFFFFFFFF);
       break;
 
    case DTYPE_REAL64:
