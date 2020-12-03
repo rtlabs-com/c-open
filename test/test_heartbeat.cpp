@@ -30,11 +30,13 @@ TEST_F (HeartbeatTest, OD1017)
    uint32_t result;
 
    value = 1000;
+
    result = co_od1017_fn (&net, OD_EVENT_WRITE, NULL, NULL, 0, &value);
    EXPECT_EQ (0u, result);
    EXPECT_EQ (net.hb_time, value);
 
    net.hb_time = 2000;
+
    result = co_od1017_fn (&net, OD_EVENT_READ, NULL, NULL, 0, &value);
    EXPECT_EQ (0u, result);
    EXPECT_EQ (value, net.hb_time);
@@ -46,19 +48,19 @@ TEST_F (HeartbeatTest, OD1016)
    uint32_t result;
 
    // Monitor node 1
-   value = (1 << 16) | 1000;
+   value  = (1 << 16) | 1000;
    result = co_od1016_fn (&net, OD_EVENT_WRITE, NULL, NULL, 1, &value);
    EXPECT_EQ (0u, result);
    EXPECT_EQ (1u, net.heartbeat[0].node);
    EXPECT_EQ (1000u, net.heartbeat[0].time);
 
    // Duplicate entry for node 1, should fail
-   value = (1 << 16) | 2000;
+   value  = (1 << 16) | 2000;
    result = co_od1016_fn (&net, OD_EVENT_WRITE, NULL, NULL, 2, &value);
    EXPECT_EQ (CO_SDO_ABORT_PARAM_INCOMPATIBLE, result);
 
    // Read back previously written value
-   value = 0;
+   value  = 0;
    result = co_od1016_fn (&net, OD_EVENT_READ, NULL, NULL, 1, &value);
    EXPECT_EQ (0u, result);
    EXPECT_EQ ((1 << 16) | 1000u, value);
@@ -66,7 +68,7 @@ TEST_F (HeartbeatTest, OD1016)
 
 TEST_F (HeartbeatTest, HeartbeatProducer)
 {
-   uint8_t expected[] = { 127, 4, 5 };
+   uint8_t expected[] = {127, 4, 5};
 
    net.hb_time = 1000;
 

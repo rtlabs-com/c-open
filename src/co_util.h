@@ -17,17 +17,15 @@
 #define CO_UTIL_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <stdint.h>
 #include <string.h>
 
-#include "cc.h"
+#include "osal.h"
 
-static inline int co_is_expired (uint32_t now, uint32_t timestamp,
-                                 uint32_t timeout)
+static inline int co_is_expired (uint32_t now, uint32_t timestamp, uint32_t timeout)
 {
    uint32_t delta = now - timestamp;
    return delta >= timeout;
@@ -43,7 +41,7 @@ static inline bool co_validate_cob_id (uint32_t id)
       return false;
    else if (id >= 0x001 && id <= 0x07F)
       return false;
-   else if (id >= 0x101 && id <= 0x180)
+   else if (id >= 0x101 && id < 0x180) /* Allow 0x180 to support CiA 417 */
       return false;
    else if (id >= 0x581 && id <= 0x5FF)
       return false;
@@ -59,6 +57,21 @@ static inline bool co_validate_cob_id (uint32_t id)
    return true;
 }
 
+static inline bool co_is_padding (uint16_t index, uint8_t subindex)
+{
+   const uint32_t bitmask = 0x0F7D00FE;
+
+   /* See CiA 301, chapter 7.4.7.1 */
+
+   if (subindex != 0)
+      return false;
+
+   if (index > 0x1B)
+      return false;
+
+   return (BIT (index) & bitmask);
+}
+
 static inline uint8_t co_fetch_uint8 (const void * data)
 {
    uint8_t * p = (uint8_t *)data;
@@ -68,53 +81,60 @@ static inline uint8_t co_fetch_uint8 (const void * data)
 static inline uint16_t co_fetch_uint16 (const void * data)
 {
    uint16_t value;
-   memcpy (&value, data, sizeof(value));
+
+   memcpy (&value, data, sizeof (value));
    return CC_TO_LE16 (value);
 }
 
 static inline uint32_t co_fetch_uint32 (const void * data)
 {
    uint32_t value;
-   memcpy (&value, data, sizeof(value));
+
+   memcpy (&value, data, sizeof (value));
    return CC_TO_LE32 (value);
 }
 
 static inline uint64_t co_fetch_uint64 (const void * data)
 {
    uint64_t value;
-   memcpy (&value, data, sizeof(value));
+
+   memcpy (&value, data, sizeof (value));
    return CC_TO_LE64 (value);
 }
 
 static inline void * co_put_uint8 (void * data, uint8_t value)
 {
    uint8_t * p = (uint8_t *)data;
+
    *p = value;
-   return p + sizeof(value);
+   return p + sizeof (value);
 }
 
 static inline void * co_put_uint16 (void * data, uint16_t value)
 {
    uint8_t * p = (uint8_t *)data;
+
    value = CC_TO_LE16 (value);
-   memcpy (data, &value, sizeof(value));
-   return p + sizeof(value);
+   memcpy (data, &value, sizeof (value));
+   return p + sizeof (value);
 }
 
 static inline void * co_put_uint32 (void * data, uint32_t value)
 {
    uint8_t * p = (uint8_t *)data;
+
    value = CC_TO_LE32 (value);
-   memcpy (data, &value, sizeof(value));
-   return p + sizeof(value);
+   memcpy (data, &value, sizeof (value));
+   return p + sizeof (value);
 }
 
 static inline void * co_put_uint64 (void * data, uint64_t value)
 {
    uint8_t * p = (uint8_t *)data;
+
    value = CC_TO_LE64 (value);
-   memcpy (data, &value, sizeof(value));
-   return p + sizeof(value);
+   memcpy (data, &value, sizeof (value));
+   return p + sizeof (value);
 }
 
 static inline uint8_t co_atomic_get_uint8 (const void * data)

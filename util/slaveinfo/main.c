@@ -28,7 +28,7 @@ int main (int argc, char * argv[])
       return -1;
    }
 
-   node = atoi (argv[2]);
+   node    = atoi (argv[2]);
    bitrate = atoi (argv[3]);
 
    return slaveinfo (argv[1], node, bitrate);

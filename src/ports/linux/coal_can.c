@@ -13,13 +13,15 @@
  * full license information.
  ********************************************************************/
 
+#include "coal_can.h"
 #include "osal.h"
 #include "options.h"
-#include "log.h"
+#include "osal_log.h"
 #include "co_log.h"
 #include "co_main.h"
 
 #include <unistd.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <string.h>
 
@@ -27,28 +29,52 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
+#include <sys/epoll.h>
 
 #include <linux/can.h>
 #include <linux/can/raw.h>
 
 static void os_channel_rx (void * arg)
 {
-   fd_set set;
    os_channel_t * channel = arg;
+   struct epoll_event ev, events[1];
+   int epollfd;
+   int nfds;
+   int n;
 
-   FD_ZERO (&set);
+   epollfd = epoll_create1 (0);
+   if (epollfd == -1)
+   {
+      LOG_ERROR (CO_CAN_LOG, "epoll_create1 failed\n");
+      return;
+   }
+
+   /* Create edge-triggered event on input */
+   ev.events  = EPOLLIN | EPOLLET;
+   ev.data.fd = channel->handle;
+   if (epoll_ctl (epollfd, EPOLL_CTL_ADD, channel->handle, &ev) == -1)
+   {
+      LOG_ERROR (CO_CAN_LOG, "epoll_ctl failed\n");
+      return;
+   }
 
    for (;;)
    {
-      int result;
-
-      FD_SET(channel->handle, &set);
-      result = select (channel->handle + 1, &set, NULL, NULL, NULL);
-      if (result > 0)
+      nfds = epoll_wait (epollfd, events, 1, -1);
+      if (nfds == -1)
       {
-         if (FD_ISSET(channel->handle, &set))
+         if (errno == EINTR)
+            continue;
+
+         LOG_ERROR (CO_CAN_LOG, "epoll_wait failed\n");
+         return;
+      }
+
+      for (n = 0; n < nfds; n++)
+      {
+         if (events[n].data.fd == channel->handle)
          {
-            channel->callback(channel->arg);
+            channel->callback (channel->arg);
          }
       }
    }
@@ -56,28 +82,28 @@ static void os_channel_rx (void * arg)
 
 os_channel_t * os_channel_open (const char * name, void * callback, void * arg)
 {
-   os_channel_t * channel = malloc (sizeof(*channel));
+   os_channel_t * channel = malloc (sizeof (*channel));
    struct sockaddr_can addr;
    struct ifreq ifr;
 
-   channel->handle = socket(PF_CAN, SOCK_RAW, CAN_RAW);
+   channel->handle = socket (PF_CAN, SOCK_RAW, CAN_RAW);
    if (channel->handle < 0)
    {
       free (channel);
       return NULL;
    }
 
-   fcntl(channel->handle, F_SETFL, O_NONBLOCK);
+   fcntl (channel->handle, F_SETFL, O_NONBLOCK);
 
-   strcpy(ifr.ifr_name, name);
-   ioctl(channel->handle, SIOCGIFINDEX, &ifr);
+   strcpy (ifr.ifr_name, name);
+   ioctl (channel->handle, SIOCGIFINDEX, &ifr);
 
-   addr.can_family = AF_CAN;
+   addr.can_family  = AF_CAN;
    addr.can_ifindex = ifr.ifr_ifindex;
 
    LOG_DEBUG (CO_CAN_LOG, "%s at index %d\n", name, ifr.ifr_ifindex);
 
-   if (bind(channel->handle, (struct sockaddr *)&addr, sizeof(addr)) < 0)
+   if (bind (channel->handle, (struct sockaddr *)&addr, sizeof (addr)) < 0)
    {
       close (channel->handle);
       free (channel);
@@ -85,9 +111,9 @@ os_channel_t * os_channel_open (const char * name, void * callback, void * arg)
    }
 
    channel->callback = callback;
-   channel->arg = arg;
+   channel->arg      = arg;
 
-   os_thread_create("rx", 100, 8192, os_channel_rx, channel);
+   os_thread_create ("co_rx", 5, 1024, os_channel_rx, channel);
    return channel;
 }
 
@@ -102,22 +128,26 @@ int os_channel_send (os_channel_t * channel, uint32_t id, const void * data, siz
    frame.can_id |= (id & CO_RTR_MASK) ? CAN_RTR_FLAG : 0;
    frame.can_id |= (id & CO_EXT_MASK) ? CAN_EFF_FLAG : 0;
    frame.can_dlc = dlc;
-   memcpy(frame.data, data, dlc);
+   memcpy (frame.data, data, dlc);
 
-   n = write (channel->handle, &frame, sizeof(struct can_frame));
-   if (n != sizeof(struct can_frame))
+   n = write (channel->handle, &frame, sizeof (struct can_frame));
+   if (n != sizeof (struct can_frame))
       return -1;
 
    return 0;
 }
 
-int os_channel_receive (os_channel_t * channel, uint32_t * id, void * data, size_t * dlc)
+int os_channel_receive (
+   os_channel_t * channel,
+   uint32_t * id,
+   void * data,
+   size_t * dlc)
 {
    struct can_frame frame;
    int n;
 
-   n = read (channel->handle, &frame, sizeof(struct can_frame));
-   if (n != sizeof(struct can_frame))
+   n = read (channel->handle, &frame, sizeof (struct can_frame));
+   if (n != sizeof (struct can_frame))
       return -1;
 
    *id = frame.can_id;

@@ -18,7 +18,7 @@
 
 TEST (Bitmap, SetClearGet)
 {
-   uint32_t bm[4] = { 0 };
+   uint32_t bm[4] = {0};
 
    co_bitmap_set (bm, 0);
    co_bitmap_set (bm, 31);
@@ -49,7 +49,7 @@ TEST (Bitmap, SetClearGet)
 
 TEST (Bitmap, Next)
 {
-   uint32_t bm[4] = { 0 };
+   uint32_t bm[4] = {0};
 
    co_bitmap_set (bm, 0);
    co_bitmap_set (bm, 31);

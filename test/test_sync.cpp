@@ -24,63 +24,63 @@ class SyncTest : public TestBase
 
 // Tests
 
-TEST_F(SyncTest, CobIdSyncMessageConfiguration)
+TEST_F (SyncTest, CobIdSyncMessageConfiguration)
 {
    uint32_t value;
    uint32_t result;
 
-   value = 0x40000000;
+   value  = 0x40000000;
    result = co_od1005_fn (&net, OD_EVENT_WRITE, NULL, NULL, 0, &value);
    EXPECT_EQ (0x06090030u, result);
 
-   value = 0x40000086;
+   value  = 0x40000086;
    result = co_od1005_fn (&net, OD_EVENT_WRITE, NULL, NULL, 0, &value);
    EXPECT_EQ (0u, result);
 
-   value = 0x40000085;
+   value  = 0x40000085;
    result = co_od1005_fn (&net, OD_EVENT_WRITE, NULL, NULL, 0, &value);
    EXPECT_EQ (0x08000000u, result);
 
-   value = 0x00000085;
+   value  = 0x00000085;
    result = co_od1005_fn (&net, OD_EVENT_WRITE, NULL, NULL, 0, &value);
    EXPECT_EQ (0x0u, result);
 
-   value = 0x00000086;
+   value  = 0x00000086;
    result = co_od1005_fn (&net, OD_EVENT_WRITE, NULL, NULL, 0, &value);
    EXPECT_EQ (0u, result);
 
-   value = 0x40000086;
+   value  = 0x40000086;
    result = co_od1005_fn (&net, OD_EVENT_WRITE, NULL, NULL, 0, &value);
    EXPECT_EQ (0u, result);
 
-   value = 0;
+   value  = 0;
    result = co_od1005_fn (&net, OD_EVENT_READ, NULL, NULL, 0, &value);
    EXPECT_EQ (0u, result);
    EXPECT_EQ (0x40000086u, value);
 }
 
-TEST_F(SyncTest, OD1006)
+TEST_F (SyncTest, OD1006)
 {
    uint32_t value;
    uint32_t result;
 
-   value = 1000;
+   value  = 1000;
    result = co_od1006_fn (&net, OD_EVENT_WRITE, NULL, NULL, 0, &value);
    EXPECT_EQ (0u, result);
    EXPECT_EQ (net.sync.period, value);
 
    net.sync.period = 2000;
-   result = co_od1006_fn (&net, OD_EVENT_READ, NULL, NULL, 0, &value);
+   result          = co_od1006_fn (&net, OD_EVENT_READ, NULL, NULL, 0, &value);
    EXPECT_EQ (0u, result);
    EXPECT_EQ (value, net.sync.period);
 }
 
-TEST_F(SyncTest, OD1019)
+TEST_F (SyncTest, OD1019)
 {
    uint32_t value;
    uint32_t result;
 
-   value = 240;
+   value  = 240;
    result = co_od1019_fn (&net, OD_EVENT_WRITE, NULL, NULL, 0, &value);
    EXPECT_EQ (0u, result);
    EXPECT_EQ (net.sync.overflow, value);
@@ -91,32 +91,32 @@ TEST_F(SyncTest, OD1019)
    EXPECT_EQ (value, net.sync.overflow);
 
    // Reserved values, should fail
-   value = 1;
+   value  = 1;
    result = co_od1019_fn (&net, OD_EVENT_WRITE, NULL, NULL, 0, &value);
    EXPECT_EQ (CO_SDO_ABORT_VALUE, result);
    EXPECT_EQ (10u, net.sync.overflow);
 
    // Reserved values, should fail
-   value = 241;
+   value  = 241;
    result = co_od1019_fn (&net, OD_EVENT_WRITE, NULL, NULL, 0, &value);
    EXPECT_EQ (CO_SDO_ABORT_VALUE, result);
    EXPECT_EQ (10u, net.sync.overflow);
 
    // Should fail if sync producer is active
    net.sync.period = 1000;
-   value = 2;
-   result = co_od1019_fn (&net, OD_EVENT_WRITE, NULL, NULL, 0, &value);
+   value           = 2;
+   result          = co_od1019_fn (&net, OD_EVENT_WRITE, NULL, NULL, 0, &value);
    EXPECT_EQ (CO_SDO_ABORT_WRITE_STATE_DENIED, result);
    EXPECT_EQ (10u, net.sync.overflow);
 }
 
-TEST_F(SyncTest, SyncNoCounter)
+TEST_F (SyncTest, SyncNoCounter)
 {
    co_sync_t * sync = &net.sync;
 
-   sync->cobid = 0x40000080;
-   sync->period = 100;
-   sync->counter = 0;
+   sync->cobid     = 0x40000080;
+   sync->period    = 100;
+   sync->counter   = 0;
    sync->timestamp = 0;
 
    co_sync_timer (&net, 100);
@@ -131,18 +131,17 @@ TEST_F(SyncTest, SyncNoCounter)
    EXPECT_EQ (2u, mock_os_channel_send_calls);
    EXPECT_TRUE (CanMatch (0x80, NULL, 0));
    EXPECT_EQ (2u, cb_sync_calls);
-
 }
 
-TEST_F(SyncTest, SyncCounter)
+TEST_F (SyncTest, SyncCounter)
 {
-   co_sync_t * sync = &net.sync;
-   uint8_t expected[] = { 0x01, 0x02, 0x03, 0x01 };
+   co_sync_t * sync   = &net.sync;
+   uint8_t expected[] = {0x01, 0x02, 0x03, 0x01};
 
-   sync->cobid = 0x40000080;
-   sync->period = 100;
-   sync->overflow = 3;
-   sync->counter = 1;
+   sync->cobid     = 0x40000080;
+   sync->period    = 100;
+   sync->overflow  = 3;
+   sync->counter   = 1;
    sync->timestamp = 0;
 
    co_sync_timer (&net, 100);

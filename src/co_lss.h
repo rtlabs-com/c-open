@@ -22,8 +22,7 @@
 #define CO_LSS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include "co_api.h"

@@ -25,32 +25,32 @@
 int slaveinfo (const char * canif, uint8_t node, int bitrate)
 {
    co_net_t * net;
-   co_cfg_t cfg = { 0 };
+   co_cfg_t cfg = {0};
    co_client_t * client;
    static const co_obj_t od_none[] = {
-      { 0, OTYPE_NULL, 0, NULL, NULL },
+      {0, OTYPE_NULL, 0, NULL, NULL},
    };
 
-   cfg.node     = node;
-   cfg.bitrate  = bitrate;
-   cfg.od       = od_none;
+   cfg.node    = node;
+   cfg.bitrate = bitrate;
+   cfg.od      = od_none;
 
    net = co_init (canif, &cfg);
    if (net == NULL)
    {
-      printf("Init failed\n");
+      printf ("Init failed\n");
       return -1;
    }
 
    client = co_client_init (net);
    if (client == NULL)
    {
-      printf("Client init failed\n");
+      printf ("Client init failed\n");
       return -1;
    }
 
    co_nmt (client, CO_NMT_RESET_COMMUNICATION, 0);
-   os_usleep (500*1000);        /* TODO: how to sync with slave responses? */
+   os_usleep (500 * 1000); /* TODO: how to sync with slave responses? */
 
    node = co_node_next (client, 0);
    if (node == 0)
@@ -64,21 +64,21 @@ int slaveinfo (const char * canif, uint8_t node, int bitrate)
       char s[80];
       int n;
 
-      n = co_sdo_read (client, node, 0x1008, 0, s, sizeof(s));
+      n = co_sdo_read (client, node, 0x1008, 0, s, sizeof (s));
       if (n > 0)
       {
          s[n] = 0;
          printf ("(%d) %s\n", node, s);
       }
 
-      n = co_sdo_read (client, node, 0x1009, 0, s, sizeof(s));
+      n = co_sdo_read (client, node, 0x1009, 0, s, sizeof (s));
       if (n > 0)
       {
          s[n] = 0;
          printf ("(%d) %s\n", node, s);
       }
 
-      n = co_sdo_read (client, node, 0x100a, 0, s, sizeof(s));
+      n = co_sdo_read (client, node, 0x100a, 0, s, sizeof (s));
       if (n > 0)
       {
          s[n] = 0;

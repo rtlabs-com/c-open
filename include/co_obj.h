@@ -22,8 +22,7 @@
 #define CO_OBJ_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include "co_api.h"
@@ -109,8 +108,7 @@ uint32_t co_od1001_fn (
    const co_obj_t * obj,
    const co_entry_t * entry,
    uint8_t subindex,
-   uint32_t * value
-   );
+   uint32_t * value);
 
 /**
  * Access function for Pre-defined error field object (1003h)
@@ -130,8 +128,7 @@ uint32_t co_od1003_fn (
    const co_obj_t * obj,
    const co_entry_t * entry,
    uint8_t subindex,
-   uint32_t * value
-   );
+   uint32_t * value);
 
 /**
  * Access function for COB-ID SYNC message object (1005h)
@@ -291,8 +288,7 @@ uint32_t co_od1014_fn (
    const co_obj_t * obj,
    const co_entry_t * entry,
    uint8_t subindex,
-   uint32_t * value
-   );
+   uint32_t * value);
 
 /**
  * Access function for Inhibit time EMCY object (1015h)
@@ -312,8 +308,7 @@ uint32_t co_od1015_fn (
    const co_obj_t * obj,
    const co_entry_t * entry,
    uint8_t subindex,
-   uint32_t * value
-   );
+   uint32_t * value);
 
 /**
  * Access function for Consumer heartbeat time object (1016h)
@@ -333,8 +328,7 @@ uint32_t co_od1016_fn (
    const co_obj_t * obj,
    const co_entry_t * entry,
    uint8_t subindex,
-   uint32_t * value
-   );
+   uint32_t * value);
 
 /**
  * Access function for Producer heartbeat time object (1017h)
@@ -354,8 +348,7 @@ uint32_t co_od1017_fn (
    const co_obj_t * obj,
    const co_entry_t * entry,
    uint8_t subindex,
-   uint32_t * value
-   );
+   uint32_t * value);
 
 /**
  * Access function for Synchronous counter overflow value object (1019h)
@@ -415,8 +408,7 @@ uint32_t co_od1028_fn (
    const co_obj_t * obj,
    const co_entry_t * entry,
    uint8_t subindex,
-   uint32_t * value
-   );
+   uint32_t * value);
 
 /**
  * Access function for Error behavior object (1029h)
@@ -436,8 +428,7 @@ uint32_t co_od1029_fn (
    const co_obj_t * obj,
    const co_entry_t * entry,
    uint8_t subindex,
-   uint32_t * value
-   );
+   uint32_t * value);
 
 /**
  * Access function for RPDO communication parameter object (1400h - 15FFh)
