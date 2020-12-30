@@ -374,7 +374,7 @@ uint32_t co_od_load (co_net_t * net, co_store_t store)
       uint16_t index;
       uint8_t subindex;
       size_t size;
-      uint64_t value;
+      uint64_t value = 0;
       uint8_t * ptr;
       uint32_t abort;
 
@@ -398,7 +398,14 @@ uint32_t co_od_load (co_net_t * net, co_store_t store)
       if (entry == NULL || !(entry->flags & OD_WRITE))
          continue;
 
-      if (size > sizeof (value))
+      if (size <= sizeof (value))
+      {
+         if (net->read (arg, &value, size) < 0)
+            goto error;
+
+         co_od_set_value (net, obj, entry, subindex, value);
+      }
+      else if (size == CO_BYTELENGTH (entry->bitlength))
       {
          /* Get pointer to storage */
          abort = co_od_get_ptr (net, obj, entry, subindex, &ptr);
@@ -410,10 +417,16 @@ uint32_t co_od_load (co_net_t * net, co_store_t store)
       }
       else
       {
+         /* Stored size does not match object size. Discard data. */
+         while (size > sizeof(value))
+         {
+            if (net->read (arg, &value, sizeof (value)) < 0)
+               goto error;
+            size -= sizeof(value);
+         }
+
          if (net->read (arg, &value, size) < 0)
             goto error;
-
-         co_od_set_value (net, obj, entry, subindex, value);
       }
    }
 

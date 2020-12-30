@@ -239,6 +239,57 @@ TEST_F (OdTest, StoreThenLoadOD)
    EXPECT_EQ (0x12345678u, value);
 }
 
+TEST_F (OdTest, StoreThenLoadNewOD)
+{
+   uint32_t value2000_01;
+   uint32_t value2000_02;
+   char str2001[16];
+   char expect_str2001[sizeof(str2001)] = {0};
+   const co_entry_t OD2000_1[] = {
+      {0x00, OD_RO, DTYPE_UNSIGNED8, 8, 0x02, NULL},
+      {0x01, OD_RW, DTYPE_UNSIGNED32, 32, 0, &value2000_01},
+      {0x02, OD_RW, DTYPE_UNSIGNED16, 16, 0, &value2000_02},
+   };
+   co_entry_t OD2001_1[] = {
+      {0, OD_RW, DTYPE_VISIBLE_STRING, 8 * sizeof (str2001), 0, str2001},
+   };
+   const co_obj_t OD1[] = {
+      {0x2000, OTYPE_RECORD, 2, OD2000_1, NULL},
+      {0x2001, OTYPE_VAR, 0, OD2001_1, NULL},
+      {0, OTYPE_NULL, 0, NULL, NULL},
+   };
+   const co_entry_t OD2000_2[12] = {
+      {0x00, OD_RO, DTYPE_UNSIGNED8, 8, 0x02, NULL},
+      {0x01, OD_RW, DTYPE_UNSIGNED16, 16, 0, &value2000_01}, // Grows
+      {0x02, OD_RW, DTYPE_UNSIGNED32, 32, 0, &value2000_02}, // Shrinks
+   };
+   co_entry_t OD2001_2[] = {
+      // Shrinks, should discard data
+      {0, OD_RW, DTYPE_VISIBLE_STRING, 8 * (sizeof (str2001) - 1), 0, str2001},
+   };
+   const co_obj_t OD2[] = {
+      {0x2000, OTYPE_RECORD, 2, OD2000_2, NULL},
+      {0x2001, OTYPE_VAR, 0, OD2001_2, NULL},
+      {0, OTYPE_NULL, 0, NULL, NULL},
+   };
+
+   net.od = OD1;
+   value2000_01 = 0xFFFFFFFF;
+   value2000_02 = 0xFFFF;
+   memset (str2001, 0xFF, sizeof(str2001));
+   co_od_store (&net, CO_STORE_APP, 0x2000, 0x2FFF);
+
+   value2000_01 = 0xAAAAAAAA;
+   value2000_02 = 0x55555555;
+   memset (str2001, 0xAA, sizeof(str2001));
+
+   net.od = OD2;
+   co_od_reset (&net, CO_STORE_APP, 0x2000, 0x2FFF);
+   EXPECT_EQ (0xAAAAFFFFu, value2000_01);
+   EXPECT_EQ (0x0000FFFFu, value2000_02);
+   EXPECT_EQ (0, memcmp (expect_str2001, str2001, sizeof(str2001) - 1));
+}
+
 TEST_F (OdTest, OD1010)
 {
    const co_obj_t * obj1010 = find_obj (0x1010);
