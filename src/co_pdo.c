@@ -619,7 +619,9 @@ void co_pdo_trigger_with_obj (co_net_t * net, uint16_t index, uint8_t subindex)
    for (ix = 0; ix < MAX_TX_PDO; ix++)
    {
       co_pdo_t * pdo = &net->pdo_tx[ix];
-
+      if (pdo->cobid & CO_COBID_INVALID)
+         continue;
+         
       for (n = 0; n < pdo->number_of_mappings; n++)
       {
          if (pdo->entries[n] == entry)
