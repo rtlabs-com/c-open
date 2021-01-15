@@ -156,12 +156,12 @@ typedef struct co_job
 } co_job_t;
 
 /** Client state */
-typedef struct co_client
+struct co_client
 {
    os_sem_t * sem;
    co_job_t job;
    co_net_t * net;
-} co_client_t;
+};
 
 /** Heartbeat consumer state */
 typedef struct co_heartbeat
