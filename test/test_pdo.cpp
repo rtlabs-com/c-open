@@ -728,6 +728,39 @@ TEST_F (PdoTest, TxAcyclic)
    EXPECT_EQ (0x181u, mock_os_channel_send_id);
 }
 
+TEST_F (PdoTest, TriggerWithObj)
+{
+   net.state = STATE_OP;
+
+   net.pdo_tx[0].transmission_type = 0xFF;
+   net.pdo_tx[0].inhibit_time      = 0;
+
+   // Should trigger PDO
+   mock_co_obj_find_result   = find_obj (0x6000);
+   mock_co_entry_find_result = find_entry (mock_co_obj_find_result, 0);
+   co_pdo_trigger_with_obj (&net, 0x6000, 0);
+   EXPECT_EQ (0x1u, mock_os_channel_send_calls);
+
+   // Should not trigger PDO, not mapped
+   mock_co_obj_find_result   = find_obj (0x6001);
+   mock_co_entry_find_result = find_entry (mock_co_obj_find_result, 0);
+   co_pdo_trigger_with_obj (&net, 0x6001, 0);
+   EXPECT_EQ (0x1u, mock_os_channel_send_calls);
+
+   // Should not trigger PDO, does not exist
+   mock_co_obj_find_result   = NULL;
+   mock_co_entry_find_result = NULL;
+   co_pdo_trigger_with_obj (&net, 0x6002, 0);
+   EXPECT_EQ (0x1u, mock_os_channel_send_calls);
+
+   // Should not trigger PDO, invalid cob-id
+   net.pdo_tx[0].cobid = CO_COBID_INVALID | 0x181;
+   mock_co_obj_find_result   = find_obj (0x6000);
+   mock_co_entry_find_result = find_entry (mock_co_obj_find_result, 0);
+   co_pdo_trigger_with_obj (&net, 0x6000, 0);
+   EXPECT_EQ (0x1u, mock_os_channel_send_calls);
+}
+
 TEST_F (PdoTest, SparsePdo)
 {
    const co_obj_t * obj1533 = find_obj (0x1533);

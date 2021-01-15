@@ -94,6 +94,7 @@ typedef enum co_job_type
    CO_JOB_PERIODIC,
    CO_JOB_RX,
    CO_JOB_PDO_EVENT,
+   CO_JOB_PDO_OBJ_EVENT,
    CO_JOB_SDO_READ,
    CO_JOB_SDO_WRITE,
    CO_JOB_SDO_UPLOAD,
@@ -131,6 +132,13 @@ typedef struct co_emcy_job
    uint8_t value;
 } co_emcy_job_t;
 
+/** Parameters for PDO job */
+typedef struct co_pdo_job
+{
+   uint16_t index;
+   uint8_t subindex;
+} co_pdo_job_t;
+
 /** Generic job */
 typedef struct co_job
 {
@@ -139,6 +147,7 @@ typedef struct co_job
    {
       co_sdo_job_t sdo;
       co_emcy_job_t emcy;
+      co_pdo_job_t pdo;
    };
    uint32_t timestamp;
    struct co_client * client;

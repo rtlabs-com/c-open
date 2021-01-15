@@ -128,6 +128,10 @@ class TestBase : public ::testing::Test
       {0, OD_NOTIFY | OD_RO | OD_TPDO, DTYPE_UNSIGNED32, 32, 0, &value6000},
    };
 
+   const co_entry_t OD6001[1] = {
+      {0, OD_NOTIFY | OD_RO | OD_TPDO, DTYPE_UNSIGNED32, 32, 1, NULL},
+   };
+
    uint16_t value6003_07;
    uint8_t value6003_08;
    uint32_t value6003_09;
@@ -159,7 +163,7 @@ class TestBase : public ::testing::Test
       {0, OD_RW | OD_RPDO, DTYPE_UNSIGNED32, 32, 0, &value7000},
    };
 
-   const co_obj_t test_od[36] = {
+   const co_obj_t test_od[37] = {
       // clang-format off
       {0x1000, OTYPE_VAR,    0,               OD1000, NULL},
       {0x1001, OTYPE_VAR,    0,               OD1001, co_od1001_fn},
@@ -194,6 +198,7 @@ class TestBase : public ::testing::Test
       {0x2000, OTYPE_ARRAY,  8,               OD2000, NULL},
       {0x2001, OTYPE_RECORD, 2,               OD2001, cb2001},
       {0x6000, OTYPE_VAR,    0,               OD6000, NULL},
+      {0x6001, OTYPE_VAR,    0,               OD6001, NULL},
       {0x6003, OTYPE_RECORD, 12,              OD6003, NULL},
       {0x7000, OTYPE_VAR,    0,               OD7000, NULL},
       {0, OTYPE_NULL, 0, NULL, NULL},

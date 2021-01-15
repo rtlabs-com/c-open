@@ -594,6 +594,52 @@ void co_pdo_trigger (co_net_t * net)
    }
 }
 
+void co_pdo_trigger_with_obj (co_net_t * net, uint16_t index, uint8_t subindex)
+{
+   unsigned int ix;
+   uint8_t n;
+   const co_obj_t * obj;
+   const co_entry_t * entry;
+
+   /* Find mapped object */
+   obj = co_obj_find (net, index);
+   if (obj == NULL)
+      return;
+
+   /* Find mapped entry */
+   entry = co_entry_find (net, obj, subindex);
+   if (entry == NULL)
+      return;
+
+   /* Check that object is mappable */
+   if ((entry->flags & OD_TPDO) == 0)
+      return;
+
+   /* Transmit event-driven TPDOs, queue acyclic TPDOs */
+   for (ix = 0; ix < MAX_TX_PDO; ix++)
+   {
+      co_pdo_t * pdo = &net->pdo_tx[ix];
+      if (pdo->cobid & CO_COBID_INVALID)
+         continue;
+         
+      for (n = 0; n < pdo->number_of_mappings; n++)
+      {
+         if (pdo->entries[n] == entry)
+         {
+            if (IS_EVENT (pdo->transmission_type))
+            {
+               co_pdo_transmit (net, pdo);
+            }
+            else if (IS_ACYCLIC (pdo->transmission_type))
+            {
+               pdo->queued = true;
+            }
+            break;
+         }
+      }
+   }
+}
+
 int co_pdo_sync (co_net_t * net, uint8_t * msg, size_t dlc)
 {
    unsigned int ix;
@@ -760,6 +806,9 @@ void co_pdo_job (co_net_t * net, co_job_t * job)
    {
    case CO_JOB_PDO_EVENT:
       co_pdo_trigger (net);
+      break;
+   case CO_JOB_PDO_OBJ_EVENT:
+      co_pdo_trigger_with_obj (net, job->pdo.index, job->pdo.subindex);
       break;
    default:
       CC_ASSERT (0);
