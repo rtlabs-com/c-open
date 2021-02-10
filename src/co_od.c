@@ -384,7 +384,7 @@ uint32_t co_od_load (co_net_t * net, co_store_t store)
       if (net->read (arg, &subindex, sizeof (subindex)) < 0)
          goto error;
 
-      if (net->read (arg, &size, sizeof (size)) < 0)
+      if (net->read (arg, &size, sizeof (size)) < 0 || size == 0)
          goto error;
 
       /* Attempt to set value. Errors are ignored to support firmware
@@ -392,11 +392,11 @@ uint32_t co_od_load (co_net_t * net, co_store_t store)
 
       obj = co_obj_find (net, index);
       if (obj == NULL)
-         continue;
+         goto skip;
 
       entry = co_entry_find (net, obj, subindex);
-      if (entry == NULL || !(entry->flags & OD_WRITE))
-         continue;
+      if (entry == NULL || !(entry->flags & OD_WRITE) || (entry->flags & OD_TRANSIENT))
+         goto skip; /* Not storable in this OD */
 
       if (size <= sizeof (value))
       {
@@ -418,16 +418,20 @@ uint32_t co_od_load (co_net_t * net, co_store_t store)
       else
       {
          /* Stored size does not match object size. Discard data. */
-         while (size > sizeof(value))
-         {
-            if (net->read (arg, &value, sizeof (value)) < 0)
-               goto error;
-            size -= sizeof(value);
-         }
-
-         if (net->read (arg, &value, size) < 0)
-            goto error;
+         goto skip;
       }
+
+      continue;
+   skip:
+      while (size > sizeof (value))
+      {
+         if (net->read (arg, &value, sizeof (value)) < 0)
+            goto error;
+         size -= sizeof (value);
+      }
+
+      if (net->read (arg, &value, size) < 0)
+         goto error;
    }
 
    /* Ignore any error on close */
