@@ -158,7 +158,7 @@ static struct fd
    uint8_t * p;
 } fd;
 
-static void * store_open (co_store_t store)
+static void * store_open (co_store_t store, co_mode_t mode)
 {
    if (store >= CO_STORE_LAST)
       return NULL;

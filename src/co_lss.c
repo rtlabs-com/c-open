@@ -266,7 +266,7 @@ static void co_lss_store_configuration (co_net_t * net, uint8_t * _msg)
       goto error1;
    }
 
-   arg = net->open (CO_STORE_LSS);
+   arg = net->open (CO_STORE_LSS, CO_MODE_WRITE);
    if (arg == NULL)
       goto error1;
 
@@ -489,7 +489,7 @@ uint8_t co_lss_get_persistent_node_id (co_net_t * net)
    if (net->open == NULL || net->read == NULL || net->close == NULL)
       goto error1;
 
-   arg = net->open (CO_STORE_LSS);
+   arg = net->open (CO_STORE_LSS, CO_MODE_READ);
    if (arg == NULL)
       goto error1;
 
@@ -521,7 +521,7 @@ int co_lss_get_persistent_bitrate (co_net_t * net)
    if (net->open == NULL || net->read == NULL || net->close == NULL)
       goto error1;
 
-   arg = net->open (CO_STORE_LSS);
+   arg = net->open (CO_STORE_LSS, CO_MODE_READ);
    if (arg == NULL)
       goto error1;
 

@@ -359,7 +359,7 @@ uint32_t co_od_load (co_net_t * net, co_store_t store)
    if (net->open == NULL || net->read == NULL || net->close == NULL)
       return CO_SDO_ABORT_GENERAL;
 
-   arg = net->open (store);
+   arg = net->open (store, CO_MODE_READ);
    if (arg == NULL)
       return CO_SDO_ABORT_GENERAL;
 
@@ -457,7 +457,7 @@ uint32_t co_od_store (co_net_t * net, co_store_t store, uint16_t min, uint16_t m
    if (net->open == NULL || net->write == NULL || net->close == NULL)
       return CO_SDO_ABORT_HW_ERROR;
 
-   arg = net->open (store);
+   arg = net->open (store, CO_MODE_WRITE);
    if (arg == NULL)
       return CO_SDO_ABORT_HW_ERROR;
 
@@ -555,7 +555,7 @@ uint32_t co_od_restore (co_net_t * net, co_store_t store)
    if (net->open == NULL || net->write == NULL || net->close == NULL)
       return CO_SDO_ABORT_HW_ERROR;
 
-   arg = net->open (store);
+   arg = net->open (store, CO_MODE_WRITE);
    if (arg == NULL)
       return CO_SDO_ABORT_HW_ERROR;
 

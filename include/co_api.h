@@ -278,6 +278,13 @@ typedef enum co_store
    CO_STORE_LAST,
 } co_store_t;
 
+/** Dictionary store open modes */
+typedef enum co_mode
+{
+   CO_MODE_READ,  /**< Open for reading */
+   CO_MODE_WRITE, /**< Open for writing */
+} co_mode_t;
+
 /** CANopen stack configuration */
 typedef struct co_cfg
 {
@@ -308,7 +315,7 @@ typedef struct co_cfg
    void (*cb_notify) (void * arg, uint16_t index, uint8_t subindex);
 
    /** Function to open dictionary store */
-   void * (*open) (co_store_t store);
+   void * (*open) (co_store_t store, co_mode_t mode);
 
    /** Function to read from dictionary store */
    int (*read) (void * arg, void * data, size_t size);
