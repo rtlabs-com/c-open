@@ -359,7 +359,7 @@ uint32_t co_od_load (co_net_t * net, co_store_t store)
    if (net->open == NULL || net->read == NULL || net->close == NULL)
       return CO_SDO_ABORT_GENERAL;
 
-   arg = net->open (store);
+   arg = net->open (store, CO_MODE_READ);
    if (arg == NULL)
       return CO_SDO_ABORT_GENERAL;
 
@@ -384,7 +384,7 @@ uint32_t co_od_load (co_net_t * net, co_store_t store)
       if (net->read (arg, &subindex, sizeof (subindex)) < 0)
          goto error;
 
-      if (net->read (arg, &size, sizeof (size)) < 0)
+      if (net->read (arg, &size, sizeof (size)) < 0 || size == 0)
          goto error;
 
       /* Attempt to set value. Errors are ignored to support firmware
@@ -392,11 +392,11 @@ uint32_t co_od_load (co_net_t * net, co_store_t store)
 
       obj = co_obj_find (net, index);
       if (obj == NULL)
-         continue;
+         goto skip;
 
       entry = co_entry_find (net, obj, subindex);
-      if (entry == NULL || !(entry->flags & OD_WRITE))
-         continue;
+      if (entry == NULL || !(entry->flags & OD_WRITE) || (entry->flags & OD_TRANSIENT))
+         goto skip; /* Not storable in this OD */
 
       if (size <= sizeof (value))
       {
@@ -418,16 +418,20 @@ uint32_t co_od_load (co_net_t * net, co_store_t store)
       else
       {
          /* Stored size does not match object size. Discard data. */
-         while (size > sizeof(value))
-         {
-            if (net->read (arg, &value, sizeof (value)) < 0)
-               goto error;
-            size -= sizeof(value);
-         }
-
-         if (net->read (arg, &value, size) < 0)
-            goto error;
+         goto skip;
       }
+
+      continue;
+   skip:
+      while (size > sizeof (value))
+      {
+         if (net->read (arg, &value, sizeof (value)) < 0)
+            goto error;
+         size -= sizeof (value);
+      }
+
+      if (net->read (arg, &value, size) < 0)
+         goto error;
    }
 
    /* Ignore any error on close */
@@ -457,7 +461,7 @@ uint32_t co_od_store (co_net_t * net, co_store_t store, uint16_t min, uint16_t m
    if (net->open == NULL || net->write == NULL || net->close == NULL)
       return CO_SDO_ABORT_HW_ERROR;
 
-   arg = net->open (store);
+   arg = net->open (store, CO_MODE_WRITE);
    if (arg == NULL)
       return CO_SDO_ABORT_HW_ERROR;
 
@@ -555,7 +559,7 @@ uint32_t co_od_restore (co_net_t * net, co_store_t store)
    if (net->open == NULL || net->write == NULL || net->close == NULL)
       return CO_SDO_ABORT_HW_ERROR;
 
-   arg = net->open (store);
+   arg = net->open (store, CO_MODE_WRITE);
    if (arg == NULL)
       return CO_SDO_ABORT_HW_ERROR;
 

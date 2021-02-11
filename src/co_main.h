@@ -278,7 +278,7 @@ struct co_net
    void (*cb_notify) (void * arg, uint16_t index, uint8_t subindex);
 
    /** Function to open dictionary store */
-   void * (*open) (co_store_t store);
+   void * (*open) (co_store_t store, co_mode_t mode);
 
    /** Function to read from dictionary store */
    int (*read) (void * arg, void * data, size_t size);

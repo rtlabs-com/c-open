@@ -108,7 +108,7 @@ void cb_notify (void * arg, uint16_t index, uint8_t subindex);
 
 void store_init (void);
 extern unsigned int store_open_calls;
-void * store_open (co_store_t store);
+void * store_open (co_store_t store, co_mode_t mode);
 int store_read (void * arg, void * data, size_t size);
 int store_write (void * arg, const void * data, size_t size);
 int store_close (void * arg);
