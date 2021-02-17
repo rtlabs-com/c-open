@@ -1,6 +1,6 @@
 c-open: CANopen stack
 =====================
-[![Build Status](https://travis-ci.org/rtlabs-com/c-open.svg?branch=master)](https://travis-ci.org/rtlabs-com/c-open)
+[![Build Status](https://github.com/rtlabs-com/c-open/workflows/build/badge.svg?branch=master)](https://github.com/rtlabs-com/c-open/actions?workflow=build)
 
 This repository contains a CANopen stack for both master and
 slaves. The stack implements most of CiA 301 and 305 (LSS). The stack
