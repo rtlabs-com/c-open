@@ -15,106 +15,107 @@ Tool.
 Also included is a simple master example that lists all slaves on the
 bus and a comprehensive set of unit-tests.
 
+Cloning
+=======
+
+Clone the source:
+
+```
+$ git clone --recurse-submodules https://github.com/rtlabs-com/c-open.git
+```
+
+This will clone the repository with submodules. If you already cloned
+the repository without the `--recurse-submodules` flag then run this
+in the c-open folder:
+
+```
+$ git submodule update --init --recursive
+```
+
 Prerequisites for all platforms
 ===============================
 
  * CMake 3.14 or later
 
-Out-of-tree builds are recommended. Create a build directory and run
-the following commands from that directory. In the following
-instructions, the root folder for the repo is assumed to be an
-absolute or relative path in an environment variable named *repo*.
-
-The cmake executable is assumed to be in your path. After running
-cmake you can run ccmake or cmake-gui to change settings.
-
 Windows
 =======
 
- * Visual Studio 2013 or later
+ * Visual Studio 2017 or later
  * Kvaser CANlib SDK
 
+You can use a windows or unix shell as preferred. The following
+instructions are for a unix shell. CMake is assumed to be in your
+path.
+
 The windows build supports Kvaser devices and requires the Kvaser
-CANlib SDK. The CMake variable CANLIB_ROOT_DIR should be set to the
-folder where the CANlib SDK was installed.
-
-Start a Visual Studio developer command prompt, then:
+CANlib SDK. CMake should find the SDK but if not a hint can be given
+by setting `-DCANLIB_ROOT_DIR="C:\Program Files (x86)\Kvaser\Canlib"`
+or similar during configuration.
 
 ```
-C:\build> cmake %repo% -DCANLIB_ROOT_DIR="C:\Program Files (x86)\Kvaser\Canlib"
-C:\build> msbuild ALL_BUILD.vcxproj
-C:\build> msbuild RUN_TESTS.vcxproj
+$ cmake -B build.win32 -A Win32
+$ cmake --build build.win32 --config Release
+$ cmake --build build.win32 --config Release --target check
 ```
 
-This builds the stack and runs the unit tests.
+This builds the project and runs the unit tests.
 
 Linux
 =====
 
  * GCC 4.6 or later
 
-```console
-user@host:~/build$ cmake $repo
-user@host:~/build$ make all check
+```
+$ cmake -B build
+$ cmake --build build --target all check
 ```
 
-This builds the stack and runs the unit tests.
-
-The clang static analyzer can also be used if installed. From a clean
-build directory, run:
-
-```console
-user@host:~/build$ scan-build cmake $repo -DCMAKE_BUILD_TYPE=Debug
-user@host:~/build$ scan-build make
-```
+This builds the project and runs the unit tests.
 
 rt-kernel
 =========
 
  * Workbench 2020.1 or later
 
-Set the following environment variables. You should use a bash shell,
-such as for instance the Command Line in your Toolbox
-installation. Set the BSP variable to the name of the BSP you wish to
-build for. Set the RTK variable to the path of your rt-kernel tree.
-
-
-```console
-user@host:~/build$ export RTK=/path/to/rt-kernel
-user@host:~/build$ export BSP=<bsp>
-```
+You should use a bash shell, such as for instance the Command Line in
+your Toolbox installation. Set the BSP variable to the name of the BSP
+you wish to build for. Set the RTK variable to the path of your
+rt-kernel tree.
 
 Standalone project
 ------------------
 
 This creates standalone makefiles.
 
-```console
-user@host:~/build$ cmake $repo \
-    -DCMAKE_TOOLCHAIN_FILE=$repo/cmake/tools/toolchain/rt-kernel.cmake \
-    -G "Unix Makefiles"
-user@host:~/build$ make all
+```
+$ RTK=/path/to/rt-kernel BSP=xmc48relax cmake \
+   -B build.xmc48relax \
+   -DCMAKE_TOOLCHAIN_FILE=cmake/tools/toolchain/rt-kernel.cmake \
+   -G "Unix Makefiles"
+$ cmake --build build.xmc48relax
 ```
 
 Workbench project
 -----------------
 
 This creates a Makefile project that can be imported to Workbench. The
-project will be created in the build directory.
+project will be created in the build directory. The build directory
+should be located outside of the source tree.
 
-```console
-user@host:~/build$ cmake $repo \
-    -DCMAKE_TOOLCHAIN_FILE=$repo/cmake/tools/toolchain/rt-kernel.cmake \
-    -DCMAKE_ECLIPSE_EXECUTABLE=/opt/rt-tools/workbench/Workbench \
-    -DCMAKE_ECLIPSE_GENERATE_SOURCE_PROJECT=TRUE \
-    -G "Eclipse CDT4 - Unix Makefiles"
+```
+$ RTK=/path/to/rt-kernel BSP=xmc48relax cmake \
+   -B build.xmc48relax -S /path/to/c-open \
+   -DCMAKE_TOOLCHAIN_FILE=cmake/tools/toolchain/rt-kernel.cmake \
+   -DCMAKE_ECLIPSE_EXECUTABLE=/opt/rt-tools/workbench/Workbench \
+   -DCMAKE_ECLIPSE_GENERATE_SOURCE_PROJECT=TRUE \
+   -G "Eclipse CDT4 - Unix Makefiles"
 ```
 
-A source project will also be created in the $repo folder. This
-project can also be imported to Workbench. After importing,
-right-click on the project and choose *New* -> *Convert to a C/C++
-project*. This will setup the project so that the indexer works
-correctly and the Workbench revision control tools can be used.
+A source project will also be created in the c-open tree. This project
+can also be imported to Workbench. After importing, right-click on the
+project and choose *New* -> *Convert to a C/C++ project*. This will
+setup the project so that the indexer works correctly and the
+Workbench revision control tools can be used.
 
 The library and the unit tests will be built. Note that the tests
 require a stack of at least 6 kB. You may have to increase
