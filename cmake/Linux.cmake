@@ -42,9 +42,6 @@ target_compile_options(canopen
   )
 
 target_link_libraries(canopen
-  PUBLIC
-  pthread
-  rt
   INTERFACE
   $<$<CONFIG:Coverage>:--coverage>
   )
