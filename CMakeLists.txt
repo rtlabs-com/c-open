@@ -18,24 +18,39 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/tools")
 project (CANOPEN VERSION 0.1.0)
 
+# Default settings if this is the main project
+if (CMAKE_PROJECT_NAME STREQUAL CANOPEN)
+  include(CTest)
+
+  # Make option visible in ccmake, cmake-gui
+  option (BUILD_SHARED_LIBS "Build shared library" OFF)
+
+  # Default to release build with debug info
+  if (NOT CMAKE_BUILD_TYPE)
+    set (CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
+      "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
+      FORCE)
+  endif (NOT CMAKE_BUILD_TYPE)
+
+  # Default to installing in build directory
+  if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    set(CMAKE_INSTALL_PREFIX ${CANOPEN_BINARY_DIR}/install
+      CACHE PATH "Default install path" FORCE)
+  endif()
+
+  message(STATUS "Current build type is: ${CMAKE_BUILD_TYPE}")
+  message(STATUS "Current install path is: ${CMAKE_INSTALL_PREFIX}")
+  message(STATUS "Building for ${CMAKE_SYSTEM_NAME}")
+endif()
+
 include(AddOsal)
 include(GenerateExportHeader)
 include(CMakeDependentOption)
-
-if (CMAKE_PROJECT_NAME STREQUAL CANOPEN)
-  include(CTest)
-endif()
-
-# Set required standard level
-set (CMAKE_C_STANDARD 99)
-set (CMAKE_CXX_STANDARD 11)
+include(GetGitRevision)
 
 # Always use standard .o suffix
 set(CMAKE_C_OUTPUT_EXTENSION_REPLACE 1)
 set(CMAKE_CXX_OUTPUT_EXTENSION_REPLACE 1)
-
-# Options
-option (BUILD_SHARED_LIBS "Build shared library" OFF)
 
 set(LOG_STATE_VALUES "ON;OFF")
 set(LOG_LEVEL_VALUES "DEBUG;INFO;WARNING;ERROR")
@@ -100,21 +115,6 @@ set(CO_THREAD_PRIO "10"
 set(CO_THREAD_STACK_SIZE "4096"
   CACHE STRING "stack size of main thread")
 
-# Default to release build with debug info
-if (NOT CMAKE_BUILD_TYPE)
-  set (CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
-    "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
-    FORCE)
-endif (NOT CMAKE_BUILD_TYPE)
-message (STATUS "Current build type is: ${CMAKE_BUILD_TYPE}")
-
-# Default to installing in build directory
-if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-  set(CMAKE_INSTALL_PREFIX ${CANOPEN_BINARY_DIR}/install
-    CACHE PATH "Default install path" FORCE)
-endif()
-message(STATUS "Current install path is: ${CMAKE_INSTALL_PREFIX}")
-
 # Generate version numbers
 configure_file (
   version.h.in
@@ -142,13 +142,19 @@ if (CMAKE_PROJECT_NAME STREQUAL CANOPEN AND BUILD_TESTING)
 endif()
 
 # Platform configuration
-include(${CMAKE_SYSTEM_NAME})
-message (STATUS "Building for ${CMAKE_SYSTEM_NAME}")
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/${CMAKE_SYSTEM_NAME}.cmake)
 
 generate_export_header(canopen
   BASE_NAME co
   EXPORT_FILE_NAME ${CANOPEN_BINARY_DIR}/include/co_export.h
   )
+
+set_target_properties (canopen slave slaveinfo
+  PROPERTIES
+  C_STANDARD 99
+  )
+
+target_compile_features(canopen PUBLIC c_std_99)
 
 target_include_directories(canopen
   PUBLIC

@@ -13,6 +13,12 @@
 # full license information.
 #*******************************************************************/
 
+set_target_properties (co_test
+  PROPERTIES
+  C_STANDARD 99
+  CXX_STANDARD 11
+  )
+
 target_sources(co_test PRIVATE
   # Unit tests
   #test_main.cpp
