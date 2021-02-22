@@ -1,7 +1,8 @@
 c-open: CANopen stack
 =====================
-[![Build Status](https://github.com/rtlabs-com/c-open/workflows/build/badge.svg?branch=master)](https://github.com/rtlabs-com/c-open/actions?workflow=build)
-
+[![Build Status](https://github.com/rtlabs-com/c-open/workflows/Build/badge.svg?branch=master)](https://github.com/rtlabs-com/c-open/actions?workflow=Build)
+[![CodeQL](https://github.com/rtlabs-com/c-open/workflows/CodeQL/badge.svg?branch=master)](https://github.com/rtlabs-com/c-open/actions?workflow=CodeQL)
+ 
 This repository contains a CANopen stack for both master and
 slaves. The stack implements most of CiA 301 and 305 (LSS). The stack
 is written to an OS abstraction layer and can also be used in a bare
