@@ -333,13 +333,19 @@ void co_pdo_mapping_init (co_net_t * net)
    for (ix = 0; ix < MAX_RX_PDO; ix++)
    {
       co_pdo_t * pdo = &net->pdo_rx[ix];
-      co_pdo_mapping_validate (pdo, pdo->number_of_mappings);
+      if ((pdo->cobid & CO_COBID_INVALID) == 0)
+      {
+         co_pdo_mapping_validate (pdo, pdo->number_of_mappings);
+      }
    }
 
    for (ix = 0; ix < MAX_TX_PDO; ix++)
    {
       co_pdo_t * pdo = &net->pdo_tx[ix];
-      co_pdo_mapping_validate (pdo, pdo->number_of_mappings);
+      if ((pdo->cobid & CO_COBID_INVALID) == 0)
+      {
+         co_pdo_mapping_validate (pdo, pdo->number_of_mappings);
+      }
    }
 }
 
