@@ -193,7 +193,7 @@ void co_nmt (co_client_t * client, co_nmt_cmd_t cmd, uint8_t node)
       co_nmt_rx (net, 0, data, sizeof (data));
    }
 
-   os_channel_send (net->channel, CO_FUNCTION_NMT + node, data, sizeof (data));
+   os_channel_send (net->channel, CO_FUNCTION_NMT, data, sizeof (data));
 }
 
 /* TODO: issue sync job? */
