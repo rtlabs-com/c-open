@@ -200,6 +200,8 @@ void co_nmt (co_client_t * client, co_nmt_cmd_t cmd, uint8_t node)
 void co_sync (co_client_t * client)
 {
    co_net_t * net = client->net;
+
+   co_pdo_sync (net, NULL, 0);
    os_channel_send (net->channel, CO_FUNCTION_SYNC, NULL, 0);
 }
 

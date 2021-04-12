@@ -18,6 +18,7 @@
 #endif
 
 #include "co_sync.h"
+#include "co_pdo.h"
 #include "co_sdo.h"
 #include "co_util.h"
 
@@ -160,6 +161,7 @@ int co_sync_timer (co_net_t * net, uint32_t now)
                sync->cobid & CO_EXTID_MASK,
                msg,
                sizeof (msg));
+            co_pdo_sync (net, msg, sizeof (msg));
 
             if (sync->counter++ == sync->overflow)
                sync->counter = 1;
@@ -167,6 +169,7 @@ int co_sync_timer (co_net_t * net, uint32_t now)
          else
          {
             os_channel_send (net->channel, sync->cobid & CO_EXTID_MASK, NULL, 0);
+            co_pdo_sync (net, NULL, 0);
          }
 
          /* Call user callback */
