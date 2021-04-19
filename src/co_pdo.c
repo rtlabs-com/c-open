@@ -581,6 +581,9 @@ void co_pdo_trigger (co_net_t * net)
 {
    unsigned int ix;
 
+   if (net->state != STATE_OP)
+      return;
+
    /* Transmit event-driven TPDOs, queue acyclic TPDOs */
    for (ix = 0; ix < MAX_TX_PDO; ix++)
    {
@@ -606,6 +609,9 @@ void co_pdo_trigger_with_obj (co_net_t * net, uint16_t index, uint8_t subindex)
    uint8_t n;
    const co_obj_t * obj;
    const co_entry_t * entry;
+
+   if (net->state != STATE_OP)
+      return;
 
    /* Find mapped object */
    obj = co_obj_find (net, index);
