@@ -730,10 +730,18 @@ TEST_F (PdoTest, TxAcyclic)
 
 TEST_F (PdoTest, TriggerWithObj)
 {
-   net.state = STATE_OP;
+   net.state = STATE_PREOP;
 
    net.pdo_tx[0].transmission_type = 0xFF;
    net.pdo_tx[0].inhibit_time      = 0;
+
+   // Should not trigger PDO, bad state
+   mock_co_obj_find_result   = find_obj (0x6000);
+   mock_co_entry_find_result = find_entry (mock_co_obj_find_result, 0);
+   co_pdo_trigger_with_obj (&net, 0x6000, 0);
+   EXPECT_EQ (0x0u, mock_os_channel_send_calls);
+
+   net.state = STATE_OP;
 
    // Should trigger PDO
    mock_co_obj_find_result   = find_obj (0x6000);
