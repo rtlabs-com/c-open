@@ -271,6 +271,14 @@ uint32_t co_od_set_value (
    uint8_t subindex,
    uint64_t value);
 
+/**
+ * Perform local OD job
+ *
+ * @param net           network handle
+ * @param job           emcy job
+ */
+void co_od_job (co_net_t * net, co_job_t * job);
+
 #ifdef __cplusplus
 }
 #endif
