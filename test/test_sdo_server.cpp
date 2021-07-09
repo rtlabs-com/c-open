@@ -160,10 +160,13 @@ TEST_F (SdoServerTest, SegmentedDownloadCached)
 TEST_F (SdoServerTest, SegmentedTimeout)
 {
    uint8_t expected[][8] = {
-      {0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x05},
+      {0x41, 0x08, 0x10, 0x00, 0x09, 0x00, 0x00, 0x00},
+      {0x00, 0x6e, 0x65, 0x77, 0x20, 0x73, 0x6c, 0x61},
+      {0x80, 0x08, 0x10, 0x00, 0x00, 0x00, 0x04, 0x05},
    };
    uint8_t command[][8] = {
       {0x40, 0x08, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00},
+      {0x60, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
    };
    uint32_t now;
 
@@ -172,10 +175,23 @@ TEST_F (SdoServerTest, SegmentedTimeout)
 
    co_sdo_rx (&net, 1, command[0], 8);
 
-   // Should abort with timeout
-   now = 1000 * SDO_TIMEOUT;
+   // Should not time out
+   now = 1000 * SDO_TIMEOUT - 1;
    co_sdo_server_timer (&net, now);
    EXPECT_TRUE (CanMatch (0x581, expected[0], 8));
+
+   mock_os_get_current_time_us_result = now;
+   co_sdo_rx (&net, 1, command[1], 8);
+
+   // Should not time out
+   now += 1000 * SDO_TIMEOUT - 1;
+   co_sdo_server_timer (&net, now);
+   EXPECT_TRUE (CanMatch (0x581, expected[1], 8));
+
+   // Should abort with timeout
+   now += 1;
+   co_sdo_server_timer (&net, now);
+   EXPECT_TRUE (CanMatch (0x581, expected[2], 8));
 }
 
 TEST_F (SdoServerTest, BadSubIndex)
