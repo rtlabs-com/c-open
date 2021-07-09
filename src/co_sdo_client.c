@@ -325,7 +325,12 @@ int co_sdo_client_timer (co_net_t * net, uint32_t now)
    {
       if (co_is_expired (now, job->timestamp, 1000 * SDO_TIMEOUT))
       {
-         co_sdo_abort (net, 0x580 + net->node, 0, 0, CO_SDO_ABORT_TIMEOUT);
+         co_sdo_abort (
+            net,
+            0x580 + net->node,
+            job->sdo.index,
+            job->sdo.subindex,
+            CO_SDO_ABORT_TIMEOUT);
 
          job->result = CO_STATUS_ERROR;
          co_sdo_done (net);

@@ -14,6 +14,7 @@
  ********************************************************************/
 
 #ifdef UNIT_TEST
+#define os_get_current_time_us mock_os_get_current_time_us
 #define os_channel_send    mock_os_channel_send
 #define os_channel_receive mock_os_channel_receive
 #define co_obj_find        mock_co_obj_find
@@ -280,6 +281,7 @@ static int co_sdo_rx_upload_seg_req (
 
       job->sdo.data += size;
       job->sdo.remain -= size;
+      job->timestamp = os_get_current_time_us();
    }
 
    os_channel_send (net->channel, 0x580 + net->node, msg, sizeof (msg));
@@ -456,6 +458,7 @@ static int co_sdo_rx_download_seg_req (
 
    job->sdo.data += size;
    job->sdo.remain -= size;
+   job->timestamp = os_get_current_time_us();
 
    if (data[0] & CO_SDO_C)
    {
@@ -577,7 +580,12 @@ int co_sdo_server_timer (co_net_t * net, uint32_t now)
    {
       if (co_is_expired (now, job->timestamp, 1000 * SDO_TIMEOUT))
       {
-         co_sdo_abort (net, 0x580 + net->node, 0, 0, CO_SDO_ABORT_TIMEOUT);
+         co_sdo_abort (
+            net,
+            0x580 + net->node,
+            job->sdo.index,
+            job->sdo.subindex,
+            CO_SDO_ABORT_TIMEOUT);
       }
    }
 
