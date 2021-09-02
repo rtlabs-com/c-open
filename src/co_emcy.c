@@ -257,6 +257,10 @@ int co_emcy_tx (co_net_t * net, uint16_t code, uint16_t info, uint8_t msef[5])
       net->cb_emcy (net->cb_arg, net->node, code, reg, msef);
    }
 
+   if (code != 0x8140 && code != 0x8130) {
+      return 0;
+   }
+
    /* Transition state according to error behavior setting */
    switch (net->error_behavior)
    {
