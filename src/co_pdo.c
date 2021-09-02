@@ -825,6 +825,10 @@ void co_pdo_job (co_net_t * net, co_job_t * job)
    default:
       CC_ASSERT (0);
    }
+
+   job->result = 0;
+   if (job->callback)
+      job->callback (job);
 }
 
 int co_pdo_init (co_net_t * net)
