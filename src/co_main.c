@@ -223,8 +223,11 @@ int co_pdo_event (co_client_t * client)
    job->client   = client;
    job->callback = NULL;
    job->type     = CO_JOB_PDO_EVENT;
+   job->callback = co_job_callback;
 
    os_mbox_post (net->mbox, job, OS_WAIT_FOREVER);
+   os_sem_wait (client->sem, OS_WAIT_FOREVER);
+
    return 0;
 }
 
@@ -238,8 +241,11 @@ int co_pdo_obj_event (co_client_t * client, uint16_t index, uint8_t subindex)
    job->type         = CO_JOB_PDO_OBJ_EVENT;
    job->pdo.index    = index;
    job->pdo.subindex = subindex;
+   job->callback     = co_job_callback;
 
    os_mbox_post (net->mbox, job, OS_WAIT_FOREVER);
+   os_sem_wait (client->sem, OS_WAIT_FOREVER);
+
    return 0;
 }
 
