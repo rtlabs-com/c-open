@@ -26,6 +26,7 @@ class EmcyTest : public TestBase
    {
       TestBase::SetUp();
       net.emcy.cobid = 0x81;
+      cb_emcy_result = false;
    }
 
    uint8_t msef[5] = {5, 4, 3, 2, 1};
@@ -283,8 +284,15 @@ TEST_F (EmcyTest, NMTErrorBehavior)
    EXPECT_EQ (STATE_STOP, net.state);
 
    net.state = STATE_OP;
+   cb_emcy_result = false;
    co_emcy_tx (&net, 1, 0x1234, msef);
    EXPECT_EQ (STATE_OP, net.state);
+
+   net.state = STATE_OP;
+   cb_emcy_result = true;
+   co_emcy_tx (&net, 1, 0x1234, msef);
+   EXPECT_EQ (STATE_STOP, net.state);
+
 }
 
 TEST_F (EmcyTest, EmcyOverrun)

@@ -96,7 +96,8 @@ extern uint8_t cb_emcy_node;
 extern uint16_t cb_emcy_code;
 extern uint8_t cb_emcy_reg;
 extern uint8_t cb_emcy_msef[5];
-void cb_emcy (void * arg, uint8_t node, uint16_t code, uint8_t reg, uint8_t msef[5]);
+extern bool cb_emcy_result;
+bool cb_emcy (void * arg, uint8_t node, uint16_t code, uint8_t reg, uint8_t msef[5]);
 
 extern unsigned int cb_sync_calls;
 void cb_sync (void * arg);
