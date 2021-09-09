@@ -383,6 +383,18 @@ CO_EXPORT co_client_t * co_client_init (co_net_t * net);
 CO_EXPORT uint8_t co_node_next (co_client_t * client, uint8_t node);
 
 /**
+ * Get active node ID.
+ *
+ * This function returns this node's active node ID, i.e. the
+ * default ID set to co_init(), unless overridden via LSS.
+ *
+ * @param net           network handle
+ *
+ * @return the active node id
+ */
+CO_EXPORT uint8_t co_node_id_get (co_net_t * net);
+
+/**
  * Get callback argument.
  *
  * This function returns the callback opaque argument specified to
