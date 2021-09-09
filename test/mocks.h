@@ -86,10 +86,10 @@ extern uint16_t mock_co_emcy_tx_code;
 void mock_co_emcy_tx (co_net_t * net, uint16_t code);
 
 extern unsigned int cb_reset_calls;
-void cb_reset (void * arg);
+void cb_reset (co_net_t * net);
 
 extern unsigned int cb_nmt_calls;
-void cb_nmt (void * arg, co_state_t state);
+void cb_nmt (co_net_t * net, co_state_t state);
 
 extern unsigned int cb_emcy_calls;
 extern uint8_t cb_emcy_node;
@@ -97,15 +97,15 @@ extern uint16_t cb_emcy_code;
 extern uint8_t cb_emcy_reg;
 extern uint8_t cb_emcy_msef[5];
 extern bool cb_emcy_result;
-bool cb_emcy (void * arg, uint8_t node, uint16_t code, uint8_t reg, uint8_t msef[5]);
+bool cb_emcy (co_net_t * net, uint8_t node, uint16_t code, uint8_t reg, uint8_t msef[5]);
 
 extern unsigned int cb_sync_calls;
-void cb_sync (void * arg);
+void cb_sync (co_net_t * net);
 
 extern unsigned int cb_notify_calls;
 extern uint16_t cb_notify_index;
 extern uint16_t cb_notify_subindex;
-void cb_notify (void * arg, uint16_t index, uint8_t subindex);
+void cb_notify (co_net_t * net, uint16_t index, uint8_t subindex);
 
 void store_init (void);
 extern unsigned int store_open_calls;

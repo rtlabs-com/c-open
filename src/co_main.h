@@ -258,24 +258,24 @@ struct co_net
    uint32_t mbox_overrun; /**< Mailbox overruns (for debugging) */
 
    /** Reset callback */
-   void (*cb_reset) (void * arg);
+   void (*cb_reset) (co_net_t * net);
 
    /** NMT callback */
-   void (*cb_nmt) (void * arg, co_state_t state);
+   void (*cb_nmt) (co_net_t * net, co_state_t state);
 
    /** SYNC callback */
-   void (*cb_sync) (void * arg);
+   void (*cb_sync) (co_net_t * net);
 
    /** EMCY callback */
    bool (*cb_emcy) (
-      void * arg,
+      co_net_t * net,
       uint8_t node,
       uint16_t code,
       uint8_t reg,
       uint8_t msef[5]);
 
    /** Notify callback */
-   void (*cb_notify) (void * arg, uint16_t index, uint8_t subindex);
+   void (*cb_notify) (co_net_t * net, uint16_t index, uint8_t subindex);
 
    /** Function to open dictionary store */
    void * (*open) (co_store_t store, co_mode_t mode);

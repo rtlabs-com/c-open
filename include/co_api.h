@@ -296,24 +296,24 @@ typedef struct co_cfg
    void * cb_arg;                 /**< Callback opaque argument */
 
    /** Reset callback */
-   void (*cb_reset) (void * arg);
+   void (*cb_reset) (co_net_t * net);
 
    /** NMT callback */
-   void (*cb_nmt) (void * arg, co_state_t state);
+   void (*cb_nmt) (co_net_t * net, co_state_t state);
 
    /** SYNC callback */
-   void (*cb_sync) (void * arg);
+   void (*cb_sync) (co_net_t * net);
 
    /** EMCY callback, return true to enable error behavior */
    bool (*cb_emcy) (
-      void * arg,
+      co_net_t * net,
       uint8_t node,
       uint16_t code,
       uint8_t reg,
       uint8_t msef[5]);
 
    /** Notify callback */
-   void (*cb_notify) (void * arg, uint16_t index, uint8_t subindex);
+   void (*cb_notify) (co_net_t * net, uint16_t index, uint8_t subindex);
 
    /** Function to open dictionary store */
    void * (*open) (co_store_t store, co_mode_t mode);
@@ -381,6 +381,19 @@ CO_EXPORT co_client_t * co_client_init (co_net_t * net);
  * @return next active node
  */
 CO_EXPORT uint8_t co_node_next (co_client_t * client, uint8_t node);
+
+/**
+ * Get callback argument.
+ *
+ * This function returns the callback opaque argument specified to
+ * co_init(), for example to reach application specific context from
+ * object access functions and other callbacks.
+ *
+ * @param net           network handle
+ *
+ * @return the opaque callback argument
+ */
+CO_EXPORT void * co_cb_arg_get (co_net_t * net);
 
 /**
  * Send NMT command.

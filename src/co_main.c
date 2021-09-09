@@ -215,6 +215,11 @@ uint8_t co_node_next (co_client_t * client, uint8_t node)
    return co_bitmap_next (net->nodes, node);
 }
 
+void * co_cb_arg_get (co_net_t * net)
+{
+   return net->cb_arg;
+}
+
 int co_pdo_event (co_client_t * client)
 {
    co_net_t * net = client->net;
