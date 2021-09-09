@@ -267,7 +267,7 @@ struct co_net
    void (*cb_sync) (void * arg);
 
    /** EMCY callback */
-   void (*cb_emcy) (
+   bool (*cb_emcy) (
       void * arg,
       uint8_t node,
       uint16_t code,

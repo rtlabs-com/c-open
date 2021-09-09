@@ -149,7 +149,8 @@ uint8_t cb_emcy_node;
 uint16_t cb_emcy_code;
 uint8_t cb_emcy_reg;
 uint8_t cb_emcy_msef[5];
-void cb_emcy (void * arg, uint8_t node, uint16_t code, uint8_t reg, uint8_t msef[5])
+bool cb_emcy_result;
+bool cb_emcy (void * arg, uint8_t node, uint16_t code, uint8_t reg, uint8_t msef[5])
 {
    cb_emcy_calls++;
    cb_emcy_node = node;
@@ -157,6 +158,7 @@ void cb_emcy (void * arg, uint8_t node, uint16_t code, uint8_t reg, uint8_t msef
    cb_emcy_reg  = reg;
    if (msef != NULL)
       memcpy (cb_emcy_msef, msef, sizeof (cb_emcy_msef));
+   return cb_emcy_result;
 }
 
 unsigned int cb_sync_calls;

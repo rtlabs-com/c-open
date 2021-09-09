@@ -26,6 +26,7 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include <stdbool.h>
 #include <stddef.h>
 
 #include "co_export.h"
@@ -303,8 +304,8 @@ typedef struct co_cfg
    /** SYNC callback */
    void (*cb_sync) (void * arg);
 
-   /** EMCY callback */
-   void (*cb_emcy) (
+   /** EMCY callback, return true to enable error behavior */
+   bool (*cb_emcy) (
       void * arg,
       uint8_t node,
       uint16_t code,
@@ -480,7 +481,7 @@ CO_EXPORT int co_sdo_write (
  * Calling this function adds an error to the error history object
  * (1003h). It also signals an error to the NMT state-machine which
  * may change state according to the setting of the error behavior
- * object (1029h).
+ * object (1029h) and the return value of the EMCY callback.
  *
  * The application will be notified via the EMCY callback. The node id
  * will be the active node id for this node.

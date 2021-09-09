@@ -60,6 +60,24 @@ static uint32_t co_emcy_error_set (co_net_t * net, uint8_t subindex, uint32_t * 
    return 0;
 }
 
+static void co_trigger_error_behavior (co_net_t * net)
+{
+   /* Transition state according to error behavior setting */
+   switch (net->error_behavior)
+   {
+   case 0:
+      if (net->state == STATE_OP)
+         co_nmt_event (net, EVENT_PREOP);
+      break;
+   case 2:
+      co_nmt_event (net, EVENT_STOP);
+      break;
+   default:
+      /* Do nothing */
+      break;
+   }
+}
+
 uint32_t co_od1001_fn (
    co_net_t * net,
    od_event_t event,
@@ -214,6 +232,7 @@ int co_emcy_tx (co_net_t * net, uint16_t code, uint16_t info, uint8_t msef[5])
    uint8_t * p    = msg;
    uint8_t reg;
    uint32_t now;
+   bool error_behavior = false;
 
    if (net->number_of_errors < MAX_ERRORS)
       net->number_of_errors++;
@@ -254,26 +273,13 @@ int co_emcy_tx (co_net_t * net, uint16_t code, uint16_t info, uint8_t msef[5])
    /* Call user callback */
    if (net->cb_emcy)
    {
-      net->cb_emcy (net->cb_arg, net->node, code, reg, msef);
+      error_behavior = net->cb_emcy (net->cb_arg, net->node, code, reg, msef);
    }
 
-   if (code != 0x8140 && code != 0x8130) {
-      return 0;
-   }
-
-   /* Transition state according to error behavior setting */
-   switch (net->error_behavior)
-   {
-   case 0:
-      if (net->state == STATE_OP)
-         co_nmt_event (net, EVENT_PREOP);
-      break;
-   case 2:
-      co_nmt_event (net, EVENT_STOP);
-      break;
-   default:
-      /* Do nothing */
-      break;
+   /* Always trigger error behavior on the mandatory events,
+    * otherwise, follow the callback return value. */
+   if (code == 0x8130 || code == 0x8140 || error_behavior) {
+      co_trigger_error_behavior (net);
    }
 
    return 0;
