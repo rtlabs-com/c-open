@@ -278,8 +278,9 @@ int co_emcy_tx (co_net_t * net, uint16_t code, uint16_t info, uint8_t msef[5])
    }
 
    /* Always trigger error behavior on the mandatory events,
-    * otherwise, follow the callback return value. */
-   if (code == 0x8130 || code == 0x8140 || error_behavior) {
+    * otherwise, follow the callback return value. The bus-off
+    * event was handled when it happened. */
+   if (code == 0x8130 || error_behavior) {
       co_trigger_error_behavior (net);
    }
 
@@ -357,6 +358,8 @@ void co_emcy_handle_can_state (co_net_t * net)
          net->cb_emcy (net, net->node, 0x8140,
                        co_emcy_error_register_get(net), NULL);
       }
+
+      co_trigger_error_behavior (net);
    }
 
    if (!net->emcy.state.bus_off && previous.bus_off)
