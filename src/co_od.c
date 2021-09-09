@@ -45,7 +45,7 @@ static void co_od_notify (
    if (entry->flags & OD_NOTIFY)
    {
       if (net->cb_notify)
-         net->cb_notify (net->cb_arg, obj->index, subindex);
+         net->cb_notify (net, obj->index, subindex);
    }
 }
 

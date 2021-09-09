@@ -175,7 +175,7 @@ int co_sync_timer (co_net_t * net, uint32_t now)
          /* Call user callback */
          if (net->cb_sync)
          {
-            net->cb_sync (net->cb_arg);
+            net->cb_sync (net);
          }
       }
    }

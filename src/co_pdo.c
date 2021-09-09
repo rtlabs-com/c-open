@@ -726,7 +726,7 @@ int co_pdo_sync (co_net_t * net, uint8_t * msg, size_t dlc)
    /* Call user callback */
    if (net->cb_sync)
    {
-      net->cb_sync (net->cb_arg);
+      net->cb_sync (net);
    }
 
    return 0;

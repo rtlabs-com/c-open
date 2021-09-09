@@ -274,7 +274,7 @@ int co_emcy_tx (co_net_t * net, uint16_t code, uint16_t info, uint8_t msef[5])
     * called at the actual bus-off event. */
    if (net->cb_emcy && code != 0x8140)
    {
-      error_behavior = net->cb_emcy (net->cb_arg, net->node, code, reg, msef);
+      error_behavior = net->cb_emcy (net, net->node, code, reg, msef);
    }
 
    /* Always trigger error behavior on the mandatory events,
@@ -313,7 +313,7 @@ int co_emcy_rx (co_net_t * net, uint32_t id, uint8_t * msg, size_t dlc)
       /* Call user callback */
       if (net->cb_emcy)
       {
-         net->cb_emcy (net->cb_arg, CO_NODE_GET (id), code, reg, msef);
+         net->cb_emcy (net, CO_NODE_GET (id), code, reg, msef);
       }
    }
 
@@ -354,7 +354,7 @@ void co_emcy_handle_can_state (co_net_t * net)
       /* Call user callback directly, cannot call co_emcy_tx() now */
       if (net->cb_emcy)
       {
-         net->cb_emcy (net->cb_arg, net->node, 0x8140,
+         net->cb_emcy (net, net->node, 0x8140,
                        co_emcy_error_register_get(net), NULL);
       }
    }

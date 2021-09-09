@@ -49,7 +49,7 @@ static co_fsm_event_t co_nmt_reset (co_net_t * net, co_fsm_event_t event)
    {
       if (net->cb_reset)
       {
-         net->cb_reset (net->cb_arg);
+         net->cb_reset (net);
       }
 
       /* Reset application and manufacturer-specific area*/
@@ -153,7 +153,7 @@ void co_nmt_event (co_net_t * net, co_fsm_event_t event)
       {
          if (net->cb_nmt)
          {
-            net->cb_nmt (net->cb_arg, net->state);
+            net->cb_nmt (net, net->state);
          }
       }
 
@@ -163,7 +163,7 @@ void co_nmt_event (co_net_t * net, co_fsm_event_t event)
 void co_nmt_init (co_net_t * net)
 {
    unsigned int i, j;
-   void (*cb_reset) (void * arg);
+   void (*cb_reset) (co_net_t * net);
 
    /* Set FSM defaults */
    for (i = 0; i < STATE_LAST; i++)
