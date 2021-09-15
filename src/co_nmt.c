@@ -43,23 +43,20 @@ typedef struct co_fsm_transition
 
 static co_fsm_t fsm[STATE_LAST][EVENT_LAST];
 
-static co_fsm_event_t co_nmt_reset (co_net_t * net, co_fsm_event_t event)
+static co_fsm_event_t co_nmt_reset_app (co_net_t * net, co_fsm_event_t event)
 {
-   if (event == EVENT_RESET)
-   {
-      if (net->cb_reset)
-      {
-         net->cb_reset (net);
-      }
+   /* Reset application and manufacturer-specific area*/
+   co_od_reset (net, CO_STORE_MFG, 0x2000, 0x5FFF);
+   co_od_reset (net, CO_STORE_APP, 0x6000, 0x9FFF);
 
-      /* Reset application and manufacturer-specific area*/
-      co_od_reset (net, CO_STORE_MFG, 0x2000, 0x5FFF);
-      co_od_reset (net, CO_STORE_APP, 0x6000, 0x9FFF);
+   /* Copy persistent node-ID to pending node-ID */
+   net->lss.node = co_lss_get_persistent_node_id (net);
 
-      /* Copy persistent node-ID to pending node-ID */
-      net->lss.node = co_lss_get_persistent_node_id (net);
-   }
+   return EVENT_INITDONE;
+}
 
+static co_fsm_event_t co_nmt_reset_comm (co_net_t * net, co_fsm_event_t event)
+{
    /* Reset communication */
    co_od_reset (net, CO_STORE_COMM, 0x1000, 0x1FFF);
    os_channel_bus_off (net->channel);
@@ -74,7 +71,7 @@ static co_fsm_event_t co_nmt_reset (co_net_t * net, co_fsm_event_t event)
       return EVENT_INITDONE;
    }
 
-   /* Remain in INIT state if pending node-ID invalid */
+   /* Remain in INIT_COMM state if pending node-ID invalid */
    return EVENT_NONE;
 }
 
@@ -104,31 +101,34 @@ static co_fsm_event_t co_nmt_poweron (co_net_t * net, co_fsm_event_t event)
    net->lss.bitrate = co_lss_get_persistent_bitrate (net);
    net->bitrate     = net->lss.bitrate;
 
-   /* Perform reset action */
-   return co_nmt_reset (net, event);
+   return EVENT_INITDONE;
 }
 
-/* State transitions, CiA 301 chapter 7.3.2.1 */
+/* State transitions, CiA 301 chapter 7.3.2.1 and 7.3.2.2 */
 const co_fsm_transition_t transitions[] = {
-   {STATE_OFF, EVENT_RESET, STATE_INIT, co_nmt_poweron},     /* 1  */
-   {STATE_INIT, EVENT_INITDONE, STATE_PREOP, co_nmt_bootup}, /* 2  */
-   {STATE_PREOP, EVENT_START, STATE_OP, co_nmt_start},       /* 3  */
-   {STATE_OP, EVENT_PREOP, STATE_PREOP, NULL},               /* 4  */
-   {STATE_PREOP, EVENT_STOP, STATE_STOP, NULL},              /* 5  */
-   {STATE_STOP, EVENT_START, STATE_OP, co_nmt_start},        /* 6  */
-   {STATE_STOP, EVENT_PREOP, STATE_PREOP, NULL},             /* 7  */
-   {STATE_OP, EVENT_STOP, STATE_STOP, NULL},                 /* 8  */
-   {STATE_OP, EVENT_RESET, STATE_INIT, co_nmt_reset},        /* 9  */
-   {STATE_STOP, EVENT_RESET, STATE_INIT, co_nmt_reset},      /* 10 */
-   {STATE_PREOP, EVENT_RESET, STATE_INIT, co_nmt_reset},     /* 11 */
-   {STATE_OP, EVENT_RESETCOMM, STATE_INIT, co_nmt_reset},    /* 12 */
-   {STATE_STOP, EVENT_RESETCOMM, STATE_INIT, co_nmt_reset},  /* 13 */
-   {STATE_PREOP, EVENT_RESETCOMM, STATE_INIT, co_nmt_reset}, /* 14 */
+   {STATE_OFF, EVENT_RESET, STATE_INIT_PWRON, co_nmt_poweron},
+   {STATE_INIT_PWRON, EVENT_INITDONE, STATE_INIT_APP, co_nmt_reset_app},
+   {STATE_INIT_APP, EVENT_INITDONE, STATE_INIT_COMM, co_nmt_reset_comm},
+   {STATE_INIT_COMM, EVENT_INITDONE, STATE_PREOP, co_nmt_bootup},
+   {STATE_PREOP, EVENT_START, STATE_OP, co_nmt_start},
+   {STATE_OP, EVENT_PREOP, STATE_PREOP, NULL},
+   {STATE_PREOP, EVENT_STOP, STATE_STOP, NULL},
+   {STATE_STOP, EVENT_START, STATE_OP, co_nmt_start},
+   {STATE_STOP, EVENT_PREOP, STATE_PREOP, NULL},
+   {STATE_OP, EVENT_STOP, STATE_STOP, NULL},
+   {STATE_OP, EVENT_RESET, STATE_INIT_APP, co_nmt_reset_app},
+   {STATE_STOP, EVENT_RESET, STATE_INIT_APP, co_nmt_reset_app},
+   {STATE_PREOP, EVENT_RESET, STATE_INIT_APP, co_nmt_reset_app},
+   {STATE_OP, EVENT_RESETCOMM, STATE_INIT_COMM, co_nmt_reset_comm},
+   {STATE_STOP, EVENT_RESETCOMM, STATE_INIT_COMM, co_nmt_reset_comm},
+   {STATE_PREOP, EVENT_RESETCOMM, STATE_INIT_COMM, co_nmt_reset_comm},
 };
 
 const char * co_state_literals[] = {
    "STATE_OFF",
-   "STATE_INIT",
+   "STATE_INIT_PWRON",
+   "STATE_INIT_APP",
+   "STATE_INIT_COMM",
    "STATE_PREOP",
    "STATE_OP",
    "STATE_STOP",
@@ -163,7 +163,6 @@ void co_nmt_event (co_net_t * net, co_fsm_event_t event)
 void co_nmt_init (co_net_t * net)
 {
    unsigned int i, j;
-   void (*cb_reset) (co_net_t * net);
 
    /* Set FSM defaults */
    for (i = 0; i < STATE_LAST; i++)
@@ -184,16 +183,9 @@ void co_nmt_init (co_net_t * net)
       fsm[t->state][t->event].action = t->action;
    }
 
-   /* Temporarily disable cb_reset during poweron */
-   cb_reset      = net->cb_reset;
-   net->cb_reset = NULL;
-
    /* Transition from OFF to INIT on poweron */
    net->state = STATE_OFF;
    co_nmt_event (net, EVENT_RESET);
-
-   /* Restore cb_reset */
-   net->cb_reset = cb_reset;
 }
 
 int co_nmt_rx (co_net_t * net, uint32_t id, uint8_t * msg, size_t dlc)
@@ -229,6 +221,10 @@ int co_nmt_rx (co_net_t * net, uint32_t id, uint8_t * msg, size_t dlc)
       break;
    case CO_NMT_RESET_NODE:
       event = EVENT_RESET;
+      if (net->cb_reset)
+      {
+         net->cb_reset (net);
+      }
       break;
    case CO_NMT_RESET_COMMUNICATION:
       event = EVENT_RESETCOMM;
