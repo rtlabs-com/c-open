@@ -140,7 +140,10 @@ typedef enum co_sdo_abort
 typedef enum co_state
 {
    STATE_OFF = 0,
-   STATE_INIT,
+   STATE_INIT_PWRON,
+   STATE_INIT_APP,
+   STATE_INIT_COMM,
+   STATE_INIT = STATE_INIT_COMM, /* Compatibility alias for NMT callbacks */
    STATE_PREOP,
    STATE_OP,
    STATE_STOP,
