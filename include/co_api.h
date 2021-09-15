@@ -294,6 +294,7 @@ typedef struct co_cfg
 {
    uint8_t node;                  /**< Initial node ID */
    int bitrate;                   /**< Initial bitrate (bits per second) */
+   uint32_t restart_ms;           /**< Bus-off recovery delay, zero to disable */
    const co_obj_t * od;           /**< Application dictionary */
    const co_default_t * defaults; /**< Dictionary default values */
    void * cb_arg;                 /**< Callback opaque argument */

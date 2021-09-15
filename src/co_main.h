@@ -214,6 +214,7 @@ typedef struct co_emcy
 {
    uint32_t cobid;                   /**< EMCY COB ID */
    uint32_t timestamp;               /**< Timestamp of last EMCY */
+   uint32_t bus_off_timestamp;       /**< Timestamp of bus-off event */
    uint16_t inhibit;                 /**< Inhibit time [100 us] */
    uint8_t error;                    /**< Error register */
    os_channel_state_t state;         /**< CAN state */
@@ -241,6 +242,7 @@ struct co_net
    uint32_t hb_time;            /**< Heartbeat producer time */
    uint32_t sync_timestamp;     /**< Timestamp of last SYNC */
    uint32_t sync_window;        /**< Synchronous window length */
+   uint32_t restart_ms;         /**< Delay before attempting to recover from bus-off */
    co_pdo_t pdo_tx[MAX_TX_PDO]; /**< TPDOs */
    co_pdo_t pdo_rx[MAX_RX_PDO]; /**< RPDOs */
    co_node_guard_t node_guard;  /**< Node guarding state */
