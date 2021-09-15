@@ -324,17 +324,13 @@ int co_emcy_rx (co_net_t * net, uint32_t id, uint8_t * msg, size_t dlc)
 void co_emcy_handle_can_state (co_net_t * net)
 {
    int status;
+   uint32_t now = os_get_current_time_us();;
    os_channel_state_t previous = net->emcy.state;
 
    /* Get current state */
    status = os_channel_get_state (net->channel, &net->emcy.state);
    if (status != 0)
       return;
-
-   /* Attempt to go bus on again. */
-   if (net->emcy.state.bus_off) {
-      os_channel_bus_on(net->channel);
-   }
 
    /* Check for new communication errors */
 
@@ -356,6 +352,7 @@ void co_emcy_handle_can_state (co_net_t * net)
    {
       /* Entered bus off */
       co_emcy_error_register_set (net, CO_ERR_COMMUNICATION);
+      net->emcy.bus_off_timestamp = now;
 
       /* Call user callback directly, cannot call co_emcy_tx() now */
       if (net->cb_emcy)
@@ -371,6 +368,14 @@ void co_emcy_handle_can_state (co_net_t * net)
    {
       /* Recovered from bus off */
       co_emcy_tx (net, 0x8140, 0, NULL);
+   }
+
+   /* Attempt to go bus on again. */
+   if (net->emcy.state.bus_off && net->restart_ms > 0 &&
+      co_is_expired (now, net->emcy.bus_off_timestamp, 1000 * net->restart_ms))
+   {
+      os_channel_bus_on(net->channel);
+      net->emcy.bus_off_timestamp = now;
    }
 
    /* Clear communication error state if all sub-errors are inactive */

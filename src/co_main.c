@@ -423,6 +423,8 @@ co_net_t * co_init (const char * canif, const co_cfg_t * cfg)
    net->cb_emcy   = cfg->cb_emcy;
    net->cb_notify = cfg->cb_notify;
 
+   net->restart_ms = cfg->restart_ms;
+
    net->open  = cfg->open;
    net->read  = cfg->read;
    net->write = cfg->write;
