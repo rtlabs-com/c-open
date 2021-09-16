@@ -16,6 +16,7 @@
 #ifdef UNIT_TEST
 #define os_channel_send        mock_os_channel_send
 #define os_channel_get_state   mock_os_channel_get_state
+#define os_channel_bus_on      mock_os_channel_bus_on
 #define os_get_current_time_us mock_os_get_current_time_us
 #endif
 
