@@ -400,6 +400,21 @@ TEST_F (EmcyTest, EmcyBusOff)
    EXPECT_TRUE (CanMatch (0x81, expected[0], 8)); // Last error
 }
 
+TEST_F (EmcyTest, EmcyBusOffRecovery)
+{
+   // Set auto restart timeout
+   net.restart_ms = 100;
+
+   // Enter bus_off error state
+   mock_os_channel_get_state_state.bus_off = true;
+   co_emcy_handle_can_state (&net);
+
+   // Should attempt bus off recovery after timeout
+   mock_os_get_current_time_us_result = 101 * 1000;
+   co_emcy_handle_can_state (&net);
+   EXPECT_EQ (1u, mock_os_channel_bus_on_calls);
+}
+
 TEST_F (EmcyTest, EmcyInhibit)
 {
    net.emcy.inhibit = 10; // 10 * 100 us
