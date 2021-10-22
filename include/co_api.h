@@ -51,7 +51,7 @@ typedef struct co_client co_client_t;
 #define CO_ERR_TEMPERATURE   (1U << 3)
 #define CO_ERR_COMMUNICATION (1U << 4)
 #define CO_ERR_DEVICE        (1U << 5)
-#define CO_ERR_MANUFACTURER  (1U << 6)
+#define CO_ERR_MANUFACTURER  (1U << 7)
 
 /** Abort error codes. See CiA 301 7.2.4 */
 typedef enum co_sdo_abort
