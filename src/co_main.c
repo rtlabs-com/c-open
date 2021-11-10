@@ -85,7 +85,6 @@ void co_handle_rx (co_net_t * net)
          }
          else if (function == CO_FUNCTION_NMT_ERR)
          {
-            co_bitmap_set (net->nodes, node);
             co_heartbeat_rx (net, node, data, dlc);
             co_node_guard_rx (net, id, data, dlc);
          }
