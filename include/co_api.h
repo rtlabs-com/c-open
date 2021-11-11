@@ -26,6 +26,7 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include <stdbool.h>
 #include <stddef.h>
 
 #include "co_export.h"
@@ -50,7 +51,7 @@ typedef struct co_client co_client_t;
 #define CO_ERR_TEMPERATURE   (1U << 3)
 #define CO_ERR_COMMUNICATION (1U << 4)
 #define CO_ERR_DEVICE        (1U << 5)
-#define CO_ERR_MANUFACTURER  (1U << 6)
+#define CO_ERR_MANUFACTURER  (1U << 7)
 
 /** Abort error codes. See CiA 301 7.2.4 */
 typedef enum co_sdo_abort
@@ -139,7 +140,10 @@ typedef enum co_sdo_abort
 typedef enum co_state
 {
    STATE_OFF = 0,
-   STATE_INIT,
+   STATE_INIT_PWRON,
+   STATE_INIT_APP,
+   STATE_INIT_COMM,
+   STATE_INIT = STATE_INIT_COMM, /* Compatibility alias for NMT callbacks */
    STATE_PREOP,
    STATE_OP,
    STATE_STOP,
@@ -278,37 +282,45 @@ typedef enum co_store
    CO_STORE_LAST,
 } co_store_t;
 
+/** Dictionary store open modes */
+typedef enum co_mode
+{
+   CO_MODE_READ,  /**< Open for reading */
+   CO_MODE_WRITE, /**< Open for writing */
+} co_mode_t;
+
 /** CANopen stack configuration */
 typedef struct co_cfg
 {
    uint8_t node;                  /**< Initial node ID */
    int bitrate;                   /**< Initial bitrate (bits per second) */
+   uint32_t restart_ms;           /**< Bus-off recovery delay, zero to disable */
    const co_obj_t * od;           /**< Application dictionary */
    const co_default_t * defaults; /**< Dictionary default values */
    void * cb_arg;                 /**< Callback opaque argument */
 
    /** Reset callback */
-   void (*cb_reset) (void * arg);
+   void (*cb_reset) (co_net_t * net);
 
    /** NMT callback */
-   void (*cb_nmt) (void * arg, co_state_t state);
+   void (*cb_nmt) (co_net_t * net, co_state_t state);
 
    /** SYNC callback */
-   void (*cb_sync) (void * arg);
+   void (*cb_sync) (co_net_t * net);
 
-   /** EMCY callback */
-   void (*cb_emcy) (
-      void * arg,
+   /** EMCY callback, return true to enable error behavior */
+   bool (*cb_emcy) (
+      co_net_t * net,
       uint8_t node,
       uint16_t code,
       uint8_t reg,
       uint8_t msef[5]);
 
    /** Notify callback */
-   void (*cb_notify) (void * arg, uint16_t index, uint8_t subindex);
+   void (*cb_notify) (co_net_t * net, uint16_t index, uint8_t subindex);
 
    /** Function to open dictionary store */
-   void * (*open) (co_store_t store);
+   void * (*open) (co_store_t store, co_mode_t mode);
 
    /** Function to read from dictionary store */
    int (*read) (void * arg, void * data, size_t size);
@@ -348,8 +360,10 @@ CO_EXPORT co_client_t * co_client_init (co_net_t * net);
  * Get next active node ID.
  *
  * This function returns the next active node ID, i.e. a node that has
- * sent an NMT bootup message on the network. This function can be
- * used to iterate over active nodes.
+ * sent an NMT bootup message on the network and has not failed its
+ * error control protocol.
+
+ * This function can be used to iterate over active nodes.
  *
  * @code
  * node = co_node_next (net, 0);
@@ -373,6 +387,31 @@ CO_EXPORT co_client_t * co_client_init (co_net_t * net);
  * @return next active node
  */
 CO_EXPORT uint8_t co_node_next (co_client_t * client, uint8_t node);
+
+/**
+ * Get active node ID.
+ *
+ * This function returns this node's active node ID, i.e. the
+ * default ID set to co_init(), unless overridden via LSS.
+ *
+ * @param net           network handle
+ *
+ * @return the active node id
+ */
+CO_EXPORT uint8_t co_node_id_get (co_net_t * net);
+
+/**
+ * Get callback argument.
+ *
+ * This function returns the callback opaque argument specified to
+ * co_init(), for example to reach application specific context from
+ * object access functions and other callbacks.
+ *
+ * @param net           network handle
+ *
+ * @return the opaque callback argument
+ */
+CO_EXPORT void * co_cb_arg_get (co_net_t * net);
 
 /**
  * Send NMT command.
@@ -473,7 +512,7 @@ CO_EXPORT int co_sdo_write (
  * Calling this function adds an error to the error history object
  * (1003h). It also signals an error to the NMT state-machine which
  * may change state according to the setting of the error behavior
- * object (1029h).
+ * object (1029h) and the return value of the EMCY callback.
  *
  * The application will be notified via the EMCY callback. The node id
  * will be the active node id for this node.

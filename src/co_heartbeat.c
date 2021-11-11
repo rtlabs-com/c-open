@@ -23,6 +23,7 @@
 #include "co_sdo.h"
 #include "co_emcy.h"
 #include "co_util.h"
+#include "co_bitmap.h"
 
 #include <string.h>
 
@@ -103,6 +104,8 @@ int co_heartbeat_rx (co_net_t * net, uint8_t node, void * msg, size_t dlc)
 {
    int ix;
 
+   co_bitmap_set (net->nodes, node);
+
    for (ix = 0; ix < MAX_HEARTBEATS; ix++)
    {
       if (net->heartbeat[ix].node == node)
@@ -176,6 +179,7 @@ int co_heartbeat_timer (co_net_t * net, uint32_t now)
       {
          /* Expired */
          heartbeat->is_alive = false;
+         co_bitmap_clear (net->nodes, heartbeat->node);
          LOG_ERROR (
             CO_HEARTBEAT_LOG,
             "node %d heartbeat expired\n",

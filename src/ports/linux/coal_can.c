@@ -96,7 +96,12 @@ os_channel_t * os_channel_open (const char * name, void * callback, void * arg)
    fcntl (channel->handle, F_SETFL, O_NONBLOCK);
 
    strcpy (ifr.ifr_name, name);
-   ioctl (channel->handle, SIOCGIFINDEX, &ifr);
+   if (ioctl (channel->handle, SIOCGIFINDEX, &ifr) < 0)
+   {
+      close (channel->handle);
+      free (channel);
+      return NULL;
+   }
 
    addr.can_family  = AF_CAN;
    addr.can_ifindex = ifr.ifr_ifindex;

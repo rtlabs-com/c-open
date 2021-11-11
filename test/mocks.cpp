@@ -133,13 +133,13 @@ void mock_co_emcy_tx (co_net_t * net, uint16_t code)
 }
 
 unsigned int cb_reset_calls;
-void cb_reset (void * arg)
+void cb_reset (co_net_t * net)
 {
    cb_reset_calls++;
 }
 
 unsigned int cb_nmt_calls;
-void cb_nmt (void * arg, co_state_t state)
+void cb_nmt (co_net_t * net, co_state_t state)
 {
    cb_nmt_calls++;
 }
@@ -149,7 +149,8 @@ uint8_t cb_emcy_node;
 uint16_t cb_emcy_code;
 uint8_t cb_emcy_reg;
 uint8_t cb_emcy_msef[5];
-void cb_emcy (void * arg, uint8_t node, uint16_t code, uint8_t reg, uint8_t msef[5])
+bool cb_emcy_result;
+bool cb_emcy (co_net_t * net, uint8_t node, uint16_t code, uint8_t reg, uint8_t msef[5])
 {
    cb_emcy_calls++;
    cb_emcy_node = node;
@@ -157,10 +158,11 @@ void cb_emcy (void * arg, uint8_t node, uint16_t code, uint8_t reg, uint8_t msef
    cb_emcy_reg  = reg;
    if (msef != NULL)
       memcpy (cb_emcy_msef, msef, sizeof (cb_emcy_msef));
+   return cb_emcy_result;
 }
 
 unsigned int cb_sync_calls;
-void cb_sync (void * arg)
+void cb_sync (co_net_t * net)
 {
    cb_sync_calls++;
 }
@@ -168,7 +170,7 @@ void cb_sync (void * arg)
 unsigned int cb_notify_calls;
 uint16_t cb_notify_index;
 uint16_t cb_notify_subindex;
-void cb_notify (void * arg, uint16_t index, uint8_t subindex)
+void cb_notify (co_net_t * net, uint16_t index, uint8_t subindex)
 {
    cb_notify_calls++;
    cb_notify_index    = index;
@@ -187,7 +189,7 @@ void store_init (void)
 }
 
 unsigned int store_open_calls;
-void * store_open (co_store_t store)
+void * store_open (co_store_t store, co_mode_t mode)
 {
    store_open_calls++;
    _fd.p = the_store;

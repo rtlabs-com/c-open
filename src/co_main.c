@@ -85,7 +85,6 @@ void co_handle_rx (co_net_t * net)
          }
          else if (function == CO_FUNCTION_NMT_ERR)
          {
-            co_bitmap_set (net->nodes, node);
             co_heartbeat_rx (net, node, data, dlc);
             co_node_guard_rx (net, id, data, dlc);
          }
@@ -193,13 +192,15 @@ void co_nmt (co_client_t * client, co_nmt_cmd_t cmd, uint8_t node)
       co_nmt_rx (net, 0, data, sizeof (data));
    }
 
-   os_channel_send (net->channel, CO_FUNCTION_NMT + node, data, sizeof (data));
+   os_channel_send (net->channel, CO_FUNCTION_NMT, data, sizeof (data));
 }
 
 /* TODO: issue sync job? */
 void co_sync (co_client_t * client)
 {
    co_net_t * net = client->net;
+
+   co_pdo_sync (net, NULL, 0);
    os_channel_send (net->channel, CO_FUNCTION_SYNC, NULL, 0);
 }
 
@@ -213,6 +214,16 @@ uint8_t co_node_next (co_client_t * client, uint8_t node)
    return co_bitmap_next (net->nodes, node);
 }
 
+uint8_t co_node_id_get (co_net_t * net)
+{
+   return net->node;
+}
+
+void * co_cb_arg_get (co_net_t * net)
+{
+   return net->cb_arg;
+}
+
 int co_pdo_event (co_client_t * client)
 {
    co_net_t * net = client->net;
@@ -221,8 +232,11 @@ int co_pdo_event (co_client_t * client)
    job->client   = client;
    job->callback = NULL;
    job->type     = CO_JOB_PDO_EVENT;
+   job->callback = co_job_callback;
 
    os_mbox_post (net->mbox, job, OS_WAIT_FOREVER);
+   os_sem_wait (client->sem, OS_WAIT_FOREVER);
+
    return 0;
 }
 
@@ -236,8 +250,11 @@ int co_pdo_obj_event (co_client_t * client, uint16_t index, uint8_t subindex)
    job->type         = CO_JOB_PDO_OBJ_EVENT;
    job->pdo.index    = index;
    job->pdo.subindex = subindex;
+   job->callback     = co_job_callback;
 
    os_mbox_post (net->mbox, job, OS_WAIT_FOREVER);
+   os_sem_wait (client->sem, OS_WAIT_FOREVER);
+
    return 0;
 }
 
@@ -404,6 +421,8 @@ co_net_t * co_init (const char * canif, const co_cfg_t * cfg)
    net->cb_sync   = cfg->cb_sync;
    net->cb_emcy   = cfg->cb_emcy;
    net->cb_notify = cfg->cb_notify;
+
+   net->restart_ms = cfg->restart_ms;
 
    net->open  = cfg->open;
    net->read  = cfg->read;

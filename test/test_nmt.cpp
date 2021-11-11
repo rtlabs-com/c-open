@@ -44,34 +44,34 @@ TEST_F (NmtTest, Fsm)
    // Poweron, should go to PREOP
    co_nmt_init (&net);
    EXPECT_EQ (STATE_PREOP, net.state);
-   EXPECT_EQ (2u, cb_nmt_calls);
+   EXPECT_EQ (4u, cb_nmt_calls);
    EXPECT_EQ (3u, mock_co_od_reset_calls);
    EXPECT_EQ (1u, mock_os_channel_send_calls);
 
    // Operational, should go to OP
    co_nmt_rx (&net, 0, command[0], 2);
    EXPECT_EQ (STATE_OP, net.state);
-   EXPECT_EQ (3u, cb_nmt_calls);
+   EXPECT_EQ (5u, cb_nmt_calls);
 
    // Stopped, should go to STOP
    co_nmt_rx (&net, 0, command[1], 2);
    EXPECT_EQ (STATE_STOP, net.state);
-   EXPECT_EQ (4u, cb_nmt_calls);
+   EXPECT_EQ (6u, cb_nmt_calls);
 
    // Operational, should go to OP
    co_nmt_rx (&net, 0, command[2], 2);
    EXPECT_EQ (STATE_OP, net.state);
-   EXPECT_EQ (5u, cb_nmt_calls);
+   EXPECT_EQ (7u, cb_nmt_calls);
 
    // Pre operational, should go to PREOP
    co_nmt_rx (&net, 0, command[3], 2);
    EXPECT_EQ (STATE_PREOP, net.state);
-   EXPECT_EQ (6u, cb_nmt_calls);
+   EXPECT_EQ (8u, cb_nmt_calls);
 
    // Reset node, should go to PREOP
    co_nmt_rx (&net, 0, command[4], 2);
    EXPECT_EQ (STATE_PREOP, net.state);
-   EXPECT_EQ (8u, cb_nmt_calls);
+   EXPECT_EQ (11u, cb_nmt_calls);
    EXPECT_EQ (1u, cb_reset_calls);
    EXPECT_EQ (6u, mock_co_od_reset_calls);
    EXPECT_EQ (2u, mock_os_channel_send_calls);
@@ -79,7 +79,7 @@ TEST_F (NmtTest, Fsm)
    // Reset communication, should go to PREOP
    co_nmt_rx (&net, 0, command[5], 2);
    EXPECT_EQ (STATE_PREOP, net.state);
-   EXPECT_EQ (10u, cb_nmt_calls);
+   EXPECT_EQ (13u, cb_nmt_calls);
    EXPECT_EQ (1u, cb_reset_calls);
    EXPECT_EQ (7u, mock_co_od_reset_calls);
    EXPECT_EQ (3u, mock_os_channel_send_calls);
@@ -87,7 +87,7 @@ TEST_F (NmtTest, Fsm)
    // Broadcast operational, should go to OP
    co_nmt_rx (&net, 0, command[6], 2);
    EXPECT_EQ (STATE_OP, net.state);
-   EXPECT_EQ (11u, cb_nmt_calls);
+   EXPECT_EQ (14u, cb_nmt_calls);
 }
 
 TEST_F (NmtTest, BadNMT)
@@ -122,7 +122,7 @@ TEST_F (NmtTest, LssFsm)
 {
    net.lss.node = 0xFF;
 
-   // Stay in STATE_INIT if lss node id is invalid
+   // Stay in STATE_INIT_COMM if lss node id is invalid
    co_nmt_event (&net, EVENT_RESETCOMM);
-   EXPECT_EQ (STATE_INIT, net.state);
+   EXPECT_EQ (STATE_INIT_COMM, net.state);
 }

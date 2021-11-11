@@ -14,6 +14,7 @@
  ********************************************************************/
 
 #include "co_heartbeat.h"
+#include "co_bitmap.h"
 #include "test_util.h"
 
 // Test fixture
@@ -122,4 +123,21 @@ TEST_F (HeartbeatTest, HeartbeatConsumer)
    mock_os_get_current_time_us_result = 2000 * 1000;
    co_heartbeat_rx (&net, 1, &heartbeat, 1);
    EXPECT_TRUE (net.heartbeat[0].is_alive);
+}
+
+TEST_F (HeartbeatTest, ShouldMaintainNodeMap)
+{
+   uint8_t heartbeat = 0x01;
+
+   net.heartbeat[0].node = 1;
+   net.heartbeat[0].time = 1000;
+
+   // Receive heartbeat within timer window, should set active node ID
+   mock_os_get_current_time_us_result = 500 * 1000;
+   co_heartbeat_rx (&net, 1, &heartbeat, 1);
+   EXPECT_TRUE (co_bitmap_get (net.nodes, 1));
+
+   // Timer has expired, should clear active node ID
+   co_heartbeat_timer (&net, 1500 * 1000);
+   EXPECT_FALSE (co_bitmap_get (net.nodes, 1));
 }

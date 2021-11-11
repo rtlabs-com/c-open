@@ -333,13 +333,19 @@ void co_pdo_mapping_init (co_net_t * net)
    for (ix = 0; ix < MAX_RX_PDO; ix++)
    {
       co_pdo_t * pdo = &net->pdo_rx[ix];
-      co_pdo_mapping_validate (pdo, pdo->number_of_mappings);
+      if ((pdo->cobid & CO_COBID_INVALID) == 0)
+      {
+         co_pdo_mapping_validate (pdo, pdo->number_of_mappings);
+      }
    }
 
    for (ix = 0; ix < MAX_TX_PDO; ix++)
    {
       co_pdo_t * pdo = &net->pdo_tx[ix];
-      co_pdo_mapping_validate (pdo, pdo->number_of_mappings);
+      if ((pdo->cobid & CO_COBID_INVALID) == 0)
+      {
+         co_pdo_mapping_validate (pdo, pdo->number_of_mappings);
+      }
    }
 }
 
@@ -575,6 +581,9 @@ void co_pdo_trigger (co_net_t * net)
 {
    unsigned int ix;
 
+   if (net->state != STATE_OP)
+      return;
+
    /* Transmit event-driven TPDOs, queue acyclic TPDOs */
    for (ix = 0; ix < MAX_TX_PDO; ix++)
    {
@@ -601,6 +610,9 @@ void co_pdo_trigger_with_obj (co_net_t * net, uint16_t index, uint8_t subindex)
    const co_obj_t * obj;
    const co_entry_t * entry;
 
+   if (net->state != STATE_OP)
+      return;
+
    /* Find mapped object */
    obj = co_obj_find (net, index);
    if (obj == NULL)
@@ -619,7 +631,9 @@ void co_pdo_trigger_with_obj (co_net_t * net, uint16_t index, uint8_t subindex)
    for (ix = 0; ix < MAX_TX_PDO; ix++)
    {
       co_pdo_t * pdo = &net->pdo_tx[ix];
-
+      if (pdo->cobid & CO_COBID_INVALID)
+         continue;
+         
       for (n = 0; n < pdo->number_of_mappings; n++)
       {
          if (pdo->entries[n] == entry)
@@ -712,7 +726,7 @@ int co_pdo_sync (co_net_t * net, uint8_t * msg, size_t dlc)
    /* Call user callback */
    if (net->cb_sync)
    {
-      net->cb_sync (net->cb_arg);
+      net->cb_sync (net);
    }
 
    return 0;
@@ -811,6 +825,10 @@ void co_pdo_job (co_net_t * net, co_job_t * job)
    default:
       CC_ASSERT (0);
    }
+
+   job->result = 0;
+   if (job->callback)
+      job->callback (job);
 }
 
 int co_pdo_init (co_net_t * net)

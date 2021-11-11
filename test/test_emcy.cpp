@@ -26,6 +26,7 @@ class EmcyTest : public TestBase
    {
       TestBase::SetUp();
       net.emcy.cobid = 0x81;
+      cb_emcy_result = false;
    }
 
    uint8_t msef[5] = {5, 4, 3, 2, 1};
@@ -207,26 +208,51 @@ TEST_F (EmcyTest, NMTErrorBehavior)
    EXPECT_EQ (0u, result);
    EXPECT_EQ (0u, value);
 
-   co_emcy_tx (&net, 1, 0x1234, msef);
+   co_emcy_tx (&net, 0x8130, 0x1234, msef);
    EXPECT_EQ (STATE_INIT, net.state);
 
-   net.state = STATE_LAST;
-   co_emcy_tx (&net, 1, 0x1234, msef);
-   EXPECT_EQ (STATE_LAST, net.state);
-
    net.state = STATE_OFF;
-   co_emcy_tx (&net, 1, 0x1234, msef);
+   co_emcy_tx (&net, 0x8130, 0x1234, msef);
    EXPECT_EQ (STATE_OFF, net.state);
 
    net.state = STATE_STOP;
-   co_emcy_tx (&net, 1, 0x1234, msef);
+   co_emcy_tx (&net, 0x8130, 0x1234, msef);
    EXPECT_EQ (STATE_STOP, net.state);
 
    net.state = STATE_OP;
-   co_emcy_tx (&net, 1, 0x1234, msef);
+   co_emcy_tx (&net, 0x8130, 0x1234, msef);
    EXPECT_EQ (STATE_PREOP, net.state);
 
+   co_emcy_tx (&net, 0x8130, 0x1234, msef);
+   EXPECT_EQ (STATE_PREOP, net.state);
+
+   net.state = STATE_OP;
    co_emcy_tx (&net, 1, 0x1234, msef);
+   EXPECT_EQ (STATE_OP, net.state);
+
+   value  = 1;
+   result = co_od1029_fn (&net, OD_EVENT_WRITE, obj1029, NULL, 1, &value);
+   EXPECT_EQ (0u, result);
+   EXPECT_EQ (1, net.error_behavior);
+
+   net.state = STATE_INIT;
+   co_emcy_tx (&net, 0x8130, 0x1234, msef);
+   EXPECT_EQ (STATE_INIT, net.state);
+
+   net.state = STATE_OFF;
+   co_emcy_tx (&net, 0x8130, 0x1234, msef);
+   EXPECT_EQ (STATE_OFF, net.state);
+
+   net.state = STATE_STOP;
+   co_emcy_tx (&net, 0x8130, 0x1234, msef);
+   EXPECT_EQ (STATE_STOP, net.state);
+
+   net.state = STATE_OP;
+   co_emcy_tx (&net, 0x8130, 0x1234, msef);
+   EXPECT_EQ (STATE_OP, net.state);
+
+   net.state = STATE_PREOP;
+   co_emcy_tx (&net, 0x8130, 0x1234, msef);
    EXPECT_EQ (STATE_PREOP, net.state);
 
    value  = 2;
@@ -235,27 +261,38 @@ TEST_F (EmcyTest, NMTErrorBehavior)
    EXPECT_EQ (2, net.error_behavior);
 
    net.state = STATE_INIT;
-   co_emcy_tx (&net, 1, 0x1234, msef);
+   co_emcy_tx (&net, 0x8130, 0x1234, msef);
    EXPECT_EQ (STATE_INIT, net.state);
 
    net.state = STATE_OFF;
-   co_emcy_tx (&net, 1, 0x1234, msef);
+   co_emcy_tx (&net, 0x8130, 0x1234, msef);
    EXPECT_EQ (STATE_OFF, net.state);
 
    net.state = STATE_STOP;
-   co_emcy_tx (&net, 1, 0x1234, msef);
+   co_emcy_tx (&net, 0x8130, 0x1234, msef);
    EXPECT_EQ (STATE_STOP, net.state);
 
    net.state = STATE_OP;
-   co_emcy_tx (&net, 1, 0x1234, msef);
+   co_emcy_tx (&net, 0x8130, 0x1234, msef);
    EXPECT_EQ (STATE_STOP, net.state);
 
    net.state = STATE_PREOP;
+   co_emcy_tx (&net, 0x8130, 0x1234, msef);
+   EXPECT_EQ (STATE_STOP, net.state);
+
+   co_emcy_tx (&net, 0x8130, 0x1234, msef);
+   EXPECT_EQ (STATE_STOP, net.state);
+
+   net.state = STATE_OP;
+   cb_emcy_result = false;
+   co_emcy_tx (&net, 1, 0x1234, msef);
+   EXPECT_EQ (STATE_OP, net.state);
+
+   net.state = STATE_OP;
+   cb_emcy_result = true;
    co_emcy_tx (&net, 1, 0x1234, msef);
    EXPECT_EQ (STATE_STOP, net.state);
 
-   co_emcy_tx (&net, 1, 0x1234, msef);
-   EXPECT_EQ (STATE_STOP, net.state);
 }
 
 TEST_F (EmcyTest, EmcyOverrun)
@@ -361,6 +398,21 @@ TEST_F (EmcyTest, EmcyBusOff)
    EXPECT_EQ (2u, net.number_of_errors);
    EXPECT_EQ (2u, mock_os_channel_send_calls);
    EXPECT_TRUE (CanMatch (0x81, expected[0], 8)); // Last error
+}
+
+TEST_F (EmcyTest, EmcyBusOffRecovery)
+{
+   // Set auto restart timeout
+   net.restart_ms = 100;
+
+   // Enter bus_off error state
+   mock_os_channel_get_state_state.bus_off = true;
+   co_emcy_handle_can_state (&net);
+
+   // Should attempt bus off recovery after timeout
+   mock_os_get_current_time_us_result = 101 * 1000;
+   co_emcy_handle_can_state (&net);
+   EXPECT_EQ (1u, mock_os_channel_bus_on_calls);
 }
 
 TEST_F (EmcyTest, EmcyInhibit)

@@ -158,7 +158,7 @@ static struct fd
    uint8_t * p;
 } fd;
 
-static void * store_open (co_store_t store)
+static void * store_open (co_store_t store, co_mode_t mode)
 {
    if (store >= CO_STORE_LAST)
       return NULL;
@@ -189,19 +189,19 @@ static int store_close (void * arg)
 }
 
 /* Called when NMT command Reset node is received */
-static void cb_reset (void * arg)
+static void cb_reset (co_net_t * net)
 {
    /* Optionally reset hardware */
 }
 
 /* Called when SYNC is received */
-static void cb_sync (void * arg)
+static void cb_sync (co_net_t * net)
 {
    input++;
 }
 
 /* Called when RPDO is received (if OD_NOTIFY is set) */
-static void cb_notify (void * arg, uint16_t index, uint8_t subindex)
+static void cb_notify (co_net_t * net, uint16_t index, uint8_t subindex)
 {
 }
 

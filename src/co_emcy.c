@@ -16,6 +16,7 @@
 #ifdef UNIT_TEST
 #define os_channel_send        mock_os_channel_send
 #define os_channel_get_state   mock_os_channel_get_state
+#define os_channel_bus_on      mock_os_channel_bus_on
 #define os_get_current_time_us mock_os_get_current_time_us
 #endif
 
@@ -58,6 +59,24 @@ static uint32_t co_emcy_error_set (co_net_t * net, uint8_t subindex, uint32_t * 
 
    net->number_of_errors = 0;
    return 0;
+}
+
+static void co_trigger_error_behavior (co_net_t * net)
+{
+   /* Transition state according to error behavior setting */
+   switch (net->error_behavior)
+   {
+   case 0:
+      if (net->state == STATE_OP)
+         co_nmt_event (net, EVENT_PREOP);
+      break;
+   case 2:
+      co_nmt_event (net, EVENT_STOP);
+      break;
+   default:
+      /* Do nothing */
+      break;
+   }
 }
 
 uint32_t co_od1001_fn (
@@ -214,6 +233,7 @@ int co_emcy_tx (co_net_t * net, uint16_t code, uint16_t info, uint8_t msef[5])
    uint8_t * p    = msg;
    uint8_t reg;
    uint32_t now;
+   bool error_behavior = false;
 
    if (net->number_of_errors < MAX_ERRORS)
       net->number_of_errors++;
@@ -251,25 +271,18 @@ int co_emcy_tx (co_net_t * net, uint16_t code, uint16_t info, uint8_t msef[5])
       net->emcy.timestamp = now;
    }
 
-   /* Call user callback */
-   if (net->cb_emcy)
+   /* Call user callback, except for bus-off recovery, where it was
+    * called at the actual bus-off event. */
+   if (net->cb_emcy && code != 0x8140)
    {
-      net->cb_emcy (net->cb_arg, net->node, code, reg, msef);
+      error_behavior = net->cb_emcy (net, net->node, code, reg, msef);
    }
 
-   /* Transition state according to error behavior setting */
-   switch (net->error_behavior)
-   {
-   case 0:
-      if (net->state == STATE_OP)
-         co_nmt_event (net, EVENT_PREOP);
-      break;
-   case 2:
-      co_nmt_event (net, EVENT_STOP);
-      break;
-   default:
-      /* Do nothing */
-      break;
+   /* Always trigger error behavior on the mandatory events,
+    * otherwise, follow the callback return value. The bus-off
+    * event was handled when it happened. */
+   if (code == 0x8130 || error_behavior) {
+      co_trigger_error_behavior (net);
    }
 
    return 0;
@@ -302,7 +315,7 @@ int co_emcy_rx (co_net_t * net, uint32_t id, uint8_t * msg, size_t dlc)
       /* Call user callback */
       if (net->cb_emcy)
       {
-         net->cb_emcy (net->cb_arg, CO_NODE_GET (id), code, reg, msef);
+         net->cb_emcy (net, CO_NODE_GET (id), code, reg, msef);
       }
    }
 
@@ -312,6 +325,7 @@ int co_emcy_rx (co_net_t * net, uint32_t id, uint8_t * msg, size_t dlc)
 void co_emcy_handle_can_state (co_net_t * net)
 {
    int status;
+   uint32_t now = os_get_current_time_us();;
    os_channel_state_t previous = net->emcy.state;
 
    /* Get current state */
@@ -339,12 +353,30 @@ void co_emcy_handle_can_state (co_net_t * net)
    {
       /* Entered bus off */
       co_emcy_error_register_set (net, CO_ERR_COMMUNICATION);
+      net->emcy.bus_off_timestamp = now;
+
+      /* Call user callback directly, cannot call co_emcy_tx() now */
+      if (net->cb_emcy)
+      {
+         net->cb_emcy (net, net->node, 0x8140,
+                       co_emcy_error_register_get(net), NULL);
+      }
+
+      co_trigger_error_behavior (net);
    }
 
    if (!net->emcy.state.bus_off && previous.bus_off)
    {
       /* Recovered from bus off */
       co_emcy_tx (net, 0x8140, 0, NULL);
+   }
+
+   /* Attempt to go bus on again. */
+   if (net->emcy.state.bus_off && net->restart_ms > 0 &&
+      co_is_expired (now, net->emcy.bus_off_timestamp, 1000 * net->restart_ms))
+   {
+      os_channel_bus_on(net->channel);
+      net->emcy.bus_off_timestamp = now;
    }
 
    /* Clear communication error state if all sub-errors are inactive */
