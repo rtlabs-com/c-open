@@ -26,6 +26,7 @@
 #include "co_util.h"
 #include "co_sdo.h"
 #include "co_emcy.h"
+#include "co_obj.h"
 
 #include <string.h>
 
@@ -355,7 +356,7 @@ uint32_t co_od1007_fn (
    const co_obj_t * obj,
    const co_entry_t * entry,
    uint8_t subindex,
-   uint32_t * value)
+   uint64_t * value)
 {
    switch (event)
    {
@@ -409,18 +410,24 @@ uint32_t co_od1400_fn (
    const co_obj_t * obj,
    const co_entry_t * entry,
    uint8_t subindex,
-   uint32_t * value)
+   uint64_t * value)
 {
+   uint32_t retval;
+   uint32_t v;
    co_pdo_t * pdo = co_pdo_find (net, obj->index);
 
    CC_ASSERT (pdo != NULL);
    switch (event)
    {
    case OD_EVENT_READ:
-      return co_pdo_comm_get (net, pdo, subindex, value);
+      retval = co_pdo_comm_get (net, pdo, subindex, &v);
+      if (retval == 0)
+         *value = v;
+      return retval;
 
    case OD_EVENT_WRITE:
-      return co_pdo_comm_set (net, pdo, subindex, value, true);
+      v = *value;
+      return co_pdo_comm_set (net, pdo, subindex, &v, true);
 
    case OD_EVENT_RESTORE:
       pdo->cobid =
@@ -443,18 +450,24 @@ uint32_t co_od1600_fn (
    const co_obj_t * obj,
    const co_entry_t * entry,
    uint8_t subindex,
-   uint32_t * value)
+   uint64_t * value)
 {
+   uint32_t retval;
+   uint32_t v;
    co_pdo_t * pdo = co_pdo_find (net, obj->index);
 
    CC_ASSERT (pdo != NULL);
    switch (event)
    {
    case OD_EVENT_READ:
-      return co_pdo_map_get (net, pdo, subindex, value);
+      retval = co_pdo_map_get (net, pdo, subindex, &v);
+      if (retval == 0)
+         *value = v;
+      return retval;
 
    case OD_EVENT_WRITE:
-      return co_pdo_map_set (net, pdo, subindex, value, true);
+      v = *value;
+      return co_pdo_map_set (net, pdo, subindex, &v, true);
 
    case OD_EVENT_RESTORE:
       pdo->number_of_mappings = MAX_PDO_ENTRIES;
@@ -472,18 +485,24 @@ uint32_t co_od1800_fn (
    const co_obj_t * obj,
    const co_entry_t * entry,
    uint8_t subindex,
-   uint32_t * value)
+   uint64_t * value)
 {
+   uint32_t retval;
+   uint32_t v;
    co_pdo_t * pdo = co_pdo_find (net, obj->index);
 
    CC_ASSERT (pdo != NULL);
    switch (event)
    {
    case OD_EVENT_READ:
-      return co_pdo_comm_get (net, pdo, subindex, value);
+      retval = co_pdo_comm_get (net, pdo, subindex, &v);
+      if (retval == 0)
+         *value = v;
+      return retval;
 
    case OD_EVENT_WRITE:
-      return co_pdo_comm_set (net, pdo, subindex, value, false);
+      v = *value;
+      return co_pdo_comm_set (net, pdo, subindex, &v, false);
 
    case OD_EVENT_RESTORE:
       pdo->cobid =
@@ -506,18 +525,24 @@ uint32_t co_od1A00_fn (
    const co_obj_t * obj,
    const co_entry_t * entry,
    uint8_t subindex,
-   uint32_t * value)
+   uint64_t * value)
 {
+   uint32_t retval;
+   uint32_t v;
    co_pdo_t * pdo = co_pdo_find (net, obj->index);
 
    CC_ASSERT (pdo != NULL);
    switch (event)
    {
    case OD_EVENT_READ:
-      return co_pdo_map_get (net, pdo, subindex, value);
+      retval = co_pdo_map_get (net, pdo, subindex, &v);
+      if (retval == 0)
+         *value = v;
+      return retval;
 
    case OD_EVENT_WRITE:
-      return co_pdo_map_set (net, pdo, subindex, value, false);
+      v = *value;
+      return co_pdo_map_set (net, pdo, subindex, &v, false);
 
    case OD_EVENT_RESTORE:
       pdo->number_of_mappings = MAX_PDO_ENTRIES;

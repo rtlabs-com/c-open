@@ -23,6 +23,7 @@
 #include "co_sdo.h"
 #include "co_emcy.h"
 #include "co_util.h"
+#include "co_obj.h"
 
 uint32_t co_od100C_fn (
    co_net_t * net,
@@ -30,7 +31,7 @@ uint32_t co_od100C_fn (
    const co_obj_t * obj,
    const co_entry_t * entry,
    uint8_t subindex,
-   uint32_t * value)
+   uint64_t * value)
 {
    switch (event)
    {
@@ -54,7 +55,7 @@ uint32_t co_od100D_fn (
    const co_obj_t * obj,
    const co_entry_t * entry,
    uint8_t subindex,
-   uint32_t * value)
+   uint64_t * value)
 {
    switch (event)
    {

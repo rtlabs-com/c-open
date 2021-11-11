@@ -239,7 +239,7 @@ typedef uint32_t (*co_access_fn) (
    const struct co_obj * obj,     /**< object descriptor */
    const struct co_entry * entry, /**< entry descriptor */
    uint8_t subindex,              /**< subindex */
-   uint32_t * value               /**< value to set or get */
+   uint64_t * value               /**< value to set or get */
 );
 
 /** Entry descriptor. Describes a subindex, or a series of subindexes
