@@ -184,7 +184,7 @@ static uint32_t co_pdo_comm_set (
    {
       if (!co_validate_cob_id (*value))
          return CO_SDO_ABORT_VALUE;
-      if (((pdo->cobid | *value) & CO_COBID_INVALID) == 0)
+      if (((pdo->cobid | *value) & CO_COBID_INVALID) == 0 && net->state != STATE_INIT)
          return CO_SDO_ABORT_VALUE;
       pdo->cobid        = *value;
       pdo->sync_counter = 0;
@@ -197,7 +197,7 @@ static uint32_t co_pdo_comm_set (
       pdo->transmission_type = *value & 0xFF;
       break;
    case 3:
-      if ((pdo->cobid & CO_COBID_INVALID) == 0)
+      if ((pdo->cobid & CO_COBID_INVALID) == 0 && net->state != STATE_INIT)
          return CO_SDO_ABORT_VALUE;
       pdo->inhibit_time = *value & 0xFFFF;
       break;
@@ -207,7 +207,7 @@ static uint32_t co_pdo_comm_set (
    case 6:
       if (is_rx)
          return CO_SDO_ABORT_BAD_SUBINDEX;
-      if ((pdo->cobid & CO_COBID_INVALID) == 0)
+      if ((pdo->cobid & CO_COBID_INVALID) == 0 && net->state != STATE_INIT)
          return CO_SDO_ABORT_VALUE;
       pdo->sync_start = *value & 0xFF;
       break;
