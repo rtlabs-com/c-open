@@ -48,6 +48,7 @@ extern "C" uint32_t cb2001 (
 }
 
 static const co_default_t od_defaults[] = {
+   {0x1800, 1, 0x181},
    {0x2000, 1, 11},
    {0x2000, 2, 22},
    {0x2000, 3, 33},
@@ -288,6 +289,49 @@ TEST_F (OdTest, StoreThenLoadNewOD)
    EXPECT_EQ (0xAAAAFFFFu, value2000_01);
    EXPECT_EQ (0x0000FFFFu, value2000_02);
    EXPECT_EQ (0, memcmp (expect_str2001, str2001, sizeof(str2001) - 1));
+}
+
+TEST_F (OdTest, LoadUpdatedPDOConfig)
+{
+   const co_obj_t * obj1800 = find_obj (0x1800);
+   uint32_t value;
+   uint32_t result;
+
+   // Defaults contain enabled TPDO
+   net.defaults = od_defaults;
+   net.state = STATE_PREOP;
+
+   // Set TPDO COB-ID to 0x456
+
+   value = 0x80000456;
+   result = co_od1800_fn (&net, OD_EVENT_WRITE, obj1800, NULL, 1, &value);
+   EXPECT_EQ (0u, result);
+
+   value = 0x00000456;
+   result = co_od1800_fn (&net, OD_EVENT_WRITE, obj1800, NULL, 1, &value);
+   EXPECT_EQ (0u, result);
+
+   // Store comm parameters
+   co_od_store (&net, CO_STORE_COMM, 0x1000, 0x1FFF);
+
+   // Set TPDO COB-ID to 0x457
+
+   value = 0x80000457;
+   result = co_od1800_fn (&net, OD_EVENT_WRITE, obj1800, NULL, 1, &value);
+   EXPECT_EQ (0u, result);
+
+   value = 0x00000457;
+   result = co_od1800_fn (&net, OD_EVENT_WRITE, obj1800, NULL, 1, &value);
+   EXPECT_EQ (0u, result);
+
+   // Reset comm parameters while in STATE_INIT
+   net.state = STATE_INIT;
+   co_od_reset (&net, CO_STORE_COMM, 0x1000, 0x1FFF);
+
+   // TPDO COB-ID should have been restored
+   result = co_od1800_fn (&net, OD_EVENT_READ, obj1800, NULL, 1, &value);
+   EXPECT_EQ (0u, result);
+   EXPECT_EQ (0x456u, value);
 }
 
 TEST_F (OdTest, OD1010)
