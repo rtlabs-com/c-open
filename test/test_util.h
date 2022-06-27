@@ -40,27 +40,29 @@ class TestBase : public ::testing::Test
       memset (&net, 0, sizeof (net));
       store_init();
 
-      net.node      = 1;
-      net.od        = test_od;
-      net.cb_emcy   = cb_emcy;
-      net.cb_reset  = cb_reset;
-      net.cb_nmt    = cb_nmt;
-      net.cb_sync   = cb_sync;
-      net.cb_notify = cb_notify;
-      net.open      = store_open;
-      net.read      = store_read;
-      net.write     = store_write;
-      net.close     = store_close;
+      net.node               = 1;
+      net.od                 = test_od;
+      net.cb_emcy            = cb_emcy;
+      net.cb_reset           = cb_reset;
+      net.cb_nmt             = cb_nmt;
+      net.cb_sync            = cb_sync;
+      net.cb_notify          = cb_notify;
+      net.cb_heartbeat_state = cb_heartbeat_state;
+      net.open               = store_open;
+      net.read               = store_read;
+      net.write              = store_write;
+      net.close              = store_close;
 
       co_pdo_init (&net);
       co_nmt_init (&net);
       co_od_reset (&net, CO_STORE_COMM, 0x1000, 0x1FFF);
 
-      cb_emcy_calls   = 0;
-      cb_reset_calls  = 0;
-      cb_nmt_calls    = 0;
-      cb_sync_calls   = 0;
-      cb_notify_calls = 0;
+      cb_emcy_calls            = 0;
+      cb_reset_calls           = 0;
+      cb_nmt_calls             = 0;
+      cb_sync_calls            = 0;
+      cb_notify_calls          = 0;
+      cb_heartbeat_state_calls = 0;
 
       mock_os_tick_current_result = 0;
       mock_os_channel_send_calls         = 0;
@@ -136,7 +138,7 @@ class TestBase : public ::testing::Test
    uint8_t value6003_08;
    uint32_t value6003_09;
    uint8_t value6003_0A;
-   uint64_t value6003_0B;
+   uint64_t value6003_0B __attribute__ ((aligned (8)));
    const co_entry_t OD6003[12] = {
       {0x00, OD_RW, DTYPE_UNSIGNED8, 8, 0x0B, NULL},
       // Pack

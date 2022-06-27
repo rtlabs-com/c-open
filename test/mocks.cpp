@@ -182,6 +182,18 @@ void cb_notify (co_net_t * net, uint16_t index, uint8_t subindex)
    cb_notify_subindex = subindex;
 }
 
+unsigned int cb_heartbeat_state_calls;
+uint8_t cb_heartbeat_state_node;
+uint8_t cb_heartbeat_state_old_state;
+uint8_t cb_heartbeat_state_new_state;
+void cb_heartbeat_state (co_net_t * net, uint8_t node, uint8_t old_state, uint8_t new_state)
+{
+   cb_heartbeat_state_calls++;
+   cb_heartbeat_state_node = node;
+   cb_heartbeat_state_old_state = old_state;
+   cb_heartbeat_state_new_state = new_state;
+}
+
 uint8_t the_store[2 * 1024];
 struct fd
 {
