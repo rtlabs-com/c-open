@@ -132,6 +132,7 @@ TEST_F (SdoServerTest, SegmentedDownload)
    }
 
    EXPECT_STREQ ("new slave name", name1009);
+   EXPECT_EQ (1u, cb_notify_calls);
 }
 
 TEST_F (SdoServerTest, SegmentedDownloadCached)
