@@ -31,7 +31,7 @@ const co_entry_t OD1005[] = {
    {0x00, OD_RW, DTYPE_UNSIGNED32, 32, 0, NULL},
 };
 
-/* Entry descriptor for Commmunication cycle object (1006h) */
+/* Entry descriptor for Communication cycle object (1006h) */
 const co_entry_t OD1006[] = {
    {0x00, OD_RW, DTYPE_UNSIGNED32, 32, 0, NULL},
 };

@@ -37,7 +37,7 @@ CO_EXPORT extern const co_entry_t OD1003[];
 /** Entry descriptor for COB-ID SYNC message object (1005h) */
 CO_EXPORT extern const co_entry_t OD1005[];
 
-/** Entry descriptor for Commmunication cycle object (1006h) */
+/** Entry descriptor for Communication cycle object (1006h) */
 CO_EXPORT extern const co_entry_t OD1006[];
 
 /** Entry descriptor for Synchronous window length object (1007h) */
@@ -152,7 +152,7 @@ CO_EXPORT uint32_t co_od1005_fn (
    uint32_t * value);
 
 /**
- * Access function for Commmunication cycle object (1006h)
+ * Access function for Communication cycle object (1006h)
  *
  * @param net           network handle
  * @param event         read/write/restore
