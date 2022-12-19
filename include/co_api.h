@@ -292,10 +292,10 @@ typedef enum co_mode
 /** CANopen stack configuration */
 typedef struct co_cfg
 {
-   uint8_t node;                  /**< Initial node ID */
-   int bitrate;                   /**< Initial bitrate (bits per second) */
-   uint32_t restart_ms;           /**< Bus-off recovery delay, zero to disable */
-   const co_obj_t * od;           /**< Application dictionary */
+   uint8_t node;        /**< Initial node ID */
+   int bitrate;         /**< Initial bitrate (bits per second) */
+   uint32_t restart_ms; /**< Bus-off recovery delay, zero to disable */
+   const co_obj_t * od; /**< Application dictionary */
    const co_default_t * defaults; /**< Dictionary default values */
    void * cb_arg;                 /**< Callback opaque argument */
 
@@ -456,8 +456,10 @@ CO_EXPORT int co_pdo_event (co_client_t * client);
  *
  * @return 0 on success
  */
-CO_EXPORT int co_pdo_obj_event (co_client_t * client, uint16_t index,
-                                uint8_t subindex);
+CO_EXPORT int co_pdo_obj_event (
+   co_client_t * client,
+   uint16_t index,
+   uint8_t subindex);
 
 /**
  * Read dictionary object entry
@@ -517,7 +519,7 @@ CO_EXPORT int co_sdo_write (
  * The application will be notified via the EMCY callback. The node id
  * will be the active node id for this node.
  *
- * @param net           network handle
+ * @param client        network handle
  * @param code          error code, lower 16 bits of error number
  * @param info          additional info, upper 16 bits of error number
  * @param msef          manufacturer-specific error code or NULL

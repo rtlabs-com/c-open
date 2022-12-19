@@ -196,30 +196,20 @@ if (CMAKE_PROJECT_NAME STREQUAL CANOPEN AND BUILD_TESTING)
   add_gtest(co_test)
 endif()
 
-# Doxygen configuration
-cmake_policy(SET CMP0057 NEW)
-find_package(Doxygen)
-if (CMAKE_PROJECT_NAME STREQUAL CANOPEN AND DOXYGEN_FOUND)
-  set(DOXYGEN_OPTIMIZE_OUTPUT_FOR_C YES)
-  set(DOXYGEN_TYPEDEF_HIDES_STRUCT YES)
-  set(DOXYGEN_EXTRACT_STATIC YES)
-  set(DOXYGEN_STRIP_CODE_COMMENTS NO)
-  set(DOXYGEN_MACRO_EXPANSION YES)
-  set(DOXYGEN_EXPAND_ONLY_PREDEF YES)
-  set(DOXYGEN_PREDEFINED CO_EXPORT)
-  set(DOXYGEN_EXPAND_AS_DEFINED CO_EXPORT)
-  set(DOXYGEN_COLLABORATION_GRAPH NO)
-  set(DOXYGEN_INCLUDE_GRAPH NO)
-  set(DOXYGEN_INCLUDED_BY_GRAPH NO)
-  set(DOXYGEN_RECURSIVE NO)
-  set(DOXYGEN_USE_MDFILE_AS_MAINPAGE README.md)
-  set(DOXYGEN_GENERATE_LATEX YES)
-  doxygen_add_docs(docs
-    README.md
-    include
-    src
+if (CMAKE_PROJECT_NAME STREQUAL CANOPEN)
+  add_subdirectory(docs)
+
+  add_custom_target(codespell
+    COMMAND codespell
+        ${CANOPEN_SOURCE_DIR}/include/
+        ${CANOPEN_SOURCE_DIR}/docs/
+        ${CANOPEN_SOURCE_DIR}/src/
+        ${CANOPEN_SOURCE_DIR}/test/
+        --skip *_build*
+    COMMENT "Running spell check on source code"
     )
 endif()
+
 
 include (InstallRequiredSystemLibraries)
 set (CPACK_RESOURCE_FILE_LICENSE "${CANOPEN_SOURCE_DIR}/LICENSE.md")

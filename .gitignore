@@ -4,6 +4,7 @@ build*/
 CMakeFiles/
 CMakeCache.txt
 install
+docs/_build
 
 .cproject
 .project
@@ -38,3 +39,6 @@ install
 *.i*86
 *.x86_64
 *.hex
+
+# Editors
+.vscode/
