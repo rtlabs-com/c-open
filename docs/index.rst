@@ -2,8 +2,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to the C-Open documentation!
-====================================
+C-Open documentation
+====================
 
 .. toctree::
    :maxdepth: 1
@@ -20,7 +20,7 @@ Welcome to the C-Open documentation!
 
 .. toctree::
    :maxdepth: 1
-   :caption: guides
+   :caption: How-to guides
 
    configure_master.rst
 
