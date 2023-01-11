@@ -57,16 +57,11 @@ breathe_default_project = "co"
 
 # -- Options for HTML output -------------------------------------------------
 
-html_theme = "sphinx_rtd_theme"
-html_theme_options = {
-    "logo_only": True,
-    "analytics_id": "G-378E9EVTG5",
-    "display_version": True,
-    "navigation_depth": 3,
-}
+# TODO Fine-tune the CSS to adjust logo and API documentation appearance
+html_theme = "press"
 html_last_updated_fmt = "%Y-%m-%d %H:%M"
 html_static_path = ["static"]
-html_logo = "illustrations/rtlabs_logo_white_text.png"
+html_logo = "illustrations/c-open.png"
 html_show_sourcelink = False
 html_copy_sources = False
 html_show_sphinx = False
