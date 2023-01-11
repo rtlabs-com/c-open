@@ -15,9 +15,9 @@ and tested using the CANopen Conformance Test Tool.
 
 Web resources
 -------------
-* Source repository:  https://github.com/rtlabs-com/c-open
-* Documentation:  https://rt-labs.com/docs/c-open
-* Continuous integration:  https://github.com/rtlabs-com/c-open/actions
+* Source repository: https://github.com/rtlabs-com/c-open
+* Documentation: https://rt-labs.com/docs/c-open
+* Continuous integration: https://github.com/rtlabs-com/c-open/actions
 * RT-Labs (stack integration, certification services and training): https://rt-labs.com
 
 Features
@@ -69,4 +69,4 @@ Contributions
 -------------
 Contributions are welcome. If you want to contribute you will need to sign a
 Contributor License Agreement and send it to us either by e-mail or by physical
-mail. More information is available on  https://rt-labs.com/contribution.
+mail. More information is available on https://rt-labs.com/contribution.
