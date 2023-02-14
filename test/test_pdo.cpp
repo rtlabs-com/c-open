@@ -615,22 +615,22 @@ TEST_F (PdoTest, RxSyncWindow)
    co_pdo_sync (&net, &counter, sizeof (counter));
 
    // In sync window, should buffer value
-   mock_os_get_current_time_us_result = 50;
+   mock_os_tick_current_result = 50;
    co_pdo_rx (&net, 0x201, pdo[0], sizeof (pdo[0]));
    EXPECT_EQ (0u, value7000);
 
    // Sync, should deliver value
-   mock_os_get_current_time_us_result = 1000;
+   mock_os_tick_current_result = 1000;
    co_pdo_sync (&net, &counter, sizeof (counter));
    EXPECT_EQ (0x44332211u, value7000);
 
    // Outside sync window, should not buffer value
-   mock_os_get_current_time_us_result = 150;
+   mock_os_tick_current_result = 150;
    co_pdo_rx (&net, 0x201, pdo[1], sizeof (pdo[1]));
    EXPECT_EQ (0x44332211u, value7000);
 
    // Sync, should not deliver value
-   mock_os_get_current_time_us_result = 2000;
+   mock_os_tick_current_result = 2000;
    co_pdo_sync (&net, &counter, sizeof (counter));
    EXPECT_EQ (0x44332211u, value7000);
 }
@@ -680,13 +680,13 @@ TEST_F (PdoTest, TxEventTimer)
    net.pdo_tx[0].event_timer       = 100;
 
    // Timer has not expired
-   mock_os_get_current_time_us_result = 50 * 1000;
-   co_pdo_timer (&net, mock_os_get_current_time_us_result);
+   mock_os_tick_current_result = 50 * 1000;
+   co_pdo_timer (&net, mock_os_tick_current_result);
    EXPECT_EQ (0x0u, mock_os_channel_send_calls);
 
    // Timer has expired
-   mock_os_get_current_time_us_result = 150 * 1000;
-   co_pdo_timer (&net, mock_os_get_current_time_us_result);
+   mock_os_tick_current_result = 150 * 1000;
+   co_pdo_timer (&net, mock_os_tick_current_result);
    EXPECT_EQ (0x1u, mock_os_channel_send_calls);
    EXPECT_EQ (0x181u, mock_os_channel_send_id);
 }
@@ -699,12 +699,12 @@ TEST_F (PdoTest, TxInhibitTime)
    net.pdo_tx[0].inhibit_time      = 100;
 
    // Timer has not expired
-   mock_os_get_current_time_us_result = 50 * 100;
+   mock_os_tick_current_result = 50 * 100;
    co_pdo_trigger (&net);
    EXPECT_EQ (0x0u, mock_os_channel_send_calls);
 
    // Timer has expired
-   mock_os_get_current_time_us_result = 150 * 100;
+   mock_os_tick_current_result = 150 * 100;
    co_pdo_trigger (&net);
    EXPECT_EQ (0x1u, mock_os_channel_send_calls);
    EXPECT_EQ (0x181u, mock_os_channel_send_id);

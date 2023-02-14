@@ -14,7 +14,8 @@
  ********************************************************************/
 
 #ifdef UNIT_TEST
-#define os_get_current_time_us mock_os_get_current_time_us
+#define os_tick_current    mock_os_tick_current
+#define os_tick_from_us    mock_os_tick_from_us
 #define os_channel_send    mock_os_channel_send
 #define os_channel_receive mock_os_channel_receive
 #define co_obj_find        mock_co_obj_find
@@ -128,7 +129,7 @@ static int co_sdo_rx_upload_init_req (
    job->type         = CO_JOB_SDO_UPLOAD;
    job->sdo.index    = co_fetch_uint16 (&data[1]);
    job->sdo.subindex = data[3];
-   job->timestamp    = os_get_current_time_us();
+   job->timestamp    = os_tick_current();
 
    /* Find requested object */
    obj = co_obj_find (net, job->sdo.index);
@@ -281,7 +282,7 @@ static int co_sdo_rx_upload_seg_req (
 
       job->sdo.data += size;
       job->sdo.remain -= size;
-      job->timestamp = os_get_current_time_us();
+      job->timestamp = os_tick_current();
    }
 
    os_channel_send (net->channel, 0x580 + net->node, msg, sizeof (msg));
@@ -305,7 +306,7 @@ static int co_sdo_rx_download_init_req (
    job->type         = CO_JOB_SDO_DOWNLOAD;
    job->sdo.index    = co_fetch_uint16 (&data[1]);
    job->sdo.subindex = data[3];
-   job->timestamp    = os_get_current_time_us();
+   job->timestamp    = os_tick_current();
 
    /* Find requested object */
    obj = co_obj_find (net, job->sdo.index);
@@ -458,7 +459,7 @@ static int co_sdo_rx_download_seg_req (
 
    job->sdo.data += size;
    job->sdo.remain -= size;
-   job->timestamp = os_get_current_time_us();
+   job->timestamp = os_tick_current();
 
    if (data[0] & CO_SDO_C)
    {
@@ -572,7 +573,7 @@ int co_sdo_rx (co_net_t * net, uint8_t node, void * msg, size_t dlc)
    }
 }
 
-int co_sdo_server_timer (co_net_t * net, uint32_t now)
+int co_sdo_server_timer (co_net_t * net, os_tick_t now)
 {
    co_job_t * job = &net->job_sdo_server;
 

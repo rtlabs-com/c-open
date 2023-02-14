@@ -18,6 +18,7 @@
 #define os_channel_receive mock_os_channel_receive
 #define co_obj_find        mock_co_obj_find
 #define co_entry_find      mock_co_entry_find
+#define os_tick_from_us    mock_os_tick_from_us
 #endif
 
 #include "co_sdo.h"
@@ -314,7 +315,7 @@ void co_sdo_issue (co_net_t * net, co_job_t * job)
    os_channel_send (net->channel, 0x600 + job->sdo.node, msg, sizeof (msg));
 }
 
-int co_sdo_client_timer (co_net_t * net, uint32_t now)
+int co_sdo_client_timer (co_net_t * net, os_tick_t now)
 {
    co_job_t * job = net->job_client;
 

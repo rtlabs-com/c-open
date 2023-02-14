@@ -98,7 +98,7 @@ void co_handle_rx (co_net_t * net)
 
 void co_handle_periodic (co_net_t * net)
 {
-   uint32_t now = os_get_current_time_us();
+   os_tick_t now = os_tick_current();
 
    co_sdo_server_timer (net, now);
    co_sdo_client_timer (net, now);
@@ -278,7 +278,7 @@ int co_sdo_read (
    job->sdo.data     = data;
    job->sdo.remain   = size;
    job->callback     = co_job_callback;
-   job->timestamp    = os_get_current_time_us();
+   job->timestamp    = os_tick_current();
    job->type         = CO_JOB_SDO_READ;
 
    os_mbox_post (net->mbox, job, OS_WAIT_FOREVER);
@@ -307,7 +307,7 @@ int co_sdo_write (
    job->sdo.data     = (uint8_t *)data;
    job->sdo.remain   = size;
    job->callback     = co_job_callback;
-   job->timestamp    = os_get_current_time_us();
+   job->timestamp    = os_tick_current();
    job->type         = CO_JOB_SDO_WRITE;
 
    os_mbox_post (net->mbox, job, OS_WAIT_FOREVER);

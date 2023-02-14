@@ -62,7 +62,7 @@ class TestBase : public ::testing::Test
       cb_sync_calls   = 0;
       cb_notify_calls = 0;
 
-      mock_os_get_current_time_us_result = 0;
+      mock_os_tick_current_result = 0;
       mock_os_channel_send_calls         = 0;
       mock_os_channel_send_id            = 0;
       mock_os_channel_receive_calls      = 0;

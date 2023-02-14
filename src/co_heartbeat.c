@@ -15,7 +15,8 @@
 
 #ifdef UNIT_TEST
 #define os_channel_send        mock_os_channel_send
-#define os_get_current_time_us mock_os_get_current_time_us
+#define os_tick_current        mock_os_tick_current
+#define os_tick_from_us        mock_os_tick_from_us
 #define co_emcy_tx             mock_co_emcy_tx
 #endif
 
@@ -112,7 +113,7 @@ int co_heartbeat_rx (co_net_t * net, uint8_t node, void * msg, size_t dlc)
       {
          co_heartbeat_t * heartbeat = &net->heartbeat[ix];
 
-         heartbeat->timestamp = os_get_current_time_us();
+         heartbeat->timestamp = os_tick_current();
          heartbeat->is_alive  = true;
          LOG_DEBUG (CO_HEARTBEAT_LOG, "node %d got heartbeat\n", heartbeat->node);
       }
@@ -121,7 +122,7 @@ int co_heartbeat_rx (co_net_t * net, uint8_t node, void * msg, size_t dlc)
    return 0;
 }
 
-int co_heartbeat_timer (co_net_t * net, uint32_t now)
+int co_heartbeat_timer (co_net_t * net, os_tick_t now)
 {
    unsigned int ix;
    bool heartbeat_error = false;
