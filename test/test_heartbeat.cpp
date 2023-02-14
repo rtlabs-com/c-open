@@ -105,7 +105,7 @@ TEST_F (HeartbeatTest, HeartbeatConsumer)
    net.heartbeat[0].time = 1000;
 
    // Receive heartbeat within timer window
-   mock_os_get_current_time_us_result = 500 * 1000;
+   mock_os_tick_current_result = 500 * 1000;
    co_heartbeat_rx (&net, 1, &heartbeat, 1);
    EXPECT_TRUE (net.heartbeat[0].is_alive);
 
@@ -120,7 +120,7 @@ TEST_F (HeartbeatTest, HeartbeatConsumer)
    EXPECT_EQ (1u, mock_co_emcy_tx_calls);
 
    // Receive heartbeat, should set is_alive
-   mock_os_get_current_time_us_result = 2000 * 1000;
+   mock_os_tick_current_result = 2000 * 1000;
    co_heartbeat_rx (&net, 1, &heartbeat, 1);
    EXPECT_TRUE (net.heartbeat[0].is_alive);
 }
@@ -133,7 +133,7 @@ TEST_F (HeartbeatTest, ShouldMaintainNodeMap)
    net.heartbeat[0].time = 1000;
 
    // Receive heartbeat within timer window, should set active node ID
-   mock_os_get_current_time_us_result = 500 * 1000;
+   mock_os_tick_current_result = 500 * 1000;
    co_heartbeat_rx (&net, 1, &heartbeat, 1);
    EXPECT_TRUE (co_bitmap_get (net.nodes, 1));
 

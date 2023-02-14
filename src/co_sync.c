@@ -15,6 +15,7 @@
 
 #ifdef UNIT_TEST
 #define os_channel_send mock_os_channel_send
+#define os_tick_from_us mock_os_tick_from_us
 #endif
 
 #include "co_sync.h"
@@ -45,7 +46,7 @@ uint32_t co_od1005_fn (
       if ((*value & sync->cobid & BIT (30)) == 0)
       {
          sync->cobid     = *value;
-         sync->timestamp = os_get_current_time_us();
+         sync->timestamp = os_tick_current();
          return 0;
       }
 
@@ -122,7 +123,7 @@ uint32_t co_od1019_fn (
          return CO_SDO_ABORT_VALUE;
 
       sync->overflow  = *value;
-      sync->timestamp = os_get_current_time_us();
+      sync->timestamp = os_tick_current();
       return 0;
 
    case OD_EVENT_RESTORE:
@@ -135,7 +136,7 @@ uint32_t co_od1019_fn (
    return 0;
 }
 
-int co_sync_timer (co_net_t * net, uint32_t now)
+int co_sync_timer (co_net_t * net, os_tick_t now)
 {
    co_sync_t * sync = &net->sync;
 

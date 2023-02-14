@@ -74,7 +74,7 @@ typedef struct co_pdo
    uint8_t sync_counter;
    uint16_t inhibit_time;
    uint16_t event_timer;
-   uint32_t timestamp;
+   os_tick_t timestamp;
    uint64_t frame;
    size_t bitlength;
    uint8_t number_of_mappings;
@@ -149,7 +149,7 @@ typedef struct co_job
       co_emcy_job_t emcy;
       co_pdo_job_t pdo;
    };
-   uint32_t timestamp;
+   os_tick_t timestamp;
    struct co_client * client;
    void (*callback) (struct co_job * job);
    int result;
@@ -169,7 +169,7 @@ typedef struct co_heartbeat
    uint8_t node;
    bool is_alive;
    uint16_t time;
-   uint32_t timestamp;
+   os_tick_t timestamp;
 } co_heartbeat_t;
 
 /** Node guarding state */
@@ -179,7 +179,7 @@ typedef struct co_node_guard
    uint16_t guard_time;
    uint8_t life_time_factor;
    uint8_t toggle;
-   uint32_t timestamp;
+   os_tick_t timestamp;
 } co_node_guard_t;
 
 /** LSS states */
@@ -206,14 +206,14 @@ typedef struct co_sync
    uint8_t counter;
    uint8_t overflow;
    uint32_t period;
-   uint32_t timestamp;
+   os_tick_t timestamp;
 } co_sync_t;
 
 /** EMCY state */
 typedef struct co_emcy
 {
    uint32_t cobid;                   /**< EMCY COB ID */
-   uint32_t timestamp;               /**< Timestamp of last EMCY */
+   os_tick_t timestamp;               /**< Timestamp of last EMCY */
    uint32_t bus_off_timestamp;       /**< Timestamp of bus-off event */
    uint16_t inhibit;                 /**< Inhibit time [100 us] */
    uint8_t error;                    /**< Error register */
@@ -238,9 +238,9 @@ struct co_net
    co_emcy_t emcy;              /**< EMCY state */
    co_sync_t sync;              /**< SYNC state */
    co_state_t state;            /**< NMT state */
-   uint32_t hb_timestamp;       /**< Heartbeat producer timestamp */
+   os_tick_t hb_timestamp;       /**< Heartbeat producer timestamp */
    uint32_t hb_time;            /**< Heartbeat producer time */
-   uint32_t sync_timestamp;     /**< Timestamp of last SYNC */
+   os_tick_t sync_timestamp;     /**< Timestamp of last SYNC */
    uint32_t sync_window;        /**< Synchronous window length */
    uint32_t restart_ms;         /**< Delay before attempting to recover from bus-off */
    co_pdo_t pdo_tx[MAX_TX_PDO]; /**< TPDOs */

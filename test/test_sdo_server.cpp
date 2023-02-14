@@ -168,7 +168,7 @@ TEST_F (SdoServerTest, SegmentedTimeout)
       {0x40, 0x08, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00},
       {0x60, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
    };
-   uint32_t now;
+   os_tick_t now;
 
    mock_co_obj_find_result   = find_obj (0x1008);
    mock_co_entry_find_result = find_entry (mock_co_obj_find_result, 0);
@@ -180,7 +180,7 @@ TEST_F (SdoServerTest, SegmentedTimeout)
    co_sdo_server_timer (&net, now);
    EXPECT_TRUE (CanMatch (0x581, expected[0], 8));
 
-   mock_os_get_current_time_us_result = now;
+   mock_os_tick_current_result = now;
    co_sdo_rx (&net, 1, command[1], 8);
 
    // Should not time out

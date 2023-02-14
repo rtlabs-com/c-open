@@ -22,11 +22,14 @@ extern "C" {
 
 #include <stdint.h>
 
+#include "osal.h"
 #include "co_api.h"
 #include "co_main.h"
 
-extern uint32_t mock_os_get_current_time_us_result;
-uint32_t mock_os_get_current_time_us (void);
+extern os_tick_t mock_os_tick_current_result;
+os_tick_t mock_os_tick_current (void);
+
+os_tick_t mock_os_tick_from_us (uint32_t us);
 
 extern unsigned int mock_os_channel_send_calls;
 extern uint32_t mock_os_channel_send_id;

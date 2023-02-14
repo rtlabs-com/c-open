@@ -16,7 +16,8 @@
 #ifdef UNIT_TEST
 #define os_channel_send        mock_os_channel_send
 #define os_channel_receive     mock_os_channel_receive
-#define os_get_current_time_us mock_os_get_current_time_us
+#define os_tick_current        mock_os_tick_current
+#define os_tick_from_us        mock_os_tick_from_us
 #endif
 
 #include "co_node_guard.h"
@@ -84,7 +85,7 @@ int co_node_guard_rx (co_net_t * net, uint32_t id, void * msg, size_t dlc)
       return -1;
 
    net->node_guard.is_alive  = true;
-   net->node_guard.timestamp = os_get_current_time_us();
+   net->node_guard.timestamp = os_tick_current();
 
    /* Heartbeat producer (heartbeat is prioritised over node guarding)*/
    if (net->hb_time == 0)
@@ -113,7 +114,7 @@ int co_node_guard_rx (co_net_t * net, uint32_t id, void * msg, size_t dlc)
    return 0;
 }
 
-int co_node_guard_timer (co_net_t * net, uint32_t now)
+int co_node_guard_timer (co_net_t * net, os_tick_t now)
 {
    uint32_t guard_factor =
       (net->node_guard.guard_time * net->node_guard.life_time_factor);
