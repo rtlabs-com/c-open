@@ -95,7 +95,7 @@ class TestBase : public ::testing::Test
 
    char name1009[20]    = {0};
    co_entry_t OD1009[1] = {
-      {0, OD_RW, DTYPE_VISIBLE_STRING, 8 * sizeof (name1009), 0, name1009},
+      {0, OD_NOTIFY | OD_RW, DTYPE_VISIBLE_STRING, 8 * sizeof (name1009), 0, name1009},
    };
 
    char name100A[20];

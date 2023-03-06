@@ -201,7 +201,7 @@ static void cb_sync (co_net_t * net)
 }
 
 /* Called when RPDO is received (if OD_NOTIFY is set) */
-static void cb_notify (co_net_t * net, uint16_t index, uint8_t subindex)
+static void cb_notify (co_net_t * net, uint16_t index, uint8_t subindex, od_notify_event_t event, uint32_t value)
 {
 }
 

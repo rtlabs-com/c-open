@@ -36,16 +36,18 @@ static int co_subindex_equals (
    return entry->subindex == subindex;
 }
 
-static void co_od_notify (
+void co_od_notify (
    co_net_t * net,
    const co_obj_t * obj,
    const co_entry_t * entry,
-   uint8_t subindex)
+   uint8_t subindex,
+   od_notify_event_t event,
+   uint32_t value)
 {
    if (entry->flags & OD_NOTIFY)
    {
       if (net->cb_notify)
-         net->cb_notify (net, obj->index, subindex);
+         net->cb_notify (net, obj->index, subindex, event, value);
    }
 }
 
@@ -221,7 +223,7 @@ uint32_t co_od_set_value (
       uint32_t v = value;
 
       result = obj->access (net, OD_EVENT_WRITE, obj, entry, subindex, &v);
-      co_od_notify (net, obj, entry, subindex);
+      co_od_notify (net, obj, entry, subindex, OD_NOTIFY_ACCESSED, 0);
       return result;
    }
 
@@ -262,7 +264,7 @@ uint32_t co_od_set_value (
       return CO_SDO_ABORT_GENERAL;
    }
 
-   co_od_notify (net, obj, entry, subindex);
+   co_od_notify (net, obj, entry, subindex, OD_NOTIFY_VALUE_SET, 0);
    return 0;
 }
 
