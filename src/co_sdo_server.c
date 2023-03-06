@@ -162,8 +162,7 @@ static int co_sdo_rx_upload_init_req (
    if (job->sdo.remain <= sizeof (job->sdo.value))
    {
       /* Object values up to 64 bits are fetched atomically */
-      abort =
-         co_od_get_value (net, obj, entry, job->sdo.subindex, &job->sdo.value);
+      abort = co_od_get_value (net, obj, entry, job->sdo.subindex, &job->sdo.value);
       job->sdo.data = (uint8_t *)&job->sdo.value;
    }
    else
@@ -269,6 +268,48 @@ static int co_sdo_rx_upload_seg_req (
    return 0;
 }
 
+static bool co_is_datatype_atomic (co_dtype_t datatype)
+{
+   switch (datatype)
+   {
+      case DTYPE_BOOLEAN:
+      case DTYPE_INTEGER8:
+      case DTYPE_INTEGER16:
+      case DTYPE_INTEGER32:
+      case DTYPE_UNSIGNED8:
+      case DTYPE_UNSIGNED16:
+      case DTYPE_UNSIGNED32:
+      case DTYPE_REAL32:
+      case DTYPE_REAL64:
+      case DTYPE_INTEGER64:
+      case DTYPE_UNSIGNED64:
+         return true;
+
+      case DTYPE_VISIBLE_STRING:
+      case DTYPE_OCTET_STRING:
+      case DTYPE_UNICODE_STRING:
+      case DTYPE_TIME_OF_DAY:
+      case DTYPE_TIME_DIFFERENCE:
+      case DTYPE_DOMAIN:
+      case DTYPE_INTEGER24:
+      case DTYPE_INTEGER40:
+      case DTYPE_INTEGER48:
+      case DTYPE_INTEGER56:
+      case DTYPE_UNSIGNED24:
+      case DTYPE_UNSIGNED40:
+      case DTYPE_UNSIGNED48:
+      case DTYPE_UNSIGNED56:
+      case DTYPE_PDO_COMM_PARAM:
+      case DTYPE_PDO_MAPPING:
+      case DTYPE_SDO_PARAM:
+      case DTYPE_IDENTITY:
+         return false;
+
+      default:
+         return false;
+   }
+}
+
 static int co_sdo_rx_download_init_req (
    co_net_t * net,
    uint8_t node,
@@ -327,40 +368,13 @@ static int co_sdo_rx_download_init_req (
       return -1;
    }
 
-   job->sdo.remain = CO_BYTELENGTH (entry->bitlength);
-   job->sdo.toggle = 0;
-
-   if (job->sdo.remain <= sizeof (job->sdo.value))
-   {
-      /* Object values up to 64 bits are cached so that we can set
-         them atomically when the transfer is complete */
-      job->sdo.data   = (uint8_t *)&job->sdo.value;
-      job->sdo.cached = true;
-   }
-   else
-   {
-      /* Otherwise a pointer is used to access object */
-      abort = co_od_get_ptr (net, obj, entry, job->sdo.subindex, &job->sdo.data);
-      if (abort)
-      {
-         co_sdo_abort (
-            net,
-            0x580 + net->node,
-            job->sdo.index,
-            job->sdo.subindex,
-            abort);
-         return -1;
-      }
-   }
-
    /* Check for expedited download */
    if (type & CO_SDO_E)
    {
       size_t size = (type & CO_SDO_S) ? 4 - CO_SDO_N (type) : 4;
-      uint32_t value;
 
       /* Validate size */
-      if (size != job->sdo.remain)
+      if (size > CO_BYTELENGTH (entry->bitlength))
       {
          co_sdo_abort (
             net,
@@ -371,11 +385,35 @@ static int co_sdo_rx_download_init_req (
          return -1;
       }
 
-      /* Fetch value */
-      value = co_fetch_uint32 (&data[4]);
+      if (co_is_datatype_atomic (entry->datatype))
+      {
+         uint32_t value;
 
-      /* Atomically set value */
-      abort = co_od_set_value (net, obj, entry, job->sdo.subindex, value);
+         /* Fetch value */
+         value = co_fetch_uint32 (&data[4]);
+
+         /* Atomically set value */
+         abort = co_od_set_value (net, obj, entry, job->sdo.subindex, value);
+      }
+      else
+      {
+         /* Pointer is used to access object */
+         abort = co_od_get_ptr (net, obj, entry, job->sdo.subindex, &job->sdo.data);
+         if (abort)
+         {
+            co_sdo_abort (
+               net,
+               0x580 + net->node,
+               job->sdo.index,
+               job->sdo.subindex,
+               abort);
+            return -1;
+         }
+
+         memcpy (job->sdo.data, &data[4], size);
+
+         co_od_notify (net, obj, entry, job->sdo.subindex, OD_NOTIFY_SDO_RECEIVED, size);
+      }
 
       /* Done */
       job->type = CO_JOB_NONE;
@@ -389,6 +427,46 @@ static int co_sdo_rx_download_init_req (
             job->sdo.subindex,
             abort);
          return -1;
+      }
+   }
+   else
+   {
+      job->sdo.total = co_fetch_uint32 (&data[4]);
+      job->sdo.remain = job->sdo.total;
+
+      if (job->sdo.remain > CO_BYTELENGTH (entry->bitlength))
+      {
+         co_sdo_abort (
+            net,
+            0x580 + net->node,
+            job->sdo.index,
+            job->sdo.subindex,
+            CO_SDO_ABORT_LENGTH);
+         return -1;
+      }
+      job->sdo.toggle = 0;
+
+      if (co_is_datatype_atomic (entry->datatype))
+      {
+         /* Datatypes with atomic functions are cached in job->sdo.value
+          * so they can be set atomically when the transfer is complete */
+         job->sdo.data   = (uint8_t *)&job->sdo.value;
+         job->sdo.cached = true;
+      }
+      else
+      {
+         /* Otherwise a pointer is used to access object */
+         abort = co_od_get_ptr (net, obj, entry, job->sdo.subindex, &job->sdo.data);
+         if (abort)
+         {
+            co_sdo_abort (
+               net,
+               0x580 + net->node,
+               job->sdo.index,
+               job->sdo.subindex,
+               abort);
+            return -1;
+         }
       }
    }
 
@@ -447,37 +525,36 @@ static int co_sdo_rx_download_seg_req (
       /* Write complete */
       job->type = CO_JOB_NONE;
 
+      /* Find requested object */
+      obj = co_obj_find (net, job->sdo.index);
+      if (obj == NULL)
+      {
+         co_sdo_abort (
+            net,
+            0x580 + net->node,
+            job->sdo.index,
+            job->sdo.subindex,
+            CO_SDO_ABORT_BAD_INDEX);
+         return -1;
+      }
+
+      /* Find requested subindex */
+      entry = co_entry_find (net, obj, job->sdo.subindex);
+      if (entry == NULL)
+      {
+         co_sdo_abort (
+            net,
+            0x580 + net->node,
+            job->sdo.index,
+            job->sdo.subindex,
+            CO_SDO_ABORT_BAD_SUBINDEX);
+         return -1;
+      }
+
       if (job->sdo.cached)
       {
-         /* Find requested object */
-         obj = co_obj_find (net, job->sdo.index);
-         if (obj == NULL)
-         {
-            co_sdo_abort (
-               net,
-               0x580 + net->node,
-               job->sdo.index,
-               job->sdo.subindex,
-               CO_SDO_ABORT_BAD_INDEX);
-            return -1;
-         }
-
-         /* Find requested subindex */
-         entry = co_entry_find (net, obj, job->sdo.subindex);
-         if (entry == NULL)
-         {
-            co_sdo_abort (
-               net,
-               0x580 + net->node,
-               job->sdo.index,
-               job->sdo.subindex,
-               CO_SDO_ABORT_BAD_SUBINDEX);
-            return -1;
-         }
-
          /* Atomically set value */
-         abort =
-            co_od_set_value (net, obj, entry, job->sdo.subindex, job->sdo.value);
+         abort = co_od_set_value (net, obj, entry, job->sdo.subindex, job->sdo.value);
          if (abort)
          {
             co_sdo_abort (
@@ -488,6 +565,10 @@ static int co_sdo_rx_download_seg_req (
                abort);
             return -1;
          }
+      }
+      else
+      {
+         co_od_notify (net, obj, entry, job->sdo.subindex, OD_NOTIFY_SDO_RECEIVED, job->sdo.total);
       }
    }
 

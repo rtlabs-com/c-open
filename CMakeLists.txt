@@ -106,7 +106,7 @@ set(MAX_RX_PDO "4"
 set(MAX_ERRORS "4"
   CACHE STRING "max size of error list")
 
-set(SDO_TIMEOUT "100"
+set(SDO_TIMEOUT "200"
   CACHE STRING "timeout in ms for ongoing SDO transfers")
 
 set(CO_THREAD_PRIO "10"
