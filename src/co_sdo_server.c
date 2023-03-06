@@ -28,27 +28,6 @@
 
 #include <inttypes.h>
 
-#define CO_SDO_xCS(v) ((v)&0xE0)
-#define CO_SDO_N(v)   (((v) >> 2) & 0x03)
-#define CO_SDO_E      BIT (1)
-#define CO_SDO_S      BIT (0)
-
-#define CO_SDO_CCS_DOWNLOAD_SEG_REQ  (0 << 5)
-#define CO_SDO_CCS_DOWNLOAD_INIT_REQ (1 << 5)
-#define CO_SDO_CCS_UPLOAD_INIT_REQ   (2 << 5)
-#define CO_SDO_CCS_UPLOAD_SEG_REQ    (3 << 5)
-
-#define CO_SDO_SCS_UPLOAD_SEG_RSP    (0 << 5)
-#define CO_SDO_SCS_DOWNLOAD_SEG_RSP  (1 << 5)
-#define CO_SDO_SCS_UPLOAD_INIT_RSP   (2 << 5)
-#define CO_SDO_SCS_DOWNLOAD_INIT_RSP (3 << 5)
-
-#define CO_SDO_xCS_ABORT (4 << 5)
-
-#define CO_SDO_TOGGLE   BIT (4)
-#define CO_SDO_N_SEG(v) (((v) >> 1) & 0x07)
-#define CO_SDO_C        BIT (0)
-
 void co_sdo_abort (
    co_net_t * net,
    uint16_t id,
