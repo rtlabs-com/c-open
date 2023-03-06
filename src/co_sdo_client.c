@@ -154,14 +154,14 @@ static int co_sdo_tx_download_init_rsp (
       memcpy (&msg[1], job->sdo.data, size);
 
       msg[0] = CO_SDO_CCS_DOWNLOAD_SEG_REQ | ((7 - (size & 0x07)) << 1);
-      if (size < 7)
-         msg[0] |= CO_SDO_C;
 
       job->sdo.toggle = 0;
-
       job->sdo.data += size;
       job->sdo.remain -= size;
       job->sdo.total += size;
+
+      if (job->sdo.remain == 0)
+         msg[0] |= CO_SDO_C;
 
       os_channel_send (net->channel, 0x600 + node, msg, sizeof (msg));
    }
@@ -209,12 +209,13 @@ static int co_sdo_tx_download_seg_rsp (
       msg[0] = CO_SDO_CCS_DOWNLOAD_SEG_REQ | ((7 - (size & 0x07)) << 1);
       if (job->sdo.toggle)
          msg[0] |= CO_SDO_TOGGLE;
-      if (size < 7)
-         msg[0] |= CO_SDO_C;
 
       job->sdo.data += size;
       job->sdo.remain -= size;
       job->sdo.total += size;
+
+      if (job->sdo.remain == 0)
+         msg[0] |= CO_SDO_C;
 
       os_channel_send (net->channel, 0x600 + node, msg, sizeof (msg));
    }
