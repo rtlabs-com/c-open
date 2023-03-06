@@ -129,6 +129,7 @@ static int co_sdo_rx_upload_init_req (
    job->type         = CO_JOB_SDO_UPLOAD;
    job->sdo.index    = co_fetch_uint16 (&data[1]);
    job->sdo.subindex = data[3];
+   job->sdo.cached   = false;
    job->timestamp    = os_tick_current();
 
    /* Find requested object */
@@ -306,6 +307,7 @@ static int co_sdo_rx_download_init_req (
    job->type         = CO_JOB_SDO_DOWNLOAD;
    job->sdo.index    = co_fetch_uint16 (&data[1]);
    job->sdo.subindex = data[3];
+   job->sdo.cached   = false;
    job->timestamp    = os_tick_current();
 
    /* Find requested object */
