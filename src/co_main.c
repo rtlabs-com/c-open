@@ -421,6 +421,7 @@ co_net_t * co_init (const char * canif, const co_cfg_t * cfg)
    net->cb_sync   = cfg->cb_sync;
    net->cb_emcy   = cfg->cb_emcy;
    net->cb_notify = cfg->cb_notify;
+   net->cb_heartbeat_state = cfg->cb_heartbeat_state;
 
    net->restart_ms = cfg->restart_ms;
 
