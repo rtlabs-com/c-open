@@ -319,6 +319,13 @@ typedef struct co_cfg
    /** Notify callback */
    void (*cb_notify) (co_net_t * net, uint16_t index, uint8_t subindex);
 
+   /** Heartbeat node state change callback */
+   void (*cb_heartbeat_state) (
+      co_net_t * net,
+      uint8_t node,
+      uint8_t old_state,
+      uint8_t new_state);
+
    /** Function to open dictionary store */
    void * (*open) (co_store_t store, co_mode_t mode);
 
