@@ -97,7 +97,7 @@ int os_channel_receive (
    *id = frame.id & CAN_ID_MASK;
    *id |= (frame.id & CAN_ID_RTR) ? CO_RTR_MASK : 0;
    *id |= (frame.id & CAN_ID_EXT) ? CO_EXT_MASK : 0;
-   *dlc = frame.dlc;
+   *dlc = MIN(8, frame.dlc);
    memcpy (data, frame.data, frame.dlc);
 
    co_msg_log ("Rx", *id, data, *dlc);
