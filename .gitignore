@@ -6,6 +6,9 @@ CMakeCache.txt
 install
 docs/_build
 
+# Python files
+*env*
+
 .cproject
 .project
 .dir-locals.el

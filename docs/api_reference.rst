@@ -23,30 +23,30 @@ Callbacks
 Structs
 --------
 
-.. doxygenstruct:: co_obj
+.. doxygenstruct:: co_obj_t
    :members:
    :undoc-members:
 
-.. doxygenstruct:: co_entry
+.. doxygenstruct:: co_entry_t
    :members:
    :undoc-members:
 
-.. doxygenstruct:: co_default
+.. doxygenstruct:: co_default_t
    :members:
    :undoc-members:
 
-.. doxygenstruct:: co_cfg
+.. doxygenstruct:: co_cfg_t
    :members:
    :undoc-members:
 
 Enums
 ------
 
-.. doxygenenum:: co_sdo_abort
-.. doxygenenum:: co_state
-.. doxygenenum:: co_nmt_cmd
-.. doxygenenum:: co_otype
-.. doxygenenum:: co_dtype
-.. doxygenenum:: od_event
-.. doxygenenum:: co_store
-.. doxygenenum:: co_mode
+.. doxygenenum:: co_sdo_abort_t
+.. doxygenenum:: co_state_t
+.. doxygenenum:: co_nmt_cmd_t
+.. doxygenenum:: co_otype_t
+.. doxygenenum:: co_dtype_t
+.. doxygenenum:: od_event_t
+.. doxygenenum:: co_store_t
+.. doxygenenum:: co_mode_t

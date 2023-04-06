@@ -22,7 +22,7 @@ if (DOXYGEN_FOUND)
 
   # Doxygen configuration
   set(DOXYGEN_OPTIMIZE_OUTPUT_FOR_C YES)
-  set(DOXYGEN_TYPEDEF_HIDES_STRUCT NO)
+  set(DOXYGEN_TYPEDEF_HIDES_STRUCT YES)
   set(DOXYGEN_EXTRACT_ALL YES)
   set(DOXYGEN_EXTRACT_STATIC YES)
   set(DOXYGEN_STRIP_CODE_COMMENTS NO)
@@ -73,5 +73,15 @@ if (SPHINX_FOUND AND DOXYGEN_FOUND)
   add_sphinx_builder(sphinx-pdf latexpdf)
   add_sphinx_builder(sphinx-spelling spelling)
   add_sphinx_builder(sphinx-linkcheck linkcheck)
+
+  # Zip the documentation
+  message("c-open revision: ${CANOPEN_GIT_REVISION}")
+  add_custom_command(
+    TARGET sphinx-html POST_BUILD
+    COMMAND zip -FS -r copen_docs_${CANOPEN_GIT_REVISION}.zip sphinx/html/ > /dev/null
+    COMMAND echo "The Sphinx HTML and ZIP files are located in ${CMAKE_CURRENT_BINARY_DIR}"
+    BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/copen_docs_${CANOPEN_GIT_REVISION}.zip
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    COMMENT "Zipping HTML documentation")
 
 endif()
