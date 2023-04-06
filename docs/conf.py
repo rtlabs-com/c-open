@@ -6,21 +6,28 @@
 
 # -- Path setup --------------------------------------------------------------
 
-# If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
-#
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import pathlib
+import re
+import sys
 
+import os
+
+
+pathobj_docs_dir = pathlib.Path(__file__).parent.absolute()
+pathobj_rootdir = pathobj_docs_dir.parent.absolute()
 
 # -- Project information -----------------------------------------------------
 
-project = 'c-open'
-copyright = '2022, RT-Labs AB'
-author = 'RT-Labs AB'
+try:
+    cmakelists_contents = pathobj_rootdir.joinpath("CMakeLists.txt").read_text()
+    versiontext_match = re.search(r"CANOPEN VERSION ([\d.]*)", cmakelists_contents)
+    version = versiontext_match.group(1)
+except:
+    version = "unknown version"
 
+project = 'c-open'
+copyright = '2023, RT-Labs AB'
+author = 'RT-Labs AB'
 
 # -- General configuration ---------------------------------------------------
 
@@ -32,7 +39,6 @@ extensions = [
     "recommonmark",
     "sphinx_copybutton",
     "sphinx_jinja",
-    "sphinx_rtd_theme",
     "sphinx.ext.autosectionlabel",
     "sphinx.ext.graphviz",
     "sphinxcontrib.kroki",
@@ -40,11 +46,12 @@ extensions = [
     "sphinxcontrib.spelling",
 ]
 
+
 # Spelling
 spelling_word_list_filename = "spelling-wordlist.txt"
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["../../_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -57,17 +64,28 @@ breathe_default_project = "co"
 
 # -- Options for HTML output -------------------------------------------------
 
-# TODO Fine-tune the CSS to adjust logo and API documentation appearance
-html_theme = "press"
+html_context = {
+   "default_mode": "light"
+}
+
+html_theme = "sphinx_book_theme"
+html_theme_options = {
+    "show_nav_level": 3,
+    "home_page_in_toc": True,
+    "use_repository_button": True,
+    "use_fullscreen_button": False,
+    "navbar_end": ["navbar-icon-links"],
+    "use_download_button": False,
+    "repository_url": "https://github.com/rtlabs-com/c-open",
+}
+
 html_last_updated_fmt = "%Y-%m-%d %H:%M"
 html_static_path = ["static"]
-html_logo = "illustrations/c-open.png"
+html_logo = "static/i/c-open.svg"
 html_show_sourcelink = False
-html_copy_sources = False
-html_show_sphinx = False
 
-html_css_files = [
-    "../../css/custom_rtd.css",
-    "css/fix_table_width.css",
-    "css/change_header_size.css",
-]
+if os.getenv("USE_EXTERNAL_CSS") is not None:
+    html_css_files = [
+        "https://rt-labs.com/content/themes/rtlabs2020/assets/css/style.css",
+        "https://rt-labs.com/content/themes/rtlabs2020/assets/css/rt_custom_sphinx.css",
+    ]
