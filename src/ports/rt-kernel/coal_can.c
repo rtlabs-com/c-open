@@ -65,7 +65,7 @@ os_channel_t * os_channel_open (const char * name, void * callback, void * arg)
 
 int os_channel_send (os_channel_t * channel, uint32_t id, const void * data, size_t dlc)
 {
-   can_frame_t frame;
+   can_frame_t frame = {};
 
    co_msg_log ("Tx", id, data, dlc);
 
@@ -87,7 +87,7 @@ int os_channel_receive (
    void * data,
    size_t * dlc)
 {
-   can_frame_t frame;
+   can_frame_t frame = {};
    int result;
 
    result = can_receive (channel->handle, &frame);
