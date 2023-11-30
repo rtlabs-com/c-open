@@ -99,30 +99,42 @@ TEST_F (HeartbeatTest, HeartbeatProducer)
 
 TEST_F (HeartbeatTest, HeartbeatConsumer)
 {
-   uint8_t heartbeat = 0x01;
+   uint8_t heartbeat = 5;
 
    net.heartbeat[0].node = 1;
    net.heartbeat[0].time = 1000;
 
    // Receive heartbeat within timer window
-   mock_os_get_current_time_us_result = 500 * 1000;
+   mock_os_tick_current_result = 500 * 1000;
    co_heartbeat_rx (&net, 1, &heartbeat, 1);
-   EXPECT_TRUE (net.heartbeat[0].is_alive);
+   EXPECT_EQ (5, net.heartbeat[0].state);
+   EXPECT_EQ (1u, cb_heartbeat_state_calls);
 
    // Timer has expired, should send EMCY
    co_heartbeat_timer (&net, 1500 * 1000);
-   EXPECT_FALSE (net.heartbeat[0].is_alive);
+   EXPECT_EQ (0, net.heartbeat[0].state);
    EXPECT_EQ (1u, mock_co_emcy_tx_calls);
+   EXPECT_EQ (2u, cb_heartbeat_state_calls);
 
    // Timer already expired, should not send EMCY
    co_heartbeat_timer (&net, 1600 * 1000);
-   EXPECT_FALSE (net.heartbeat[0].is_alive);
+   EXPECT_EQ (0, net.heartbeat[0].state);
    EXPECT_EQ (1u, mock_co_emcy_tx_calls);
+   EXPECT_EQ (2u, cb_heartbeat_state_calls);
 
-   // Receive heartbeat, should set is_alive
-   mock_os_get_current_time_us_result = 2000 * 1000;
+   // Receive heartbeat, should set state
+   mock_os_tick_current_result = 2000 * 1000;
    co_heartbeat_rx (&net, 1, &heartbeat, 1);
-   EXPECT_TRUE (net.heartbeat[0].is_alive);
+   EXPECT_EQ (5, net.heartbeat[0].state);
+   EXPECT_EQ (3u, cb_heartbeat_state_calls);
+
+   // Receive heartbeat with different state, should call cb_heartbeat_state
+   mock_os_tick_current_result = 2500 * 1000;
+   heartbeat = 127;
+   co_heartbeat_rx (&net, 1, &heartbeat, 1);
+   EXPECT_EQ (4u, cb_heartbeat_state_calls);
+   EXPECT_EQ (5, cb_heartbeat_state_old_state);
+   EXPECT_EQ (127, cb_heartbeat_state_new_state);
 }
 
 TEST_F (HeartbeatTest, ShouldMaintainNodeMap)
@@ -133,7 +145,7 @@ TEST_F (HeartbeatTest, ShouldMaintainNodeMap)
    net.heartbeat[0].time = 1000;
 
    // Receive heartbeat within timer window, should set active node ID
-   mock_os_get_current_time_us_result = 500 * 1000;
+   mock_os_tick_current_result = 500 * 1000;
    co_heartbeat_rx (&net, 1, &heartbeat, 1);
    EXPECT_TRUE (co_bitmap_get (net.nodes, 1));
 

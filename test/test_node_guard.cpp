@@ -142,7 +142,7 @@ TEST_F (NodeGuardTest, Expire)
    net.node_guard.life_time_factor = 2;
 
    // Receive node guard request, reset timestamp
-   mock_os_get_current_time_us_result = 10 * 1000;
+   mock_os_tick_current_result = 10 * 1000;
    mock_os_channel_send_id            = 0;
    co_node_guard_rx (&net, NODE_GUARD_BASE | 1, &rtr, 1);
    EXPECT_TRUE (CanMatch (0x701, &expected[0], 1));
@@ -150,7 +150,7 @@ TEST_F (NodeGuardTest, Expire)
    EXPECT_EQ (STATE_OP, net.state);
 
    // Receive node guard request, reset timestamp
-   mock_os_get_current_time_us_result = 20 * 1000;
+   mock_os_tick_current_result = 20 * 1000;
    mock_os_channel_send_id            = 0;
    co_node_guard_rx (&net, NODE_GUARD_BASE | 1, &rtr, 1);
    EXPECT_TRUE (CanMatch (0x701, &expected[1], 1));
@@ -179,7 +179,7 @@ TEST_F (NodeGuardTest, Expire)
    EXPECT_EQ (STATE_PREOP, net.state);
 
    // Receive node guard request, reset timestamp
-   mock_os_get_current_time_us_result = 300 * 1000;
+   mock_os_tick_current_result = 300 * 1000;
    mock_os_channel_send_id            = 0;
    co_node_guard_rx (&net, NODE_GUARD_BASE | 1, &rtr, 1);
    EXPECT_TRUE (CanMatch (0x701, &expected[2], 1));
@@ -187,7 +187,7 @@ TEST_F (NodeGuardTest, Expire)
    EXPECT_EQ (STATE_PREOP, net.state);
 
    // Receive node guard request, reset timestamp
-   mock_os_get_current_time_us_result = 350 * 1000;
+   mock_os_tick_current_result = 350 * 1000;
    mock_os_channel_send_id            = 0;
    co_node_guard_rx (&net, NODE_GUARD_BASE | 1, &rtr, 1);
    EXPECT_TRUE (CanMatch (0x701, &expected[3], 1));

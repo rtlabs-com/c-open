@@ -15,7 +15,8 @@
 
 #ifdef UNIT_TEST
 #define os_channel_send        mock_os_channel_send
-#define os_get_current_time_us mock_os_get_current_time_us
+#define os_tick_current        mock_os_tick_current
+#define os_tick_from_us        mock_os_tick_from_us
 #define co_emcy_tx             mock_co_emcy_tx
 #endif
 
@@ -111,17 +112,40 @@ int co_heartbeat_rx (co_net_t * net, uint8_t node, void * msg, size_t dlc)
       if (net->heartbeat[ix].node == node)
       {
          co_heartbeat_t * heartbeat = &net->heartbeat[ix];
+         uint8_t state;
 
-         heartbeat->timestamp = os_get_current_time_us();
-         heartbeat->is_alive  = true;
-         LOG_DEBUG (CO_HEARTBEAT_LOG, "node %d got heartbeat\n", heartbeat->node);
+         heartbeat->timestamp = os_tick_current();
+         state = co_fetch_uint8 (msg);
+         LOG_DEBUG (
+            CO_HEARTBEAT_LOG,
+            "node %d got heartbeat state %02x\n",
+            heartbeat->node,
+            heartbeat->state);
+
+         /* Check for node state change */
+         if (state != heartbeat->state)
+         {
+            LOG_DEBUG (
+               CO_HEARTBEAT_LOG,
+               "node %d heartbeat state change\n",
+               heartbeat->node);
+
+            /* Call user callback */
+            if (net->cb_heartbeat_state)
+            {
+               net->cb_heartbeat_state (net, node, heartbeat->state, state);
+            }
+
+            /* Update node state */
+            heartbeat->state = state;
+         }
       }
    }
 
    return 0;
 }
 
-int co_heartbeat_timer (co_net_t * net, uint32_t now)
+int co_heartbeat_timer (co_net_t * net, os_tick_t now)
 {
    unsigned int ix;
    bool heartbeat_error = false;
@@ -171,21 +195,28 @@ int co_heartbeat_timer (co_net_t * net, uint32_t now)
          continue;
 
       /* Check that heartbeat has not already expired */
-      if (!heartbeat->is_alive)
+      if (heartbeat->state == 0)
          continue;
 
       /* Check heartbeat has not expired */
       if (co_is_expired (now, heartbeat->timestamp, 1000 * heartbeat->time))
       {
          /* Expired */
-         heartbeat->is_alive = false;
          co_bitmap_clear (net->nodes, heartbeat->node);
          LOG_ERROR (
             CO_HEARTBEAT_LOG,
             "node %d heartbeat expired\n",
             heartbeat->node);
 
+         /* Call user callback */
+         if (net->cb_heartbeat_state)
+         {
+            net->cb_heartbeat_state (net, heartbeat->node, heartbeat->state, 0);
+         }
+
+         heartbeat->state = 0;
          heartbeat_error = true;
+
          co_emcy_error_register_set (net, CO_ERR_COMMUNICATION);
          co_emcy_tx (net, 0x8130, 0, NULL);
       }

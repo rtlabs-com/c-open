@@ -18,10 +18,15 @@
 #include <gtest/gtest.h>
 #include <string.h>
 
-uint32_t mock_os_get_current_time_us_result = 0;
-uint32_t mock_os_get_current_time_us (void)
+os_tick_t mock_os_tick_current_result = 0;
+os_tick_t mock_os_tick_current (void)
 {
-   return mock_os_get_current_time_us_result;
+   return mock_os_tick_current_result;
+}
+
+os_tick_t mock_os_tick_from_us (uint32_t us)
+{
+   return us;
 }
 
 unsigned int mock_os_channel_send_calls = 0;
@@ -175,6 +180,18 @@ void cb_notify (co_net_t * net, uint16_t index, uint8_t subindex)
    cb_notify_calls++;
    cb_notify_index    = index;
    cb_notify_subindex = subindex;
+}
+
+unsigned int cb_heartbeat_state_calls;
+uint8_t cb_heartbeat_state_node;
+uint8_t cb_heartbeat_state_old_state;
+uint8_t cb_heartbeat_state_new_state;
+void cb_heartbeat_state (co_net_t * net, uint8_t node, uint8_t old_state, uint8_t new_state)
+{
+   cb_heartbeat_state_calls++;
+   cb_heartbeat_state_node = node;
+   cb_heartbeat_state_old_state = old_state;
+   cb_heartbeat_state_new_state = new_state;
 }
 
 uint8_t the_store[2 * 1024];

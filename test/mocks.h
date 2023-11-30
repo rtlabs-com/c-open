@@ -22,11 +22,14 @@ extern "C" {
 
 #include <stdint.h>
 
+#include "osal.h"
 #include "co_api.h"
 #include "co_main.h"
 
-extern uint32_t mock_os_get_current_time_us_result;
-uint32_t mock_os_get_current_time_us (void);
+extern os_tick_t mock_os_tick_current_result;
+os_tick_t mock_os_tick_current (void);
+
+os_tick_t mock_os_tick_from_us (uint32_t us);
 
 extern unsigned int mock_os_channel_send_calls;
 extern uint32_t mock_os_channel_send_id;
@@ -106,6 +109,12 @@ extern unsigned int cb_notify_calls;
 extern uint16_t cb_notify_index;
 extern uint16_t cb_notify_subindex;
 void cb_notify (co_net_t * net, uint16_t index, uint8_t subindex);
+
+extern unsigned int cb_heartbeat_state_calls;
+extern uint8_t cb_heartbeat_state_node;
+extern uint8_t cb_heartbeat_state_old_state;
+extern uint8_t cb_heartbeat_state_new_state;
+void cb_heartbeat_state (co_net_t * net, uint8_t node, uint8_t old_state, uint8_t new_state);
 
 void store_init (void);
 extern unsigned int store_open_calls;

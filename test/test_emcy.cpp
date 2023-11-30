@@ -410,7 +410,7 @@ TEST_F (EmcyTest, EmcyBusOffRecovery)
    co_emcy_handle_can_state (&net);
 
    // Should attempt bus off recovery after timeout
-   mock_os_get_current_time_us_result = 101 * 1000;
+   mock_os_tick_current_result = 101 * 1000;
    co_emcy_handle_can_state (&net);
    EXPECT_EQ (1u, mock_os_channel_bus_on_calls);
 }
@@ -420,17 +420,17 @@ TEST_F (EmcyTest, EmcyInhibit)
    net.emcy.inhibit = 10; // 10 * 100 us
 
    // Should send EMCY
-   mock_os_get_current_time_us_result = 10 * 100;
+   mock_os_tick_current_result = 10 * 100;
    co_emcy_tx (&net, 0x8130, 0x1234, msef);
    EXPECT_EQ (1u, mock_os_channel_send_calls);
 
    // Inhibit time active, should not send EMCY
-   mock_os_get_current_time_us_result = 15 * 100;
+   mock_os_tick_current_result = 15 * 100;
    co_emcy_tx (&net, 0x8130, 0x1234, msef);
    EXPECT_EQ (1u, mock_os_channel_send_calls);
 
    // Inhibit time expired, should send EMCY
-   mock_os_get_current_time_us_result = 20 * 100;
+   mock_os_tick_current_result = 20 * 100;
    co_emcy_tx (&net, 0x8130, 0x1234, msef);
    EXPECT_EQ (2u, mock_os_channel_send_calls);
 }

@@ -15,7 +15,8 @@
 
 #ifdef UNIT_TEST
 #define os_channel_send        mock_os_channel_send
-#define os_get_current_time_us mock_os_get_current_time_us
+#define os_tick_current        mock_os_tick_current
+#define os_tick_from_us        mock_os_tick_from_us
 #define co_obj_find            mock_co_obj_find
 #define co_entry_find          mock_co_entry_find
 #define co_emcy_tx             mock_co_emcy_tx
@@ -532,7 +533,7 @@ uint32_t co_od1A00_fn (
 static void co_pdo_transmit (co_net_t * net, co_pdo_t * pdo)
 {
    size_t dlc;
-   uint32_t now = os_get_current_time_us();
+   os_tick_t now = os_tick_current();
 
    if (IS_EVENT (pdo->transmission_type) && pdo->inhibit_time > 0)
    {
@@ -549,7 +550,7 @@ static void co_pdo_transmit (co_net_t * net, co_pdo_t * pdo)
    pdo->queued    = false;
 }
 
-int co_pdo_timer (co_net_t * net, uint32_t now)
+int co_pdo_timer (co_net_t * net, os_tick_t now)
 {
    unsigned int ix;
 
@@ -659,7 +660,7 @@ int co_pdo_sync (co_net_t * net, uint8_t * msg, size_t dlc)
    if (net->state != STATE_OP)
       return -1;
 
-   net->sync_timestamp = os_get_current_time_us();
+   net->sync_timestamp = os_tick_current();
 
    /* Transmit TPDOs */
    for (ix = 0; ix < MAX_TX_PDO; ix++)
@@ -735,7 +736,7 @@ int co_pdo_sync (co_net_t * net, uint8_t * msg, size_t dlc)
 void co_pdo_rx (co_net_t * net, uint32_t id, void * msg, size_t dlc)
 {
    unsigned int ix;
-   uint32_t now;
+   os_tick_t now;
 
    /* Check state */
    if (net->state != STATE_OP)
@@ -762,7 +763,7 @@ void co_pdo_rx (co_net_t * net, uint32_t id, void * msg, size_t dlc)
                /* Transmit value sampled at previous SYNC */
                dlc = CO_BYTELENGTH (pdo->bitlength);
                os_channel_send (net->channel, pdo->cobid, &pdo->frame, dlc);
-               pdo->timestamp = os_get_current_time_us();
+               pdo->timestamp = os_tick_current();
                pdo->queued    = false;
             }
          }
@@ -787,14 +788,14 @@ void co_pdo_rx (co_net_t * net, uint32_t id, void * msg, size_t dlc)
                if (pdo->transmission_type <= CO_PDO_TT_CYCLIC_MAX && net->sync_window > 0)
                {
                   /* Check that sync window has not expired */
-                  now = os_get_current_time_us();
+                  now = os_tick_current();
                   if (co_is_expired (now, net->sync_timestamp, net->sync_window))
                      continue;
                }
 
                /* Buffer frame */
                memcpy (&pdo->frame, msg, dlc);
-               pdo->timestamp = os_get_current_time_us();
+               pdo->timestamp = os_tick_current();
 
                if (IS_EVENT (pdo->transmission_type))
                {

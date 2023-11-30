@@ -125,7 +125,7 @@ int co_sdo_rx (co_net_t * net, uint8_t node, void * msg, size_t dlc);
  *
  * @return 0 on success, -1 on failure
  */
-int co_sdo_server_timer (co_net_t * net, uint32_t now);
+int co_sdo_server_timer (co_net_t * net, os_tick_t now);
 
 /**
  * SDO client timer
@@ -139,7 +139,7 @@ int co_sdo_server_timer (co_net_t * net, uint32_t now);
  *
  * @return 0 on success, -1 on failure
  */
-int co_sdo_client_timer (co_net_t * net, uint32_t now);
+int co_sdo_client_timer (co_net_t * net, os_tick_t now);
 
 /**
  * Issue SDO request

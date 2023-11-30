@@ -39,7 +39,7 @@ extern "C" {
  *
  * @return 0 on success, -1 on failure
  */
-int co_sync_timer (co_net_t * net, uint32_t now);
+int co_sync_timer (co_net_t * net, os_tick_t now);
 
 #ifdef __cplusplus
 }

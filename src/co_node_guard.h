@@ -55,7 +55,7 @@ int co_node_guard_rx (co_net_t * net, uint32_t id, void * msg, size_t dlc);
  *
  * @return 0 on success, -1 on failure
  */
-int co_node_guard_timer (co_net_t * net, uint32_t now);
+int co_node_guard_timer (co_net_t * net, os_tick_t now);
 
 #ifdef __cplusplus
 }

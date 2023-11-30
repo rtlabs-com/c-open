@@ -25,10 +25,10 @@ extern "C" {
 
 #include "osal.h"
 
-static inline int co_is_expired (uint32_t now, uint32_t timestamp, uint32_t timeout)
+static inline int co_is_expired (os_tick_t now, os_tick_t timestamp, uint32_t timeout)
 {
-   uint32_t delta = now - timestamp;
-   return delta >= timeout;
+   os_tick_t delta = now - timestamp;
+   return delta >= os_tick_from_us(timeout);
 }
 
 static inline bool co_validate_cob_id (uint32_t id)

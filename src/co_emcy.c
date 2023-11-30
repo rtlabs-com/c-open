@@ -17,7 +17,8 @@
 #define os_channel_send        mock_os_channel_send
 #define os_channel_get_state   mock_os_channel_get_state
 #define os_channel_bus_on      mock_os_channel_bus_on
-#define os_get_current_time_us mock_os_get_current_time_us
+#define os_tick_current        mock_os_tick_current
+#define os_tick_from_us        mock_os_tick_from_us
 #endif
 
 #include "co_emcy.h"
@@ -232,7 +233,7 @@ int co_emcy_tx (co_net_t * net, uint16_t code, uint16_t info, uint8_t msef[5])
    uint8_t msg[8] = {0};
    uint8_t * p    = msg;
    uint8_t reg;
-   uint32_t now;
+   os_tick_t now;
    bool error_behavior = false;
 
    if (net->number_of_errors < MAX_ERRORS)
@@ -263,7 +264,7 @@ int co_emcy_tx (co_net_t * net, uint16_t code, uint16_t info, uint8_t msef[5])
    }
 
    /* Send EMCY if inhibit time has expired */
-   now = os_get_current_time_us();
+   now = os_tick_current();
    if (co_is_expired (now, net->emcy.timestamp, 100 * net->emcy.inhibit))
    {
       LOG_ERROR (CO_EMCY_LOG, "emcy %x\n", code);
@@ -325,7 +326,7 @@ int co_emcy_rx (co_net_t * net, uint32_t id, uint8_t * msg, size_t dlc)
 void co_emcy_handle_can_state (co_net_t * net)
 {
    int status;
-   uint32_t now = os_get_current_time_us();;
+   os_tick_t now = os_tick_current();
    os_channel_state_t previous = net->emcy.state;
 
    /* Get current state */
