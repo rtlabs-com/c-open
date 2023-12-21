@@ -142,6 +142,8 @@ static uint32_t co_pdo_mapping_validate (co_pdo_t * pdo, uint8_t number_of_mappi
    if (IS_CYCLIC (pdo->sync_start))
       pdo->sync_wait = true;
 
+   pdo->rpdo_monitoring = false;
+
    return 0;
 }
 
@@ -555,6 +557,7 @@ static void co_pdo_transmit (co_net_t * net, co_pdo_t * pdo)
 int co_pdo_timer (co_net_t * net, os_tick_t now)
 {
    unsigned int ix;
+   bool rpdo_timeout = false;
 
    if (net->state != STATE_OP)
       return -1;
@@ -576,6 +579,37 @@ int co_pdo_timer (co_net_t * net, os_tick_t now)
          co_pdo_transmit (net, pdo);
       }
    }
+
+   /* Check for RPDOs with event timer (deadline monitoring) */
+   for (ix = 0; ix < MAX_RX_PDO; ix++)
+   {
+      co_pdo_t * pdo = &net->pdo_rx[ix];
+
+      if (pdo->cobid & CO_COBID_INVALID)
+         continue;
+
+      if (pdo->rpdo_timeout)
+      {
+         /* Already signaled, just track the combined state. */
+         rpdo_timeout = true;
+         continue;
+      }
+
+      if (!pdo->rpdo_monitoring || pdo->event_timer == 0)
+         continue;
+
+      if (co_is_expired (now, pdo->timestamp, 1000 * pdo->event_timer))
+      {
+         /* Deadline timeout elapsed, transmit EMCY */
+         pdo->rpdo_monitoring = false;
+         pdo->rpdo_timeout = rpdo_timeout = true;
+         co_emcy_error_register_set (net, CO_ERR_COMMUNICATION);
+         co_emcy_tx (net, 0x8250, 0, NULL);
+      }
+   }
+
+   /* Update RPDO timeout state */
+   net->emcy.rpdo_timeout = rpdo_timeout;
 
    return 0;
 }
@@ -798,6 +832,13 @@ void co_pdo_rx (co_net_t * net, uint32_t id, void * msg, size_t dlc)
                /* Buffer frame */
                memcpy (&pdo->frame, msg, dlc);
                pdo->timestamp = os_tick_current();
+
+               if (pdo->event_timer > 0)
+               {
+                  /* Arm RPDO deadline monitoring */
+                  pdo->rpdo_monitoring = true;
+                  pdo->rpdo_timeout = false;
+               }
 
                if (IS_EVENT (pdo->transmission_type))
                {

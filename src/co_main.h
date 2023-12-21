@@ -82,6 +82,8 @@ typedef struct co_pdo
    {
       bool queued : 1;
       bool sync_wait : 1;
+      bool rpdo_monitoring : 1;
+      bool rpdo_timeout : 1;
    };
    uint32_t mappings[MAX_PDO_ENTRIES];
    const co_obj_t * objs[MAX_PDO_ENTRIES];
@@ -220,6 +222,7 @@ typedef struct co_emcy
    os_channel_state_t state;         /**< CAN state */
    bool node_guard_error;            /**< Node guard error */
    bool heartbeat_error;             /**< Heartbeat error */
+   bool rpdo_timeout;                /**< RPDO timeout */
    uint32_t cobids[MAX_EMCY_COBIDS]; /**< EMCY consumer object */
 } co_emcy_t;
 
