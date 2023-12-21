@@ -384,7 +384,7 @@ void co_emcy_handle_can_state (co_net_t * net)
    if (
       !net->emcy.state.overrun && !net->emcy.state.error_passive &&
       !net->emcy.state.bus_off && !net->emcy.node_guard_error &&
-      !net->emcy.heartbeat_error)
+      !net->emcy.heartbeat_error && !net->emcy.rpdo_timeout)
    {
       co_emcy_error_register_clear (net, CO_ERR_COMMUNICATION);
    }
