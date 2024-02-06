@@ -33,6 +33,7 @@
 #include "co_pdo.h"
 #include "co_sync.h"
 #include "co_emcy.h"
+#include "co_od.h"
 #include "co_heartbeat.h"
 #include "co_node_guard.h"
 #include "co_lss.h"
@@ -141,6 +142,10 @@ void co_main (void * arg)
       case CO_JOB_ERROR_CLEAR:
       case CO_JOB_ERROR_GET:
          co_emcy_job (net, job);
+         break;
+      case CO_JOB_LOCAL_READ:
+      case CO_JOB_LOCAL_WRITE:
+         co_od_job (net, job);
          break;
       case CO_JOB_EXIT:
          running = false;
@@ -383,6 +388,56 @@ int co_error_get (co_client_t * client, uint8_t * error)
    os_sem_wait (client->sem, OS_WAIT_FOREVER);
 
    *error = job->emcy.value;
+
+   return job->result;
+}
+
+int co_od_local_read (
+   co_client_t * client,
+   uint16_t index,
+   uint8_t subindex,
+   uint64_t * value)
+{
+   co_net_t * net = client->net;
+   co_job_t * job = &client->job;
+
+   job->client       = client;
+   job->od.index     = index;
+   job->od.subindex  = subindex;
+   job->callback     = co_job_callback;
+   job->type         = CO_JOB_LOCAL_READ;
+
+   os_mbox_post (net->mbox, job, OS_WAIT_FOREVER);
+   os_sem_wait (client->sem, OS_WAIT_FOREVER);
+
+   if (job->result == 0)
+   {
+      *value = job->od.value;
+   }
+
+   return job->result;
+}
+
+int co_od_local_write (
+   co_client_t * client,
+   uint16_t index,
+   uint8_t subindex,
+   uint64_t value,
+   bool pdo_event)
+{
+   co_net_t * net = client->net;
+   co_job_t * job = &client->job;
+
+   job->client       = client;
+   job->od.index     = index;
+   job->od.subindex  = subindex;
+   job->od.value     = value;
+   job->od.pdo_event = pdo_event;
+   job->callback     = co_job_callback;
+   job->type         = CO_JOB_LOCAL_WRITE;
+
+   os_mbox_post (net->mbox, job, OS_WAIT_FOREVER);
+   os_sem_wait (client->sem, OS_WAIT_FOREVER);
 
    return job->result;
 }

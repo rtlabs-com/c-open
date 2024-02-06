@@ -580,6 +580,40 @@ CO_EXPORT int co_error_clear (co_client_t * client, uint8_t mask);
  */
 CO_EXPORT int co_error_get (co_client_t * client, uint8_t * error);
 
+/**
+ * Read local dictionary object
+ *
+ * @param client        client handle
+ * @param index         index
+ * @param subindex      subindex
+ * @param value         result
+ *
+ * @return 0 on success, CO_STATUS error code otherwise
+ */
+CO_EXPORT int co_od_local_read (
+   co_client_t * client,
+   uint16_t index,
+   uint8_t subindex,
+   uint64_t * value);
+
+/**
+ * Write local directory object
+ *
+ * @param client        client handle
+ * @param index         index
+ * @param subindex      subindex
+ * @param value         value
+ * @param pdo_event     trigger PDOs that map this object
+ *
+ * @return 0 on success, CO_STATUS error code otherwise
+ */
+CO_EXPORT int co_od_local_write (
+   co_client_t * client,
+   uint16_t index,
+   uint8_t subindex,
+   uint64_t value,
+   bool pdo_event);
+
 #ifdef __cplusplus
 }
 #endif

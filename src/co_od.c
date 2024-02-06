@@ -18,6 +18,7 @@
 
 #include "co_od.h"
 #include "co_sdo.h"
+#include "co_pdo.h"
 #include "co_util.h"
 
 #include <string.h>
@@ -264,6 +265,78 @@ uint32_t co_od_set_value (
 
    co_od_notify (net, obj, entry, subindex);
    return 0;
+}
+
+static uint32_t co_od_set_by_index (
+   co_net_t * net,
+   uint16_t index,
+   uint8_t subindex,
+   uint64_t value)
+{
+   const co_obj_t * obj;
+   const co_entry_t * entry;
+
+   obj = co_obj_find (net, index);
+   if (obj == NULL)
+      return CO_SDO_ABORT_BAD_INDEX;
+
+   entry = co_entry_find (net, obj, subindex);
+   if (entry == NULL)
+      return CO_SDO_ABORT_BAD_SUBINDEX;
+
+   if (CO_BYTELENGTH (entry->bitlength) > sizeof (value))
+      return CO_SDO_ABORT_LENGTH;
+
+   return co_od_set_value (net, obj, entry, subindex, value);
+}
+
+static uint32_t co_od_get_by_index (
+   co_net_t * net,
+   uint16_t index,
+   uint8_t subindex,
+   uint64_t * value)
+{
+   const co_obj_t * obj;
+   const co_entry_t * entry;
+
+   obj = co_obj_find (net, index);
+   if (obj == NULL)
+      return CO_SDO_ABORT_BAD_INDEX;
+
+   entry = co_entry_find (net, obj, subindex);
+   if (entry == NULL)
+      return CO_SDO_ABORT_BAD_SUBINDEX;
+
+   if (CO_BYTELENGTH (entry->bitlength) > sizeof (* value))
+      return CO_SDO_ABORT_LENGTH;
+
+   return co_od_get_value (net, obj, entry, subindex, value);
+}
+
+void co_od_job (co_net_t * net, co_job_t * job)
+{
+   uint32_t abort = 0;
+
+   switch (job->type)
+   {
+   case CO_JOB_LOCAL_READ:
+      abort = co_od_get_by_index (net, job->od.index, job->od.subindex, &job->od.value);
+      break;
+   case CO_JOB_LOCAL_WRITE:
+      abort = co_od_set_by_index (net, job->od.index, job->od.subindex, job->od.value);
+
+      if (abort == 0 && job->od.pdo_event)
+      {
+         co_pdo_trigger_with_obj(net, job->od.index, job->od.subindex);
+      }
+      break;
+   default:
+      CC_ASSERT (0);
+   }
+
+   job->result = abort == 0 ? 0 : CO_STATUS_ERROR;
+   if (job->callback)
+      job->callback (job);
 }
 
 void co_od_set_defaults (co_net_t * net, uint16_t min, uint16_t max)

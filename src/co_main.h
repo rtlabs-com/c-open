@@ -103,6 +103,8 @@ typedef enum co_job_type
    CO_JOB_ERROR_SET,
    CO_JOB_ERROR_CLEAR,
    CO_JOB_ERROR_GET,
+   CO_JOB_LOCAL_READ,
+   CO_JOB_LOCAL_WRITE,
    CO_JOB_EXIT,
 } co_job_type_t;
 
@@ -139,6 +141,17 @@ typedef struct co_pdo_job
    uint8_t subindex;
 } co_pdo_job_t;
 
+typedef struct co_od_job
+{
+   uint16_t index;
+   uint8_t subindex;
+   uint64_t value;
+   struct
+   {
+      bool pdo_event : 1;
+   };
+} co_od_job_t;
+
 /** Generic job */
 typedef struct co_job
 {
@@ -148,6 +161,7 @@ typedef struct co_job
       co_sdo_job_t sdo;
       co_emcy_job_t emcy;
       co_pdo_job_t pdo;
+      co_od_job_t od;
    };
    os_tick_t timestamp;
    struct co_client * client;
