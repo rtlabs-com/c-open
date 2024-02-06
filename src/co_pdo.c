@@ -84,11 +84,12 @@ void co_pdo_pack (co_net_t * net, co_pdo_t * pdo)
       const co_entry_t * entry = pdo->entries[ix];
       const co_obj_t * obj     = pdo->objs[ix];
       size_t bitlength         = pdo->mappings[ix] & 0xFF;
+      uint8_t subindex         = (pdo->mappings[ix] >> 8) & 0xFF;
       uint64_t value           = 0;
 
       if (entry != NULL)
       {
-         co_od_get_value (net, obj, entry, entry->subindex, &value);
+         co_od_get_value (net, obj, entry, subindex, &value);
       }
 
       bitslice_set (&pdo->frame, offset, bitlength, value);
@@ -106,12 +107,13 @@ void co_pdo_unpack (co_net_t * net, co_pdo_t * pdo)
       const co_entry_t * entry = pdo->entries[ix];
       const co_obj_t * obj     = pdo->objs[ix];
       size_t bitlength         = pdo->mappings[ix] & 0xFF;
+      uint8_t subindex         = (pdo->mappings[ix] >> 8) & 0xFF;
       uint64_t value;
 
       if (entry != NULL)
       {
          value = bitslice_get (&pdo->frame, offset, bitlength);
-         co_od_set_value (net, obj, entry, entry->subindex, value);
+         co_od_set_value (net, obj, entry, subindex, value);
       }
 
       offset += bitlength;
