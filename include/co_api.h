@@ -223,10 +223,18 @@ typedef enum co_dtype
 /** Access function event */
 typedef enum od_event
 {
-   OD_EVENT_READ,    /**< Read subindex */
-   OD_EVENT_WRITE,   /**< Write subindex */
-   OD_EVENT_RESTORE, /**< Restore default value */
+   OD_EVENT_READ,       /**< Read subindex */
+   OD_EVENT_WRITE,      /**< Write subindex */
+   OD_EVENT_RESTORE,    /**< Restore default value */
 } od_event_t;
+
+/** Notify event */
+typedef enum od_notify_event
+{
+   OD_NOTIFY_ACCESSED,
+   OD_NOTIFY_VALUE_SET,
+   OD_NOTIFY_SDO_RECEIVED,
+} od_notify_event_t;
 
 struct co_obj;
 struct co_entry;
@@ -317,7 +325,7 @@ typedef struct co_cfg
       uint8_t msef[5]);
 
    /** Notify callback */
-   void (*cb_notify) (co_net_t * net, uint16_t index, uint8_t subindex);
+   void (*cb_notify) (co_net_t * net, uint16_t index, uint8_t subindex, od_notify_event_t event, uint32_t value);
 
    /** Heartbeat node state change callback */
    void (*cb_heartbeat_state) (

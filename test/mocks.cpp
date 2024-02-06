@@ -175,7 +175,7 @@ void cb_sync (co_net_t * net)
 unsigned int cb_notify_calls;
 uint16_t cb_notify_index;
 uint16_t cb_notify_subindex;
-void cb_notify (co_net_t * net, uint16_t index, uint8_t subindex)
+void cb_notify (co_net_t * net, uint16_t index, uint8_t subindex, od_notify_event_t event, uint32_t value)
 {
    cb_notify_calls++;
    cb_notify_index    = index;

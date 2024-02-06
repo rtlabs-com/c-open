@@ -108,7 +108,7 @@ void cb_sync (co_net_t * net);
 extern unsigned int cb_notify_calls;
 extern uint16_t cb_notify_index;
 extern uint16_t cb_notify_subindex;
-void cb_notify (co_net_t * net, uint16_t index, uint8_t subindex);
+void cb_notify (co_net_t * net, uint16_t index, uint8_t subindex, od_notify_event_t event, uint32_t value);
 
 extern unsigned int cb_heartbeat_state_calls;
 extern uint8_t cb_heartbeat_state_node;

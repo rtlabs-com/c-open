@@ -277,7 +277,7 @@ struct co_net
       uint8_t msef[5]);
 
    /** Notify callback */
-   void (*cb_notify) (co_net_t * net, uint16_t index, uint8_t subindex);
+   void (*cb_notify) (co_net_t * net, uint16_t index, uint8_t subindex, od_notify_event_t event, uint32_t value);
 
    /** Heartbeat node state change callback */
    void (*cb_heartbeat_state) (
