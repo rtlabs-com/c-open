@@ -96,10 +96,58 @@ void co_pdo_pack (co_net_t * net, co_pdo_t * pdo)
    }
 }
 
+static int co_mpdo_unpack (co_net_t * net, co_pdo_t * pdo)
+{
+   bool is_dam = bitslice_get (&pdo->frame, 7, 1);
+   uint8_t node = bitslice_get (&pdo->frame, 0, 7);
+   uint16_t index = bitslice_get (&pdo->frame, 8, 16);
+   uint8_t subindex = bitslice_get (&pdo->frame, 24, 8);
+   uint32_t value = bitslice_get (&pdo->frame, 32, 32);
+   const co_obj_t * obj;
+   const co_entry_t * entry;
+
+   if (is_dam)
+   {
+      if (node != 0 && node != net->node)
+         return 0;
+
+      obj = co_obj_find (net, index);
+      if (obj == NULL)
+         goto error;
+
+      entry = co_entry_find (net, obj, subindex);
+      if (entry == NULL || !(entry->flags & OD_WRITE))
+         goto error;
+
+      if (co_od_set_value (net, obj, entry, subindex, value))
+         goto error;
+
+   } else {
+      /* TODO: Support SAM-MPDO Consumer using dispatcher list. */
+   }
+
+   return 0;
+
+error:
+   if (node != 0)
+      return co_emcy_tx (net, 0x8230, 0, NULL);
+
+   return 0;
+}
+
 void co_pdo_unpack (co_net_t * net, co_pdo_t * pdo)
 {
    unsigned int ix;
    unsigned int offset = 0;
+
+   if (pdo->number_of_mappings >= 0xFE)
+   {
+      /* TODO: Each MPDO frame contains the info whether it's SAM or DAM,
+       * so what difference does it make if the configuration here is 0xFE
+       * or 0xFF?? */
+      co_mpdo_unpack(net, pdo);
+      return;
+   }
 
    for (ix = 0; ix < pdo->number_of_mappings; ix++)
    {
@@ -121,6 +169,13 @@ void co_pdo_unpack (co_net_t * net, co_pdo_t * pdo)
 static uint32_t co_pdo_mapping_validate (co_pdo_t * pdo, uint8_t number_of_mappings)
 {
    int ix;
+
+   /* Check if MPDO */
+   if (number_of_mappings >= 0xFE)
+   {
+      pdo->bitlength = 64;
+      return 0;
+   }
 
    /* Mappings array bounds check */
    if (number_of_mappings > MAX_PDO_ENTRIES)
