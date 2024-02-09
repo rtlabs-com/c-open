@@ -197,7 +197,7 @@ TEST_F (SdoServerTest, SegmentedTimeout)
 
 TEST_F (SdoServerTest, BadSubIndex)
 {
-   const co_obj_t obj    = {0, OTYPE_NULL, 0, NULL, NULL};
+   static const co_obj_t obj = {0, OTYPE_NULL, 0, NULL, NULL};
    uint8_t expected[][8] = {
       {0x80, 0x00, 0x10, 0x01, 0x11, 0x00, 0x09, 0x06},
    };
