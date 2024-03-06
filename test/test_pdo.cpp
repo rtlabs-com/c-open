@@ -857,3 +857,53 @@ TEST_F (PdoTest, SparsePdo)
    EXPECT_EQ (0u, result);
    EXPECT_EQ (0x1234u, value);
 }
+
+TEST_F (PdoTest, RPDOMonitoring)
+{
+   uint8_t pdo[][4] = {
+      {0x11, 0x22, 0x33, 0x44},
+   };
+
+   net.state = STATE_OP;
+
+   net.pdo_rx[0].cobid             = 0x201;
+   net.pdo_rx[0].event_timer       = 100;
+
+   // Arm RPDO deadline monitoring
+   co_pdo_rx (&net, 0x201, pdo[0], sizeof (pdo[0]));
+   EXPECT_TRUE (net.pdo_rx[0].rpdo_monitoring);
+
+   // Receive PDO, timer has not expired. Rearm timer.
+   mock_os_tick_current_result = 50 * 1000;
+   co_pdo_rx (&net, 0x201, pdo[0], sizeof (pdo[0]));
+   EXPECT_EQ (0u, mock_co_emcy_tx_calls);
+
+   // Timer has not expired
+   mock_os_tick_current_result = 149 * 1000;
+   co_pdo_timer (&net, mock_os_tick_current_result);
+   EXPECT_EQ (0u, mock_co_emcy_tx_calls);
+
+   // Timer has expired, should generate EMCY
+   mock_os_tick_current_result = 150 * 1000;
+   co_pdo_timer (&net, mock_os_tick_current_result);
+   EXPECT_EQ (1u, mock_co_emcy_tx_calls);
+   EXPECT_EQ (0x8250, mock_co_emcy_tx_code);
+   EXPECT_FALSE (net.pdo_rx[0].rpdo_monitoring);
+
+   // Timer still expired, should not generate EMCY
+   mock_os_tick_current_result = 151 * 1000;
+   co_pdo_timer (&net, mock_os_tick_current_result);
+   EXPECT_EQ (1u, mock_co_emcy_tx_calls);
+   EXPECT_EQ (0x8250, mock_co_emcy_tx_code);
+   EXPECT_FALSE (net.pdo_rx[0].rpdo_monitoring);
+
+   // Receive PDO. Rearm timer.
+   mock_os_tick_current_result = 160 * 1000;
+   co_pdo_rx (&net, 0x201, pdo[0], sizeof (pdo[0]));
+   EXPECT_EQ (1u, mock_co_emcy_tx_calls);
+
+   // Receive PDO, timer has not expired
+   mock_os_tick_current_result = 259 * 1000;
+   co_pdo_rx (&net, 0x201, pdo[0], sizeof (pdo[0]));
+   EXPECT_EQ (1u, mock_co_emcy_tx_calls);
+}
