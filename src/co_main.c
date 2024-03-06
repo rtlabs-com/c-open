@@ -277,6 +277,7 @@ int co_sdo_read (
    job->sdo.subindex = subindex;
    job->sdo.data     = data;
    job->sdo.remain   = size;
+   job->sdo.cached   = false;
    job->callback     = co_job_callback;
    job->timestamp    = os_tick_current();
    job->type         = CO_JOB_SDO_READ;
@@ -306,6 +307,7 @@ int co_sdo_write (
    job->sdo.subindex = subindex;
    job->sdo.data     = (uint8_t *)data;
    job->sdo.remain   = size;
+   job->sdo.cached   = false;
    job->callback     = co_job_callback;
    job->timestamp    = os_tick_current();
    job->type         = CO_JOB_SDO_WRITE;

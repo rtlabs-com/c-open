@@ -271,6 +271,23 @@ uint32_t co_od_set_value (
    uint8_t subindex,
    uint64_t value);
 
+/**
+ * Trigger notification callback
+ *
+ * This functions triggers the notification callback of the subindex,
+ * if any.
+ *
+ * @param net           network handle
+ * @param obj           object descriptor
+ * @param entry         entry descriptor
+ * @param subindex      subindex
+ */
+void co_od_notify (
+   co_net_t * net,
+   const co_obj_t * obj,
+   const co_entry_t * entry,
+   uint8_t subindex);
+
 #ifdef __cplusplus
 }
 #endif

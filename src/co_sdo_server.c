@@ -129,6 +129,7 @@ static int co_sdo_rx_upload_init_req (
    job->type         = CO_JOB_SDO_UPLOAD;
    job->sdo.index    = co_fetch_uint16 (&data[1]);
    job->sdo.subindex = data[3];
+   job->sdo.cached   = false;
    job->timestamp    = os_tick_current();
 
    /* Find requested object */
@@ -306,6 +307,7 @@ static int co_sdo_rx_download_init_req (
    job->type         = CO_JOB_SDO_DOWNLOAD;
    job->sdo.index    = co_fetch_uint16 (&data[1]);
    job->sdo.subindex = data[3];
+   job->sdo.cached   = false;
    job->timestamp    = os_tick_current();
 
    /* Find requested object */
@@ -466,34 +468,34 @@ static int co_sdo_rx_download_seg_req (
       /* Write complete */
       job->type = CO_JOB_NONE;
 
+      /* Find requested object */
+      obj = co_obj_find (net, job->sdo.index);
+      if (obj == NULL)
+      {
+         co_sdo_abort (
+            net,
+            0x580 + net->node,
+            job->sdo.index,
+            job->sdo.subindex,
+            CO_SDO_ABORT_BAD_INDEX);
+         return -1;
+      }
+
+      /* Find requested subindex */
+      entry = co_entry_find (net, obj, job->sdo.subindex);
+      if (entry == NULL)
+      {
+         co_sdo_abort (
+            net,
+            0x580 + net->node,
+            job->sdo.index,
+            job->sdo.subindex,
+            CO_SDO_ABORT_BAD_SUBINDEX);
+         return -1;
+      }
+
       if (job->sdo.cached)
       {
-         /* Find requested object */
-         obj = co_obj_find (net, job->sdo.index);
-         if (obj == NULL)
-         {
-            co_sdo_abort (
-               net,
-               0x580 + net->node,
-               job->sdo.index,
-               job->sdo.subindex,
-               CO_SDO_ABORT_BAD_INDEX);
-            return -1;
-         }
-
-         /* Find requested subindex */
-         entry = co_entry_find (net, obj, job->sdo.subindex);
-         if (entry == NULL)
-         {
-            co_sdo_abort (
-               net,
-               0x580 + net->node,
-               job->sdo.index,
-               job->sdo.subindex,
-               CO_SDO_ABORT_BAD_SUBINDEX);
-            return -1;
-         }
-
          /* Atomically set value */
          abort =
             co_od_set_value (net, obj, entry, job->sdo.subindex, job->sdo.value);
@@ -507,6 +509,10 @@ static int co_sdo_rx_download_seg_req (
                abort);
             return -1;
          }
+      }
+      else
+      {
+         co_od_notify (net, obj, entry, job->sdo.subindex);
       }
    }
 

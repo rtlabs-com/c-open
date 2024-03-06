@@ -58,7 +58,7 @@ TEST_F (SdoClientTest, ExpeditedUpload)
 
 TEST_F (SdoClientTest, ExpeditedDownload)
 {
-   co_job_t job;
+   co_job_t job{};
    uint16_t value = 0;
 
    uint8_t expected[][8] = {
@@ -136,7 +136,7 @@ TEST_F (SdoClientTest, SegmentedUpload)
 
 TEST_F (SdoClientTest, SegmentedDownload)
 {
-   co_job_t job;
+   co_job_t job{};
    const char * s = "hello world";
 
    uint8_t expected[][8] = {

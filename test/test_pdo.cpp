@@ -152,6 +152,27 @@ TEST_F (PdoTest, PackWithPadding)
    EXPECT_EQ (1u, frame[1]);
 }
 
+TEST_F (PdoTest, PackArray)
+{
+   co_pdo_t pdo;
+   uint8_t * frame          = (uint8_t *)&pdo.frame;
+   const co_obj_t * obj2000 = find_obj (0x2000);
+
+   memset (&pdo, 0, sizeof (pdo));
+
+   pdo.number_of_mappings = 2;
+   pdo.mappings[0]        = 0x20000308;
+   pdo.mappings[1]        = 0x20000708;
+   pdo.entries[0]         = find_entry (obj2000, 3);
+   pdo.entries[1]         = find_entry (obj2000, 7);
+   pdo.objs[0]            = obj2000;
+   pdo.objs[1]            = obj2000;
+
+   co_pdo_pack (&net, &pdo);
+   EXPECT_EQ (3u, frame[0]);
+   EXPECT_EQ (7u, frame[1]);
+}
+
 TEST_F (PdoTest, Unpack)
 {
    co_pdo_t pdo;
@@ -234,6 +255,31 @@ TEST_F (PdoTest, UnpackWithPadding)
 
    EXPECT_EQ (0x00u, value6003_08);
    EXPECT_EQ (0x3322u, value6003_07);
+}
+
+TEST_F (PdoTest, UnpackArray)
+{
+   co_pdo_t pdo;
+   uint8_t * frame          = (uint8_t *)&pdo.frame;
+   const co_obj_t * obj2000 = find_obj (0x2000);
+
+   memset (&pdo, 0, sizeof (pdo));
+
+   pdo.number_of_mappings = 2;
+   pdo.mappings[0]        = 0x20000308;
+   pdo.mappings[1]        = 0x20000708;
+   pdo.entries[0]         = find_entry (obj2000, 3);
+   pdo.entries[1]         = find_entry (obj2000, 7);
+   pdo.objs[0]            = obj2000;
+   pdo.objs[1]            = obj2000;
+
+   frame[0] = 0x00;
+   frame[1] = 0x11;
+
+   co_pdo_unpack (&net, &pdo);
+
+   EXPECT_EQ (0x00u, arr2000[2]);
+   EXPECT_EQ (0x11u, arr2000[6]);
 }
 
 TEST_F (PdoTest, CommParamsSet)
@@ -810,4 +856,54 @@ TEST_F (PdoTest, SparsePdo)
    result = co_od1A00_fn (&net, OD_EVENT_READ, obj1A99, NULL, 2, &value);
    EXPECT_EQ (0u, result);
    EXPECT_EQ (0x1234u, value);
+}
+
+TEST_F (PdoTest, RPDOMonitoring)
+{
+   uint8_t pdo[][4] = {
+      {0x11, 0x22, 0x33, 0x44},
+   };
+
+   net.state = STATE_OP;
+
+   net.pdo_rx[0].cobid             = 0x201;
+   net.pdo_rx[0].event_timer       = 100;
+
+   // Arm RPDO deadline monitoring
+   co_pdo_rx (&net, 0x201, pdo[0], sizeof (pdo[0]));
+   EXPECT_TRUE (net.pdo_rx[0].rpdo_monitoring);
+
+   // Receive PDO, timer has not expired. Rearm timer.
+   mock_os_tick_current_result = 50 * 1000;
+   co_pdo_rx (&net, 0x201, pdo[0], sizeof (pdo[0]));
+   EXPECT_EQ (0u, mock_co_emcy_tx_calls);
+
+   // Timer has not expired
+   mock_os_tick_current_result = 149 * 1000;
+   co_pdo_timer (&net, mock_os_tick_current_result);
+   EXPECT_EQ (0u, mock_co_emcy_tx_calls);
+
+   // Timer has expired, should generate EMCY
+   mock_os_tick_current_result = 150 * 1000;
+   co_pdo_timer (&net, mock_os_tick_current_result);
+   EXPECT_EQ (1u, mock_co_emcy_tx_calls);
+   EXPECT_EQ (0x8250, mock_co_emcy_tx_code);
+   EXPECT_FALSE (net.pdo_rx[0].rpdo_monitoring);
+
+   // Timer still expired, should not generate EMCY
+   mock_os_tick_current_result = 151 * 1000;
+   co_pdo_timer (&net, mock_os_tick_current_result);
+   EXPECT_EQ (1u, mock_co_emcy_tx_calls);
+   EXPECT_EQ (0x8250, mock_co_emcy_tx_code);
+   EXPECT_FALSE (net.pdo_rx[0].rpdo_monitoring);
+
+   // Receive PDO. Rearm timer.
+   mock_os_tick_current_result = 160 * 1000;
+   co_pdo_rx (&net, 0x201, pdo[0], sizeof (pdo[0]));
+   EXPECT_EQ (1u, mock_co_emcy_tx_calls);
+
+   // Receive PDO, timer has not expired
+   mock_os_tick_current_result = 259 * 1000;
+   co_pdo_rx (&net, 0x201, pdo[0], sizeof (pdo[0]));
+   EXPECT_EQ (1u, mock_co_emcy_tx_calls);
 }

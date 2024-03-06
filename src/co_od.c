@@ -36,7 +36,7 @@ static int co_subindex_equals (
    return entry->subindex == subindex;
 }
 
-static void co_od_notify (
+void co_od_notify (
    co_net_t * net,
    const co_obj_t * obj,
    const co_entry_t * entry,
