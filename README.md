@@ -1,8 +1,6 @@
-c-open: CANopen stack
+C-Open: CANopen stack
 =====================
-[![Build Status](https://github.com/rtlabs-com/c-open/workflows/Build/badge.svg?branch=master)](https://github.com/rtlabs-com/c-open/actions?workflow=Build)
-[![CodeQL](https://github.com/rtlabs-com/c-open/workflows/CodeQL/badge.svg?branch=master)](https://github.com/rtlabs-com/c-open/actions?workflow=CodeQL)
- 
+
 This repository contains a CANopen stack for both master and
 slaves. The stack implements most of CiA 301 and 305 (LSS). The stack
 is written to an OS abstraction layer and can also be used in a bare
@@ -21,28 +19,28 @@ Cloning
 
 Clone the source:
 
-```
-$ git clone --recurse-submodules https://github.com/rtlabs-com/c-open.git
+```sh
+git clone --recurse-submodules <path to source>
 ```
 
 This will clone the repository with submodules. If you already cloned
 the repository without the `--recurse-submodules` flag then run this
 in the c-open folder:
 
-```
-$ git submodule update --init --recursive
+```sh
+git submodule update --init --recursive
 ```
 
 Prerequisites for all platforms
 ===============================
 
- * CMake 3.14 or later
+* CMake 3.14 or later
 
 Windows
 =======
 
- * Visual Studio 2017 or later
- * Kvaser CANlib SDK
+* Visual Studio 2017 or later
+* Kvaser CANlib SDK
 
 You can use a windows or unix shell as preferred. The following
 instructions are for a unix shell. CMake is assumed to be in your
@@ -53,10 +51,10 @@ CANlib SDK. CMake should find the SDK but if not a hint can be given
 by setting `-DCANLIB_ROOT_DIR="C:\Program Files (x86)\Kvaser\Canlib"`
 or similar during configuration.
 
-```
-$ cmake -B build.win32 -A Win32
-$ cmake --build build.win32 --config Release
-$ cmake --build build.win32 --config Release --target check
+```sh
+cmake -B build.win32 -A Win32
+cmake --build build.win32 --config Release
+cmake --build build.win32 --config Release --target check
 ```
 
 This builds the project and runs the unit tests.
@@ -64,11 +62,11 @@ This builds the project and runs the unit tests.
 Linux
 =====
 
- * GCC 4.6 or later
+* GCC 4.6 or later
 
-```
-$ cmake -B build
-$ cmake --build build --target all check
+```sh
+cmake -B build
+cmake --build build --target all check
 ```
 
 This builds the project and runs the unit tests.
@@ -76,7 +74,7 @@ This builds the project and runs the unit tests.
 rt-kernel
 =========
 
- * Workbench 2020.1 or later
+* Workbench 2020.1 or later
 
 You should use a bash shell, such as for instance the Command Line in
 your Toolbox installation. Set the BSP variable to the name of the BSP
@@ -88,7 +86,7 @@ Standalone project
 
 This creates standalone makefiles.
 
-```
+```sh
 $ RTK=/path/to/rt-kernel BSP=xmc48relax cmake \
    -B build.xmc48relax \
    -DCMAKE_TOOLCHAIN_FILE=cmake/tools/toolchain/rt-kernel.cmake \
@@ -103,7 +101,7 @@ This creates a Makefile project that can be imported to Workbench. The
 project will be created in the build directory. The build directory
 should be located outside of the source tree.
 
-```
+```sh
 $ RTK=/path/to/rt-kernel BSP=xmc48relax cmake \
    -B build.xmc48relax -S /path/to/c-open \
    -DCMAKE_TOOLCHAIN_FILE=cmake/tools/toolchain/rt-kernel.cmake \
@@ -121,6 +119,20 @@ Workbench revision control tools can be used.
 The library and the unit tests will be built. Note that the tests
 require a stack of at least 6 kB. You may have to increase
 CFG_MAIN_STACK_SIZE in your bsp include/config.h file.
+
+Documentation
+=============
+
+Documentation for project is build using sphinx.
+
+```sh
+python3 -m venv myvenv
+source myvenv/bin/activate
+pip3 install -r docs/requirements.txt
+
+cmake --preset docs
+cmake --build --preset docs
+```
 
 Contributions
 =============

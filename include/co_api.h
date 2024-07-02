@@ -134,7 +134,7 @@ typedef enum co_sdo_abort
  * NMT states, see CiA 301 chapter 7.3.2
  *
  * Note that states are sequentially numbered to simplify the state
- * machine. State values as used by e.g. the heartbeart protocol are
+ * machine. State values as used by e.g. the heartbeat protocol are
  * not used here.
  */
 typedef enum co_state

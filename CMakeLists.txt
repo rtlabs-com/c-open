@@ -16,14 +16,15 @@
 cmake_minimum_required (VERSION 3.14)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/tools")
-project (CANOPEN VERSION 0.1.0)
+project (COPEN VERSION 1.0.0)
 
 # Default settings if this is the main project
-if (CMAKE_PROJECT_NAME STREQUAL CANOPEN)
+if (CMAKE_PROJECT_NAME STREQUAL COPEN)
   include(CTest)
 
   # Make option visible in ccmake, cmake-gui
   option (BUILD_SHARED_LIBS "Build shared library" OFF)
+  option (COPEN_BUILD_DOCS "Build documentation" ON)
 
   # Default to release build with debug info
   if (NOT CMAKE_BUILD_TYPE)
@@ -34,7 +35,7 @@ if (CMAKE_PROJECT_NAME STREQUAL CANOPEN)
 
   # Default to installing in build directory
   if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    set(CMAKE_INSTALL_PREFIX ${CANOPEN_BINARY_DIR}/install
+    set(CMAKE_INSTALL_PREFIX ${COPEN_BINARY_DIR}/install
       CACHE PATH "Default install path" FORCE)
   endif()
 
@@ -43,6 +44,7 @@ if (CMAKE_PROJECT_NAME STREQUAL CANOPEN)
   message(STATUS "Building for ${CMAKE_SYSTEM_NAME}")
 endif()
 
+include(CMakeDependentOption)
 include(AddOsal)
 include(GenerateExportHeader)
 include(CMakeDependentOption)
@@ -115,96 +117,101 @@ set(CO_THREAD_PRIO "10"
 set(CO_THREAD_STACK_SIZE "4096"
   CACHE STRING "stack size of main thread")
 
+cmake_dependent_option (COPEN_BUILD_TESTING
+  "Build testing on ${PROJECT_NAME}" ON
+  "BUILD_TESTING" OFF
+)
+
 # Generate version numbers
 configure_file (
   version.h.in
-  ${CANOPEN_BINARY_DIR}/src/version.h
+  ${COPEN_BINARY_DIR}/src/version.h
   )
 
 # Generate config options
 configure_file (
   co_options.h.in
-  ${CANOPEN_BINARY_DIR}/include/co_options.h
+  ${COPEN_BINARY_DIR}/include/co_options.h
   )
 configure_file (
   options.h.in
-  ${CANOPEN_BINARY_DIR}/src/options.h
+  ${COPEN_BINARY_DIR}/src/options.h
   )
 
 # Add platform-dependent targets early, so they can be configured by
 # platform
-add_library(canopen "")
+add_library(copen "")
 add_executable (slave "")
 add_executable (slaveinfo "")
 
-if (CMAKE_PROJECT_NAME STREQUAL CANOPEN AND BUILD_TESTING)
+if (COPEN_BUILD_TESTING)
   add_executable(co_test "")
 endif()
 
 # Platform configuration
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/${CMAKE_SYSTEM_NAME}.cmake)
 
-generate_export_header(canopen
+generate_export_header(copen
   BASE_NAME co
-  EXPORT_FILE_NAME ${CANOPEN_BINARY_DIR}/include/co_export.h
+  EXPORT_FILE_NAME ${COPEN_BINARY_DIR}/include/co_export.h
   )
 
-set_target_properties (canopen slave slaveinfo
+set_target_properties (copen slave slaveinfo
   PROPERTIES
   C_STANDARD 99
   )
 
-target_compile_features(canopen PUBLIC c_std_99)
+target_compile_features(copen PUBLIC c_std_99)
 
-target_include_directories(canopen
+target_include_directories(copen
   PUBLIC
-  $<BUILD_INTERFACE:${CANOPEN_SOURCE_DIR}/include>
-  $<BUILD_INTERFACE:${CANOPEN_BINARY_DIR}/include>
+  $<BUILD_INTERFACE:${COPEN_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${COPEN_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>
   PRIVATE
-  ${CANOPEN_BINARY_DIR}/src
+  ${COPEN_BINARY_DIR}/src
   src
   )
 
-target_link_libraries(canopen PUBLIC osal)
+target_link_libraries(copen PUBLIC osal)
 
 install (
-  TARGETS canopen
-  EXPORT CanOpenConfig
+  TARGETS copen
+  EXPORT COpenConfig
   DESTINATION lib
   )
 
 install(
-  EXPORT CanOpenConfig
+  EXPORT COpenConfig
   DESTINATION cmake
   )
 
 install (FILES
   include/co_api.h
   include/co_obj.h
-  ${CANOPEN_BINARY_DIR}/include/co_export.h
-  ${CANOPEN_BINARY_DIR}/include/co_options.h
+  ${COPEN_BINARY_DIR}/include/co_export.h
+  ${COPEN_BINARY_DIR}/include/co_options.h
   DESTINATION include
   )
 
 add_subdirectory (src)
 add_subdirectory (util)
 
-if (CMAKE_PROJECT_NAME STREQUAL CANOPEN AND BUILD_TESTING)
+if (COPEN_BUILD_TESTING)
   add_subdirectory (test)
   include(AddGoogleTest)
   add_gtest(co_test)
 endif()
 
-if (CMAKE_PROJECT_NAME STREQUAL CANOPEN)
+if (COPEN_BUILD_DOCS)
   add_subdirectory(docs)
 
   add_custom_target(codespell
     COMMAND codespell
-        ${CANOPEN_SOURCE_DIR}/include/
-        ${CANOPEN_SOURCE_DIR}/docs/
-        ${CANOPEN_SOURCE_DIR}/src/
-        ${CANOPEN_SOURCE_DIR}/test/
+        ${COPEN_SOURCE_DIR}/include/
+        ${COPEN_SOURCE_DIR}/docs/
+        ${COPEN_SOURCE_DIR}/src/
+        ${COPEN_SOURCE_DIR}/test/
         --skip *_build*
     COMMENT "Running spell check on source code"
     )
@@ -212,6 +219,8 @@ endif()
 
 
 include (InstallRequiredSystemLibraries)
-set (CPACK_RESOURCE_FILE_LICENSE "${CANOPEN_SOURCE_DIR}/LICENSE.md")
-set (CPACK_PACKAGE_CONTACT info.canopen@rt-labs.com)
+set (CPACK_RESOURCE_FILE_LICENSE "${COPEN_SOURCE_DIR}/LICENSE.md")
+set (CPACK_PACKAGE_CONTACT info.copen@rt-labs.com)
+set (CPACK_PACKAGE_NAME c-open)
+set (CPACK_SYSTEM_NAME ${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR})
 include (CPack)
