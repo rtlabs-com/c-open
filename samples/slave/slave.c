@@ -237,14 +237,24 @@ int slave_init (const char * canif, int bitrate)
       return -1;
    }
 
+   printf ("Inited\n");
+
    /* Wait a while, then generate error and emergency */
    os_usleep (5 * 1000);
+   printf ("Generating emergency\n");
    co_error_set (client, CO_ERR_MANUFACTURER);
    co_emcy_issue (client, 0x1000, 0x1234, NULL);
 
    /* Clear the error */
    os_usleep (5 * 1000);
+   printf ("Clearing emergency\n");
    co_error_clear (client, CO_ERR_MANUFACTURER);
 
+   /* Loop forever */
+   printf ("Waiting for clients\n");
+   for (;;)
+   {
+      os_usleep (1000 * 1000);
+   }
    return 0;
 }
