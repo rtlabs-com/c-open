@@ -166,6 +166,7 @@ TEST_F (EmcyTest, EmcyConsumer)
    uint8_t msef[5] = {0x05, 0x04, 0x03, 0x02, 0x01};
    uint32_t result;
    uint32_t value;
+   int error;
 
    net.emcy.cobids[0] = CO_COBID_INVALID;
 
@@ -173,6 +174,11 @@ TEST_F (EmcyTest, EmcyConsumer)
    value  = 0x81;
    result = co_od1028_fn (&net, OD_EVENT_WRITE, obj1028, NULL, 1, &value);
    EXPECT_EQ (0u, result);
+
+   // Should ignore too small message
+   error = co_emcy_rx (&net, 0x81, emcy, sizeof (emcy) - 1);
+   EXPECT_EQ (-1, error);
+   EXPECT_EQ (0u, cb_emcy_calls);
 
    // Should call cb_emcy with emergency for node 1
    co_emcy_rx (&net, 0x81, emcy, sizeof (emcy));

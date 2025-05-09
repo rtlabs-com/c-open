@@ -529,8 +529,8 @@ static int co_sdo_rx_download_seg_req (
 int co_sdo_rx (co_net_t * net, uint8_t node, void * msg, size_t dlc)
 {
    uint8_t * data = (uint8_t *)msg;
-   uint8_t type   = data[0];
-   uint8_t ccs    = CO_SDO_xCS (type);
+   uint8_t type;
+   uint8_t ccs;
 
    /* Check for correct node id */
    if (node != net->node)
@@ -548,6 +548,9 @@ int co_sdo_rx (co_net_t * net, uint8_t node, void * msg, size_t dlc)
       co_sdo_abort (net, 0x580 + net->node, 0, 0, CO_SDO_ABORT_GENERAL);
       return -1;
    }
+
+   type = data[0];
+   ccs  = CO_SDO_xCS (type);
 
    /* Check response type */
    switch (ccs)

@@ -296,6 +296,9 @@ int co_emcy_rx (co_net_t * net, uint32_t id, uint8_t * msg, size_t dlc)
    uint8_t msef[5];
    int ix;
 
+   if (dlc != 8)
+      return -1;
+
    for (ix = 0; ix < MAX_EMCY_COBIDS; ix++)
    {
       uint32_t cobid = net->emcy.cobids[ix];

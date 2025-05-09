@@ -190,23 +190,24 @@ void co_nmt_init (co_net_t * net)
 
 int co_nmt_rx (co_net_t * net, uint32_t id, uint8_t * msg, size_t dlc)
 {
-   co_nmt_cmd_t cmd = msg[0];
-   uint8_t node     = msg[1];
+   co_nmt_cmd_t cmd;
+   uint8_t node;
    co_fsm_event_t event;
 
    /* Check ID */
    if (id != 0)
       return -1;
 
+   /* Check size */
+   if (dlc != 2)
+      return -1;
+
+   cmd  = msg[0];
+   node = msg[1];
+
    /* Check recipient */
    if (node != 0 && node != net->node)
       return -1;
-
-   if (dlc != 2)
-   {
-      /* Ignore bad message */
-      return -1;
-   }
 
    switch (cmd)
    {

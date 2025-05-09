@@ -82,11 +82,15 @@ int os_channel_receive (
 {
    canStatus status;
    unsigned int flags;
+   long id_api;
+   unsigned int dlc_api;
 
-   status = canRead (channel->handle, id, data, dlc, &flags, NULL);
+   status = canRead (channel->handle, &id_api, data, &dlc_api, &flags, NULL);
    if (status < canOK)
       return status;
 
+   *dlc = (size_t)dlc_api;
+   *id = (uint32_t)(unsigned long)id_api;
    *id |= (flags & canMSG_RTR) ? CO_RTR_MASK : 0;
    *id |= (flags & canMSG_EXT) ? CO_EXT_MASK : 0;
 

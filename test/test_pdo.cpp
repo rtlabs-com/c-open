@@ -573,6 +573,24 @@ TEST_F (PdoTest, SyncStart)
    EXPECT_EQ (2u, mock_os_channel_send_calls);
 }
 
+TEST_F (PdoTest, SyncTooShort)
+{
+   uint8_t counter;
+
+   net.state = STATE_OP;
+
+   // cyclic, every sync, sync_start 1
+   net.sync.overflow               = 3;
+   net.pdo_tx[0].transmission_type = 1;
+   net.pdo_tx[0].sync_start        = 1;
+   net.pdo_tx[0].sync_wait         = 1;
+
+   // Should ignore, sync would match but message size is zero
+   counter = 1;
+   co_pdo_sync (&net, &counter, 0);
+   EXPECT_EQ (0u, mock_os_channel_send_calls);
+}
+
 TEST_F (PdoTest, RxTooShort)
 {
    uint8_t pdo[][3] = {

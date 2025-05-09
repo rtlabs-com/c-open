@@ -424,13 +424,15 @@ static void co_lss_identify_remote (co_net_t * net, uint8_t * msg)
 
 int co_lss_rx (co_net_t * net, uint32_t id, uint8_t * msg, size_t dlc)
 {
-   uint8_t cmd = msg[0];
+   uint8_t cmd;
 
    if (id != 0x7E5)
       return -1;
 
    if (dlc != 8)
       return -1;
+
+   cmd = msg[0];
 
    switch (cmd)
    {

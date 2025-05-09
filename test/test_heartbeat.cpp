@@ -100,9 +100,20 @@ TEST_F (HeartbeatTest, HeartbeatProducer)
 TEST_F (HeartbeatTest, HeartbeatConsumer)
 {
    uint8_t heartbeat = 5;
+   int error;
 
    net.heartbeat[0].node = 1;
    net.heartbeat[0].time = 1000;
+
+   // Should ignore too small message
+   error = co_heartbeat_rx (&net, 1, &heartbeat, 0);
+   EXPECT_EQ (-1, error);
+   EXPECT_EQ (0u, cb_heartbeat_state_calls);
+
+   // Should ignore too large message
+   error = co_heartbeat_rx (&net, 1, &heartbeat, 2);
+   EXPECT_EQ (-1, error);
+   EXPECT_EQ (0u, cb_heartbeat_state_calls);
 
    // Receive heartbeat within timer window
    mock_os_tick_current_result = 500 * 1000;

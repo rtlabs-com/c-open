@@ -105,6 +105,9 @@ int co_heartbeat_rx (co_net_t * net, uint8_t node, void * msg, size_t dlc)
 {
    int ix;
 
+   if (dlc != 1)
+      return -1;
+
    co_bitmap_set (net->nodes, node);
 
    for (ix = 0; ix < MAX_HEARTBEATS; ix++)

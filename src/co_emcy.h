@@ -62,7 +62,7 @@ int co_emcy_tx (co_net_t * net, uint16_t code, uint16_t info, uint8_t msef[5]);
  * @param msg           CAN message
  * @param dlc           size of CAN message
  *
- * @return 0 always
+ * @return 0 on success, -1 on failure
  */
 int co_emcy_rx (co_net_t * net, uint32_t node, uint8_t * msg, size_t dlc);
 

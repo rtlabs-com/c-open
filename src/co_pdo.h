@@ -75,7 +75,7 @@ void co_pdo_mapping_init (co_net_t * net);
  * @param msg           CAN message
  * @param dlc           size of CAN message
  *
- * @return 0 always
+ * @return 0 on success, -1 on failure
  */
 int co_pdo_sync (co_net_t * net, uint8_t * msg, size_t dlc);
 

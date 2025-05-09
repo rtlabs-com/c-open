@@ -40,7 +40,7 @@ extern "C" {
  * @param msg           CAN message
  * @param dlc           size of CAN message
  *
- * @return 0 always
+ * @return 0 on success, -1 on failure
  */
 int co_heartbeat_rx (co_net_t * net, uint8_t node, void * msg, size_t dlc);
 

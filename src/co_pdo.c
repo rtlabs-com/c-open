@@ -723,7 +723,12 @@ int co_pdo_sync (co_net_t * net, uint8_t * msg, size_t dlc)
             }
             else if (IS_CYCLIC (pdo->sync_start))
             {
-               uint8_t counter = co_fetch_uint8 (msg);
+               uint8_t counter;
+
+               if (dlc != 1)
+                  continue;
+
+               counter = co_fetch_uint8 (msg);
                if (counter == pdo->sync_start)
                {
                   /* SYNC counter wait, this is the first SYNC message */
