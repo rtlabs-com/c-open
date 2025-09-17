@@ -181,7 +181,8 @@ TEST_F (EmcyTest, EmcyConsumer)
    EXPECT_EQ (0u, cb_emcy_calls);
 
    // Should call cb_emcy with emergency for node 1
-   co_emcy_rx (&net, 0x81, emcy, sizeof (emcy));
+   error = co_emcy_rx (&net, 0x81, emcy, sizeof (emcy));
+   EXPECT_EQ (0, error);
    EXPECT_EQ (1u, cb_emcy_calls);
    EXPECT_EQ (1u, cb_emcy_node);
    EXPECT_EQ (0x8130u, cb_emcy_code);

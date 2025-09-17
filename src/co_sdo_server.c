@@ -17,7 +17,6 @@
 #define os_tick_current    mock_os_tick_current
 #define os_tick_from_us    mock_os_tick_from_us
 #define os_channel_send    mock_os_channel_send
-#define os_channel_receive mock_os_channel_receive
 #define co_obj_find        mock_co_obj_find
 #define co_entry_find      mock_co_entry_find
 #endif
@@ -223,7 +222,7 @@ static int co_sdo_rx_upload_init_req (
       p = co_put_uint8 (p, scs);
       p = co_put_uint16 (p, job->sdo.index);
       p = co_put_uint8 (p, job->sdo.subindex);
-      co_put_uint32 (p, job->sdo.remain);
+      co_put_uint32 (p, (uint32_t) job->sdo.remain);
    }
 
    os_channel_send (net->channel, 0x580 + net->node, msg, sizeof (msg));

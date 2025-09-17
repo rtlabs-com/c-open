@@ -14,15 +14,10 @@
  ********************************************************************/
 
 #ifdef UNIT_TEST
-#define os_usleep              mock_os_usleep
 #define os_thread_create       mock_os_thread_create
 #define os_channel_open        mock_os_channel_open
 #define os_channel_send        mock_os_channel_send
 #define os_channel_receive     mock_os_channel_receive
-#define os_channel_set_bitrate mock_os_channel_set_bitrate
-#define os_channel_set_filter  mock_os_channel_set_filter
-#define os_channel_bus_on      mock_os_channel_bus_on
-#define os_channel_bus_off     mock_os_channel_bus_off
 #endif
 
 #include "co_main.h"
@@ -43,7 +38,7 @@
 
 #define IS_PDO(f) ((f) >= CO_FUNCTION_PDO1_TX && (f) <= CO_FUNCTION_PDO4_RX)
 
-void co_handle_rx (co_net_t * net)
+static void co_handle_rx (co_net_t * net)
 {
    int status;
    uint32_t id;
@@ -96,7 +91,7 @@ void co_handle_rx (co_net_t * net)
    } while (status == 0);
 }
 
-void co_handle_periodic (co_net_t * net)
+static void co_handle_periodic (co_net_t * net)
 {
    os_tick_t now = os_tick_current();
 
@@ -108,7 +103,7 @@ void co_handle_periodic (co_net_t * net)
    co_node_guard_timer (net, now);
 }
 
-void co_main (void * arg)
+static void co_main (void * arg)
 {
    co_net_t * net = arg;
    co_job_t * job;

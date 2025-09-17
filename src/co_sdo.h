@@ -93,7 +93,7 @@ int co_sdo_toggle_update (co_job_t * job, uint8_t type);
  * @param msg           CAN message
  * @param dlc           size of CAN message
  *
- * @return 0 always
+ * @return 0 on success, -1 on failure
  */
 int co_sdo_tx (co_net_t * net, uint8_t node, void * msg, size_t dlc);
 
@@ -109,7 +109,7 @@ int co_sdo_tx (co_net_t * net, uint8_t node, void * msg, size_t dlc);
  * @param msg           CAN message
  * @param dlc           size of CAN message
  *
- * @return 0 always
+ * @return 0 on success, -1 on failure
  */
 int co_sdo_rx (co_net_t * net, uint8_t node, void * msg, size_t dlc);
 

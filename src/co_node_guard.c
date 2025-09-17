@@ -15,7 +15,6 @@
 
 #ifdef UNIT_TEST
 #define os_channel_send        mock_os_channel_send
-#define os_channel_receive     mock_os_channel_receive
 #define os_tick_current        mock_os_tick_current
 #define os_tick_from_us        mock_os_tick_from_us
 #endif

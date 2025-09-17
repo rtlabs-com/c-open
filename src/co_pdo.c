@@ -83,7 +83,7 @@ void co_pdo_pack (co_net_t * net, co_pdo_t * pdo)
    {
       const co_entry_t * entry = pdo->entries[ix];
       const co_obj_t * obj     = pdo->objs[ix];
-      size_t bitlength         = pdo->mappings[ix] & 0xFF;
+      uint8_t bitlength        = pdo->mappings[ix] & 0xFF;
       uint8_t subindex         = (pdo->mappings[ix] >> 8) & 0xFF;
       uint64_t value           = 0;
 
@@ -106,7 +106,7 @@ void co_pdo_unpack (co_net_t * net, co_pdo_t * pdo)
    {
       const co_entry_t * entry = pdo->entries[ix];
       const co_obj_t * obj     = pdo->objs[ix];
-      size_t bitlength         = pdo->mappings[ix] & 0xFF;
+      uint8_t bitlength        = pdo->mappings[ix] & 0xFF;
       uint8_t subindex         = (pdo->mappings[ix] >> 8) & 0xFF;
       uint64_t value;
 
@@ -670,7 +670,7 @@ void co_pdo_trigger_with_obj (co_net_t * net, uint16_t index, uint8_t subindex)
       co_pdo_t * pdo = &net->pdo_tx[ix];
       if (pdo->cobid & CO_COBID_INVALID)
          continue;
-         
+
       for (n = 0; n < pdo->number_of_mappings; n++)
       {
          if (pdo->entries[n] == entry)

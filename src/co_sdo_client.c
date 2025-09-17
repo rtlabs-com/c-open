@@ -15,9 +15,6 @@
 
 #ifdef UNIT_TEST
 #define os_channel_send    mock_os_channel_send
-#define os_channel_receive mock_os_channel_receive
-#define co_obj_find        mock_co_obj_find
-#define co_entry_find      mock_co_entry_find
 #define os_tick_from_us    mock_os_tick_from_us
 #endif
 
@@ -57,7 +54,7 @@ static int co_sdo_tx_upload_init_rsp (
       job->sdo.remain -= size;
       job->sdo.total += size;
 
-      job->result = job->sdo.total; /* actual size */
+      job->result = (int) job->sdo.total; /* actual size */
       co_sdo_done (net);
       return 1;
    }
@@ -113,7 +110,7 @@ static int co_sdo_tx_upload_seg_rsp (
    /* Complete if c = 1 */
    if (type & CO_SDO_C)
    {
-      job->result = job->sdo.total;
+      job->result = (int) job->sdo.total;
       co_sdo_done (net);
       return 1;
    }
@@ -142,7 +139,7 @@ static int co_sdo_tx_download_init_rsp (
    if (job->sdo.remain == 0)
    {
       /* Complete */
-      job->result = job->sdo.total;
+      job->result = (int) job->sdo.total;
       co_sdo_done (net);
       return 1;
    }
@@ -195,7 +192,7 @@ static int co_sdo_tx_download_seg_rsp (
    if (job->sdo.remain == 0)
    {
       /* Complete */
-      job->result = job->sdo.total;
+      job->result = (int) job->sdo.total;
       co_sdo_done (net);
       return 1;
    }
@@ -299,7 +296,7 @@ void co_sdo_issue (co_net_t * net, co_job_t * job)
       msg[0] = CO_SDO_CCS_DOWNLOAD_INIT_REQ;
       if (job->sdo.remain <= 4)
       {
-         int n = 4 - job->sdo.remain;
+         int n = 4 - (int) job->sdo.remain;
          msg[0] |= (n << 2) | CO_SDO_E | CO_SDO_S;
          memcpy (&msg[4], job->sdo.data, job->sdo.remain);
          job->sdo.total  = job->sdo.remain;
@@ -308,7 +305,7 @@ void co_sdo_issue (co_net_t * net, co_job_t * job)
       else
       {
          msg[0] |= CO_SDO_S;
-         co_put_uint32 (&msg[4], job->sdo.remain);
+         co_put_uint32 (&msg[4], (uint32_t) job->sdo.remain);
       }
    }
 

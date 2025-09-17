@@ -51,8 +51,7 @@ int mock_os_channel_receive (
    os_channel_t * channel,
    uint32_t * id,
    uint8_t * data,
-   size_t * dlc,
-   int tmo);
+   size_t * dlc);
 
 extern unsigned int mock_os_channel_bus_off_calls;
 int mock_os_channel_bus_off (os_channel_t * channel);

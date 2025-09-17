@@ -54,6 +54,7 @@ TEST_F (SdoClientTest, ExpeditedUpload)
    EXPECT_EQ (NELEMENTS (expected), mock_os_channel_send_calls);
 
    EXPECT_EQ (4u, job.sdo.total);
+   EXPECT_EQ (4, job.result);
 }
 
 TEST_F (SdoClientTest, ExpeditedDownload)
@@ -85,6 +86,7 @@ TEST_F (SdoClientTest, ExpeditedDownload)
    EXPECT_EQ (NELEMENTS (expected), mock_os_channel_send_calls);
 
    EXPECT_EQ (2u, job.sdo.total);
+   EXPECT_EQ (2, job.result);
 }
 
 TEST_F (SdoClientTest, SegmentedUpload)
@@ -132,6 +134,7 @@ TEST_F (SdoClientTest, SegmentedUpload)
    EXPECT_EQ (NELEMENTS (expected), mock_os_channel_send_calls);
 
    EXPECT_EQ (16u, job.sdo.total);
+   EXPECT_EQ (16, job.result);
 }
 
 TEST_F (SdoClientTest, SegmentedDownload)
@@ -175,4 +178,5 @@ TEST_F (SdoClientTest, SegmentedDownload)
    EXPECT_EQ (NELEMENTS (expected), mock_os_channel_send_calls);
 
    EXPECT_EQ (strlen (s), job.sdo.total);
+   EXPECT_EQ ((int)strlen (s), job.result);
 }

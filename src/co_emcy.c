@@ -88,8 +88,10 @@ uint32_t co_od1001_fn (
    uint8_t subindex,
    uint32_t * value)
 {
-   if (event == OD_EVENT_READ)
-      *value = co_emcy_error_register_get (net);
+   if (event != OD_EVENT_READ)
+      return CO_SDO_ABORT_ACCESS_RO;
+
+   *value = co_emcy_error_register_get (net);
    return 0;
 }
 

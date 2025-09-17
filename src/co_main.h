@@ -216,7 +216,7 @@ typedef struct co_emcy
 {
    uint32_t cobid;                   /**< EMCY COB ID */
    os_tick_t timestamp;               /**< Timestamp of last EMCY */
-   uint32_t bus_off_timestamp;       /**< Timestamp of bus-off event */
+   os_tick_t bus_off_timestamp;      /**< Timestamp of bus-off event */
    uint16_t inhibit;                 /**< Inhibit time [100 us] */
    uint8_t error;                    /**< Error register */
    os_channel_state_t state;         /**< CAN state */
@@ -262,44 +262,17 @@ struct co_net
    void * cb_arg;                            /**< Callback opaque argument */
    uint32_t mbox_overrun; /**< Mailbox overruns (for debugging) */
 
-   /** Reset callback */
-   void (*cb_reset) (co_net_t * net);
-
-   /** NMT callback */
-   void (*cb_nmt) (co_net_t * net, co_state_t state);
-
-   /** SYNC callback */
-   void (*cb_sync) (co_net_t * net);
-
-   /** EMCY callback */
-   bool (*cb_emcy) (
-      co_net_t * net,
-      uint8_t node,
-      uint16_t code,
-      uint8_t reg,
-      uint8_t msef[5]);
-
-   /** Notify callback */
-   void (*cb_notify) (co_net_t * net, uint16_t index, uint8_t subindex);
-
-   /** Heartbeat node state change callback */
-   void (*cb_heartbeat_state) (
-      co_net_t * net,
-      uint8_t node,
-      uint8_t old_state,
-      uint8_t new_state);
-
-   /** Function to open dictionary store */
-   void * (*open) (co_store_t store, co_mode_t mode);
-
-   /** Function to read from dictionary store */
-   int (*read) (void * arg, void * data, size_t size);
-
-   /** Function to write to dictionary store */
-   int (*write) (void * arg, const void * data, size_t size);
-
-   /** Function to close dictionary store */
-   int (*close) (void * arg);
+   co_reset_fn cb_reset;         /** Reset callback */
+   co_nmt_fn cb_nmt;             /** NMT callback */
+   co_sync_fn cb_sync;           /** SYNC callback */
+   co_emcy_fn cb_emcy;           /** EMCY callback */
+   co_notify_fn cb_notify;       /** Notify callback */
+   co_heartbeat_state_fn cb_heartbeat_state; /** Heartbeat node state change
+                                                 callback */
+   co_open_fn open;              /** Function to open dictionary store */
+   co_read_fn read;              /** Function to read from dictionary store */
+   co_write_fn write;            /** Function to write to dictionary store */
+   co_close_fn close;            /** Function to close dictionary store */
 };
 
 #ifdef __cplusplus

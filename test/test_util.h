@@ -138,7 +138,7 @@ class TestBase : public ::testing::Test
    uint8_t value6003_08;
    uint32_t value6003_09;
    uint8_t value6003_0A;
-   uint64_t value6003_0B __attribute__ ((aligned (8)));
+   uint64_t value6003_0B alignas (8);
    const co_entry_t OD6003[12] = {
       {0x00, OD_RW, DTYPE_UNSIGNED8, 8, 0x0B, NULL},
       // Pack

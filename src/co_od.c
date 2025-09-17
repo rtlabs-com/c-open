@@ -218,7 +218,7 @@ uint32_t co_od_set_value (
    if (obj->access)
    {
       uint32_t result;
-      uint32_t v = value;
+      uint32_t v = (uint32_t) value;
 
       result = obj->access (net, OD_EVENT_WRITE, obj, entry, subindex, &v);
       co_od_notify (net, obj, entry, subindex);
@@ -375,7 +375,7 @@ uint32_t co_od_load (co_net_t * net, co_store_t store)
       uint8_t subindex;
       size_t size;
       uint64_t value = 0;
-      uint8_t * ptr;
+      uint8_t * ptr = NULL;
       uint32_t abort;
 
       if (net->read (arg, &index, sizeof (index)) < 0)
@@ -499,7 +499,7 @@ uint32_t co_od_store (co_net_t * net, co_store_t store, uint16_t min, uint16_t m
          {
             size_t size = CO_BYTELENGTH (entry->bitlength);
             uint64_t value;
-            uint8_t * ptr;
+            uint8_t * ptr = NULL;
             uint32_t abort;
 
             /* Write index */

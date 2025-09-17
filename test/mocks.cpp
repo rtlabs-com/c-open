@@ -58,11 +58,9 @@ int mock_os_channel_receive (
    os_channel_t * channel,
    uint32_t * id,
    uint8_t * data,
-   size_t * dlc,
-   int tmo)
+   size_t * dlc)
 {
    (void)channel;
-   (void)tmo;
    mock_os_channel_receive_calls++;
    *id  = mock_os_channel_receive_id;
    *dlc = mock_os_channel_receive_dlc;
