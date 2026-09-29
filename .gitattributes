@@ -15,3 +15,11 @@
 *.PDF	 diff=astextplain
 *.rtf	 diff=astextplain
 *.RTF	 diff=astextplain
+
+/.docker export-ignore
+/.github export-ignore
+/.git* export-ignore
+/.jenkins export-ignore
+/.mutilatorrc export-ignore
+/docs export-ignore
+/scripts export-ignore

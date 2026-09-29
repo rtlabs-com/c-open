@@ -260,3 +260,35 @@ TEST_F (LssTest, Persistence)
    EXPECT_EQ (0x42u, co_lss_get_persistent_node_id (&net));
    EXPECT_EQ (125 * 1000, co_lss_get_persistent_bitrate (&net));
 }
+
+TEST_F (LssTest, Bad1018)
+{
+   const co_entry_t bad1018[5] = {
+      {0, OD_RO, DTYPE_UNSIGNED8, 8, 4, NULL},
+      // Subindex 1 not present
+      {2, OD_RO, DTYPE_UNSIGNED32, 32, 2, NULL},
+      {3, OD_RO, DTYPE_UNSIGNED32, 32, 3, NULL},
+      {4, OD_RO, DTYPE_UNSIGNED32, 32, 4, NULL},
+   };
+   const co_obj_t bad_od[37] = {
+      {0x1018, OTYPE_RECORD, 4, bad1018, NULL},
+      {0, OTYPE_NULL, 0, NULL, NULL},
+   };
+   net.od = bad_od;
+   net.lss.identity = co_obj_find (&net, 0x1018);
+
+   // Should substitute UINT32_MAX for missing subindex 1
+   uint8_t command[][8] = {
+      {0x40, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00},
+      {0x41, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
+      {0x42, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
+      {0x43, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
+   };
+
+   // Should find device
+   for (int ix = 0; ix < 4; ix++)
+   {
+      co_lss_rx (&net, 0x7E5, command[ix], 8);
+   }
+   EXPECT_EQ (1u, mock_os_channel_send_calls);
+}

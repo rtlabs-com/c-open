@@ -254,7 +254,10 @@ int slave_init (const char * canif, int bitrate)
    printf ("Waiting for clients\n");
    for (;;)
    {
-      os_usleep (1000 * 1000);
+      os_usleep (10 * 1000);
+
+      /* Simulate acyclic event triggering PDO */
+      co_pdo_event (client);
    }
    return 0;
 }

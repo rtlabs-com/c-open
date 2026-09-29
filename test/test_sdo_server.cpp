@@ -158,6 +158,38 @@ TEST_F (SdoServerTest, SegmentedDownloadCached)
    }
 }
 
+TEST_F (SdoServerTest, SegmentedMaliciuous)
+{
+   uint8_t expected[][8] = {
+      // Upload init success
+      {0x41, 0x08, 0x10, 0x00, 0x09, 0x00, 0x00, 0x00},
+      // SDO abort access
+      {0x80, 0x08, 0x10, 0x00, 0x00, 0x00, 0x01, 0x06},
+      // SDO abort access
+      {0x80, 0x08, 0x10, 0x00, 0x00, 0x00, 0x01, 0x06},
+   };
+   uint8_t command[][8] = {
+      // Upload init to RO object
+      {0x40, 0x08, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00},
+      // Download segmented to RO object
+      {0x00, 0x6e, 0x65, 0x77, 0x20, 0x73, 0x6c, 0x61},
+      {0x11, 0x76, 0x65, 0x20, 0x6e, 0x61, 0x6d, 0x65},
+   };
+
+   mock_co_obj_find_result   = find_obj (0x1008);
+   mock_co_entry_find_result = find_entry (mock_co_obj_find_result, 0);
+
+   for (size_t i = 0; i < NELEMENTS (command); i++)
+   {
+      co_sdo_rx (&net, 1, command[i], 8);
+      EXPECT_TRUE (CanMatch (0x581, expected[i], 8));
+   }
+
+   // Should not trigger update
+   EXPECT_STREQ ("new slave", name1008);
+   EXPECT_EQ (0u, cb_notify_calls);
+}
+
 TEST_F (SdoServerTest, SegmentedTimeout)
 {
    uint8_t expected[][8] = {

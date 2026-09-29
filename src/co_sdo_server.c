@@ -241,6 +241,17 @@ static int co_sdo_rx_upload_seg_req (
    uint8_t * p    = msg;
    uint8_t scs;
 
+   if (job->type != CO_JOB_SDO_UPLOAD)
+   {
+      co_sdo_abort (
+         net,
+         0x580 + net->node,
+         job->sdo.index,
+         job->sdo.subindex,
+         CO_SDO_ABORT_ACCESS);
+      return -1;
+   }
+
    /* Check toggle protocol */
    error = co_sdo_toggle_update (job, type);
    if (error < 0)
@@ -439,6 +450,17 @@ static int co_sdo_rx_download_seg_req (
    int error;
    size_t size;
    uint8_t scs;
+
+   if (job->type != CO_JOB_SDO_DOWNLOAD)
+   {
+      co_sdo_abort (
+         net,
+         0x580 + net->node,
+         job->sdo.index,
+         job->sdo.subindex,
+         CO_SDO_ABORT_ACCESS);
+      return -1;
+   }
 
    /* Check toggle protocol */
    error = co_sdo_toggle_update (job, type);

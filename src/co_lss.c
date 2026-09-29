@@ -109,6 +109,11 @@ static uint32_t co_lss_identity_get (co_net_t * net, uint8_t subindex)
    const co_entry_t * entry;
 
    entry = co_entry_find (net, net->lss.identity, subindex);
+   if (entry == NULL)
+   {
+      return UINT32_MAX;
+   }
+
    co_od_get_value (net, net->lss.identity, entry, subindex, &value);
    return value & UINT32_MAX;
 }
@@ -335,10 +340,8 @@ static void co_lss_switch_selective (co_net_t * net, uint8_t * msg)
 
 static void co_lss_inquire_identity (co_net_t * net, uint8_t * _msg)
 {
-   uint8_t cmd     = _msg[0];
-   uint8_t request = cmd - CS_INQUIRE_IDENTITY_VENDOR_ID;
-   uint64_t value;
-   const co_entry_t * entry;
+   uint8_t cmd = _msg[0];
+   uint32_t value;
    uint8_t msg[8] = {0};
    uint8_t * p;
 
@@ -346,20 +349,25 @@ static void co_lss_inquire_identity (co_net_t * net, uint8_t * _msg)
    if (net->lss.state != LSS_STATE_CONFIG)
       return;
 
-   /* Get value for this request */
+   /* Ignore invalid command */
+   if (cmd < CS_INQUIRE_IDENTITY_VENDOR_ID || cmd > CS_INQUIRE_IDENTITY_NODE_ID)
+   {
+      return;
+   }
+
    if (cmd == CS_INQUIRE_IDENTITY_NODE_ID)
    {
       value = net->node;
    }
    else
    {
-      entry = co_entry_find (net, net->lss.identity, request + 1);
-      co_od_get_value (net, net->lss.identity, entry, request + 1, &value);
+      uint8_t request = cmd - CS_INQUIRE_IDENTITY_VENDOR_ID;
+      value = co_lss_identity_get (net, request + 1);
    }
 
    /* Send response */
    p = co_put_uint8 (msg, cmd);
-   co_put_uint32 (p, value & UINT32_MAX);
+   co_put_uint32 (p, value);
    os_channel_send (net->channel, 0x7E4, msg, sizeof (msg));
 }
 
@@ -555,4 +563,13 @@ void co_lss_init (co_net_t * net)
    net->lss.state    = LSS_STATE_WAITING;
    net->lss.identity = co_obj_find (net, 0x1018);
    net->lss.match    = 0;
+
+   /* Identity object is required */
+   CC_ASSERT (net->lss.identity != NULL);
+
+   /* All subindexes must be present */
+   CC_ASSERT (co_entry_find (net, net->lss.identity, 1) != NULL);
+   CC_ASSERT (co_entry_find (net, net->lss.identity, 2) != NULL);
+   CC_ASSERT (co_entry_find (net, net->lss.identity, 3) != NULL);
+   CC_ASSERT (co_entry_find (net, net->lss.identity, 4) != NULL);
 }
